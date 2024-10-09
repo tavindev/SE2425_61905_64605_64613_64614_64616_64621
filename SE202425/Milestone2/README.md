@@ -1,4 +1,5 @@
 # Milestone 2
+Note: All artefacts should have a clearly visible indication of who authored them and who reviewed them.
 ## Design patterns identification
 The team members should produce a report with a collection of design patterns identified
 within the code base. The design patterns shall be identified from those discussed in class. The
