@@ -2,6 +2,23 @@
     <img src="worldedit-logo.svg" alt="WorldEdit" width="400" /> 
 </h1>
 
+## Software Engineering 2024/2025
+
+Student number - Student name
+
+Student number - Student name
+
+Student number - Student name
+
+Student number - Student name
+
+Student number - Student name
+
+Student number - Student name
+
+All the Software Engineering 2024/2025 project documentation is placed under the folder SE202425.
+
+## About WorldEdit
 **A Minecraft Map Editor... that runs in-game!**
 
 * With selections, schematics, copy and paste, brushes, and scripting!
