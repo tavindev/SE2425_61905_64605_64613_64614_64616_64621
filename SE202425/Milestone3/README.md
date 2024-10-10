@@ -3,10 +3,13 @@
 
 Implement the user stories in the Java code. Be careful not to introduce code smells in the new code. 
 The new code should also include the respective unit tests introduced in the classes.
-The output of this activity includes:
-- The user stories specifying the new functionalities. User Stories for the proposed extensions of the WorldEdit tool, along with a summary description of all the actors and use cases involved. For the use cases, please provide the name, description, and actors (both primary and secondary).
-- The source code of a running project with the new functionalities plus respective unit tests - this is directly integrated in the code base of the project.
-- Your report should also briefly identify where the implementation was done (including an identification of the commits to the repository).
+
+- The updated user stories specifying the new functionalities that were implemented. (updated from milestone 1)
+- Use cases (based on the implemented user stories) for the extensions of the WorldEdit tool. The use cases should include a diagram and a textual specification, following the template introduced in the lectures.
+- One class diagram for each of the use cases, summarising the implemented or changed classes.
+- One sequence diagram illustrating each of the implemented use cases.
+- The source code of the running project with the new functionalities plus respective unit tests - this is directly integrated into the code base of the project.
+- Tour report should also briefly identify where the implementation was done (including an identification of the commits to the repository)
 
 The work should be fairly distributed among each team member (it can be divided among responsible sub-teams).
 
