@@ -4,17 +4,17 @@
 
 ## Software Engineering 2024/2025
 
-Student number - Student name
+Student number - Student name - github identifier
 
-Student number - Student name
+Student number - Student name - github identifier
 
-Student number - Student name
+Student number - Student name - github identifier
 
-Student number - Student name
+Student number - Student name - github identifier
 
-Student number - Student name
+Student number - Student name - github identifier
 
-Student number - Student name
+Student number - Student name - github identifier
 
 All the Software Engineering 2024/2025 project documentation is placed under the folder SE202425.
 
