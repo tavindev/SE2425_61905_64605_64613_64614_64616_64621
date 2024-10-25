@@ -4,17 +4,17 @@
 
 ## Software Engineering 2024/2025
 
-Student number - Student name - github identifier
+64616 - Gustaco Chevrand - tavindev
 
-Student number - Student name - github identifier
+64614 - Pedro Amorim - amorim-dm
 
-Student number - Student name - github identifier
+64621 - Rodrigo Castro - rmacastro
 
-Student number - Student name - github identifier
+64613 - Lucas Tobias - TobiasL10
 
-Student number - Student name - github identifier
+64605 - Rildo Franco - rildo691
 
-Student number - Student name - github identifier
+61905 - Nicolas Nascimento - NicolassCN
 
 All the Software Engineering 2024/2025 project documentation is placed under the folder SE202425.
 
