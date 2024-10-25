@@ -3,7 +3,7 @@
 2024-10-21 - 2024-10-25
 
 ## Scrum master
-Student name
+Rildo Franco
 
 ## Management info
 Burndown chart

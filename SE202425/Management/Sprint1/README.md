@@ -3,7 +3,7 @@
 2024-10-10 - 2024-10-18
 
 ## Scrum master
-Student name
+Gustavo Chevrand
 
 ## Management info
 - Burndown chart
