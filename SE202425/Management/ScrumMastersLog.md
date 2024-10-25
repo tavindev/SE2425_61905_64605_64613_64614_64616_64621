@@ -1,6 +1,6 @@
 # Scrum masters log
-1. student name 1
-2. 
+1. Gustavo Chevrand
+2. Rildo Franco
 3.
 4.
 5.
