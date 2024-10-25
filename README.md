@@ -4,7 +4,7 @@
 
 ## Software Engineering 2024/2025
 
-64616 - Gustaco Chevrand - tavindev
+64616 - Gustavo Chevrand - tavindev
 
 64614 - Pedro Amorim - amorim-dm
 
