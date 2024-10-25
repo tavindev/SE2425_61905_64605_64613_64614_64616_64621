@@ -9,4 +9,4 @@ Rodrigo Castro
 ## Reviewer(s)
 Add reviewer(s) here
 # User story
-As a WorldEdit user, I want to be able to edit areas where my WorldEdit Brush was previously used, instead of having to redo everything, so that I can revert or adjust parts of my build more quickly.
+As a user, I want to be able to edit areas where I previously used the brush, instead of having to redo everything, so that I can revert or adjust parts of my build more quickly.

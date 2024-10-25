@@ -8,3 +8,5 @@ Gustavo Chevrand
 ## Management info
 - Burndown chart
 - Scrum board
+
+![alt text](image-1.png)
