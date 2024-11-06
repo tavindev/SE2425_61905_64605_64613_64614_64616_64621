@@ -91,6 +91,8 @@ Tag fromNative(LinTag<?> foreign) {
     }
 ```
 
+![alt text](image.png)
+
 ---
 
 ### 2. Proxy
@@ -162,6 +164,7 @@ private boolean addEntity(Entity entity) {
 }
 ```
 
+![alt text](image-1.png)
 ---
 
 ### 3. Pattern Name
