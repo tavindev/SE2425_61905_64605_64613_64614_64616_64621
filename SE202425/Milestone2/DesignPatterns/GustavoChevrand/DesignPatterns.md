@@ -35,7 +35,9 @@ public class RegionIntersection extends AbstractRegion {
 worldedit-core/src/main/java/com/sk89q/worldedit/regions/AbstractRegion.java
 
 ```java
-public abstract class AbstractRegion implements Region { // ... }
+public abstract class AbstractRegion implements Region {
+   // ...
+}
 ```
 
 worldedit-core/src/main/java/com/sk89q/worldedit/regions/Region.java
@@ -48,6 +50,8 @@ public interface Region extends Iterable<BlockVector3>, Cloneable {
 }
 
 ```
+
+<img width="978" alt="image" src="https://github.com/user-attachments/assets/8fdf9766-d2a7-43dc-8895-12187cfc9ebd">
 
 
 ---
@@ -94,6 +98,8 @@ public abstract class AssetLoader<T>   {
 }
 ```
 
+<img width="793" alt="image" src="https://github.com/user-attachments/assets/213b862c-0cf6-4fb4-9c35-c745e616eb8e">
+
 ---
 
 ### 3. Builder
@@ -138,3 +144,7 @@ public final class EditSessionBuilder {
 }
 
 ```
+
+<img width="1111" alt="image" src="https://github.com/user-attachments/assets/58d179df-958f-4710-8b29-cd56d7f255e1">
+
+
