@@ -14,8 +14,7 @@ The Composite pattern is effectively applied in `RegionIntersection`, allowing a
 ### Specific Comments
 - **Composite Structure**: `RegionIntersection` implements the `Region` interface and holds a list of `Region` objects, which fits well with the Composite pattern’s purpose of treating individual and composite elements uniformly.
 - **getMinimumPoint Method**: The method iterates through each region and compares their minimum points, clearly and correctly aggregating results. The implementation is straightforward and understandable.
-- **Clarity and Efficiency**: The code is clear and easy to follow. It's efficient for a moderate number of regions, but as the dataset grows, performance could be impacted by the sequential comparison of each region's minimum point.
-- **Scalability**: While the current approach works well for small to medium-sized datasets, the performance may degrade with larger collections due to the linear time complexity of the comparison. Optimizations like parallel processing or caching could be considered if scalability becomes a concern.
+- **Clarity and Efficiency**: The code is clear and efficient for a moderate number of regions, but performance may be impacted as the dataset grows.
 
 ---
 
