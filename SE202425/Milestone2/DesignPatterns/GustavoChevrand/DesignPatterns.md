@@ -6,12 +6,16 @@
 
 ### 1. Composite
 
-Line 93 of the file
 worldedit-core/src/main/java/com/sk89q/worldedit/regions/RegionIntersection.java
 
 The class RegionIntersection implements the interface region and has a list of Region objects. The getMinimumPoint method loops through the region objects and calls getMinimumPoint on each of them in order to get the minimum point. 
 
 ```java
+public class RegionIntersection extends AbstractRegion {
+   private final List<Region> regions = new ArrayList<>();
+
+   // ...
+
    @Override
    public BlockVector3 getMinimumPoint() {
        BlockVector3 minimum = regions.get(0).getMinimumPoint();
@@ -20,6 +24,10 @@ The class RegionIntersection implements the interface region and has a list of R
        }
        return minimum;
    }
+
+   // ...
+}
+
 ```
 
 ---
@@ -27,6 +35,8 @@ The class RegionIntersection implements the interface region and has a list of R
 ### 2. Template
 
 worldedit-core/src/main/java/com/sk89q/worldedit/util/asset/AssetLoader.java
+
+The abstract AssetLoader class defines the method getAsset (template method). This method decides the structurev of the algorithm to getAsset and calls two other abstract methods defined by this class: getAllowedExtensions and loadAssetFromPath; which will be implemented by the subclasses that inherit from AssetLoader, i.e, the subclasses will decide how both methods are implemented and how they’ll behave, while maintaining the structure of getAsset.
 
 ```java
 @Beta
@@ -62,11 +72,14 @@ public abstract class AssetLoader<T>   {
 }
 ```
 
-The abstract AssetLoader class defines the method getAsset (template method). This method decides the structurev of the algorithm to getAsset and calls two other abstract methods defined by this class: getAllowedExtensions and loadAssetFromPath; which will be implemented by the subclasses that inherit from AssetLoader, i.e, the subclasses will decide how both methods are implemented and how they’ll behave, while maintaining the structure of getAsset.
-
 ---
 
 ### 3. Builder
+
+worldedit-core/src/main/java/com/sk89q/worldedit/EditSessionBuilder.java
+
+The EditSessionBuilder class facilitates the construction of an EditSession object through a series of steps. It provides builder methods that enable you to modify the properties used to create the object. Subsequently, it offers a build method that returns a valid EditSession object, having all the configuration previously set by the builder methods. This pattern abstracts the object instantiation with the build method and allows you to instance objects without having to specify all attributes.
+  
 
 ```java
 public final class EditSessionBuilder {
@@ -103,6 +116,3 @@ public final class EditSessionBuilder {
 }
 
 ```
-
-The EditSessionBuilder class facilitates the construction of an EditSession object through a series of steps. It provides builder methods that enable you to modify the properties used to create the object. Subsequently, it offers a build method that returns a valid EditSession object, having all the configuration previously set by the builder methods. This pattern abstracts the object instantiation with the build method and allows you to instance objects without having to specify all attributes.
-  
