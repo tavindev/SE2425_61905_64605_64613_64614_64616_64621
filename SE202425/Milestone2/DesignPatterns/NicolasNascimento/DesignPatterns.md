@@ -28,7 +28,7 @@ public void redo(EditSession editSession) {
 }
 ``` 
 
-
+![alt_text](command_dp.png)
 
 ---
 
@@ -106,6 +106,8 @@ if (world != null) {
    this.bypassNone = extent;
 }
 ```
+![alt_text](chain_dp.png)
+
 ---
 
 ### 3. State
@@ -128,6 +130,8 @@ public <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 position, B
    };
 }
 ```
+![alt_text](state_dp.png)
+
 ---
 
 ### Summary
