@@ -14,9 +14,17 @@
     - Location: Constructor parameters and setPermissions method, located at worldedit-bukkit > src > main > java > com > sk89q > bukkit > util > DynamicPluginCommand.java
     - Issue: method use primitive arrays (String[]) for aliases and permissions. This can be improved by using more expressive types, such as collections or custom types, to encapsulate these concepts better.
 
+    ![alt text](image-2.png)
+
+    ![alt text](image-3.png)
+
 3. Data Clumps
     - Location: Methods parameters in worldedit-bukkit > src > main > java > com > sk89q > bukkit > util > DynamicPluginCommand.java
     - Issue: The methods in the bPermissionsResolver class have repeated groups of data items in their parameters, specifically OfflinePlayer player and String player, as well as (String name, String permission). This can be improved by encapsulating these data items into objects to make the code more readable and maintainable.
+
+    ![alt text](image.png)
+    
+    ![alt text](image-1.png)
 
 ---
 
