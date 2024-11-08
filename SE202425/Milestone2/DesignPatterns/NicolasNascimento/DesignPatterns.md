@@ -110,33 +110,43 @@ if (world != null) {
 
 ---
 
-### 3. State
-In line 762 of the file
-worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java
+### 3. Builder
 
-- This code exemplifies the State Pattern by dynamically selecting 
-behavior based on the stage parameter, which represents different states
-(BEFORE_HISTORY, BEFORE_CHANGE, BEFORE_REORDER). Each state invokes a 
-specific setBlock method on different Extent objects
-(bypassNone, bypassHistory, bypassReorderHistory), changing the 
-block-setting behavior based on the current state.
+File in
+worldedit-core/src/main/java/com/sk89q/worldedit/EditSessionBuilder.java
+
+- This whole class exemplifies the builder design pattern, because is used to construct a complex object step by step. It allows step-by-step configuration of an EditSession object with methods like world(), maxBlocks(), actor(), and others to set different properties. Each method returns the builder itself (EditSessionBuilder), supporting method chaining. Finally, the build() method constructs and returns the configured EditSession object. This design encapsulates the construction logic and makes it easier to create complex EditSession objects.
 ```java
-public <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 position, B block, Stage stage) throws WorldEditException {
-   return switch (stage) {
-       case BEFORE_HISTORY -> bypassNone.setBlock(position, block);
-       case BEFORE_CHANGE -> bypassHistory.setBlock(position, block);
-       case BEFORE_REORDER -> bypassReorderHistory.setBlock(position, block);
-       default -> throw new RuntimeException("New enum entry added that is unhandled here");
-   };
+public final class EditSessionBuilder {
+
+    private final EventBus eventBus;
+    private @Nullable World world;
+    private int maxBlocks = -1;
+    private @Nullable Actor actor;
+    private @Nullable BlockBag blockBag;
+    private boolean tracing;
+
+    EditSessionBuilder(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+    
+    (...)
+
+    public EditSession build() {
+        if (WorldEdit.getInstance().getConfiguration().traceUnflushedSessions) {
+            return new TracedEditSession(eventBus, world, maxBlocks, blockBag, actor, tracing);
+        }
+        return new EditSession(eventBus, world, maxBlocks, blockBag, actor, tracing);
+    }
 }
 ```
-![alt_text](state_dp.png)
+![alt_text](builder_dp.png)
 
 ---
 
 ### Summary
 - **Patterns Chosen:** Command, Chain of Responsibility and State
-- **Benefits:** These design patterns enhance system flexibility, modularity, and maintainability. The Command Pattern encapsulates actions as objects, simplifying undo/redo functionality. The Chain of Responsibility Pattern allows layered processing by passing requests through a chain, enabling modular handling and conditional processing. Finally, the State Pattern dynamically selects behaviors based on internal states, allowing the system to adapt to different stages seamlessly. Together, they make the codebase more organized, adaptable, and easier to extend.
+- **Benefits:** These design patterns enhance system flexibility, modularity, and maintainability. The Command Pattern encapsulates actions as objects, simplifying undo/redo functionality. The Chain of Responsibility Pattern allows layered processing by passing requests through a chain, enabling modular handling and conditional processing. Finally, the Builder Pattern do the step-by-step construction, fluent interface, and handling complex object construction.
 
 
 
