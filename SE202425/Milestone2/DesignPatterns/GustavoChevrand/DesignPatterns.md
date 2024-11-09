@@ -145,6 +145,5 @@ public final class EditSessionBuilder {
 
 ```
 
-<img width="1111" alt="image" src="https://github.com/user-attachments/assets/58d179df-958f-4710-8b29-cd56d7f255e1">
-
+<img width="865" alt="image" src="https://github.com/user-attachments/assets/6cde2b67-df4f-4a9f-a4ff-71036a65748a">
 

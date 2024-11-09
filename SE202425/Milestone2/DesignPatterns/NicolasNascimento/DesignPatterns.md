@@ -110,33 +110,76 @@ if (world != null) {
 
 ---
 
-### 3. State
-In line 762 of the file
-worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java
+### 3. Builder
 
-- This code exemplifies the State Pattern by dynamically selecting 
-behavior based on the stage parameter, which represents different states
-(BEFORE_HISTORY, BEFORE_CHANGE, BEFORE_REORDER). Each state invokes a 
-specific setBlock method on different Extent objects
-(bypassNone, bypassHistory, bypassReorderHistory), changing the 
-block-setting behavior based on the current state.
+File in
+File
+worldedit-core/src/main/java/com/sk89q/worldedit/command/util/AsyncCommandBuilder.java
+
+
+- This whole class exemplifies the builder design pattern, because it is used to construct a complex object step by step. AsyncCommandBuilder allows various configuration options (e.g., delay messages, success/failure handling, and supervisor monitoring) to be set for an asynchronous command execution. The final object is constructed and executed using the buildAndExec method, which combines the values set through the chain of method calls.
 ```java
-public <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 position, B block, Stage stage) throws WorldEditException {
-   return switch (stage) {
-       case BEFORE_HISTORY -> bypassNone.setBlock(position, block);
-       case BEFORE_CHANGE -> bypassHistory.setBlock(position, block);
-       case BEFORE_REORDER -> bypassReorderHistory.setBlock(position, block);
-       default -> throw new RuntimeException("New enum entry added that is unhandled here");
-   };
+private final Callable<T> callable;
+private final Actor sender;
+
+
+@Nullable
+private Supervisor supervisor;
+@Nullable
+private String description;
+@Nullable
+private Component delayMessage;
+@Nullable
+private Component workingMessage;
+
+
+@Nullable
+private Component successMessage;
+@Nullable
+private Consumer<T> consumer;
+
+
+@Nullable
+private Component failureMessage;
+@Nullable
+private ExceptionConverter exceptionConverter;
+
+
+private AsyncCommandBuilder(Callable<T> callable, Actor sender) {
+    checkNotNull(callable);
+    checkNotNull(sender);
+    this.callable = callable;
+    this.sender = sender;
 }
+
+
+(...)
+
+
+public ListenableFuture<T> buildAndExec(ListeningExecutorService executor) {
+    final ListenableFuture<T> future = checkNotNull(executor).submit(this::runTask);
+    if (delayMessage != null) {
+        FutureProgressListener.addProgressListener(
+                future,
+                sender,
+                delayMessage,
+                workingMessage
+        );
+    }
+    if (supervisor != null && description != null) {
+        supervisor.monitor(FutureForwardingTask.create(future, description, sender));
+    }
+    return future;
+}
+
 ```
-![alt_text](state_dp.png)
+![alt_text](builder_dp.png)
 
 ---
 
 ### Summary
 - **Patterns Chosen:** Command, Chain of Responsibility and State
-- **Benefits:** These design patterns enhance system flexibility, modularity, and maintainability. The Command Pattern encapsulates actions as objects, simplifying undo/redo functionality. The Chain of Responsibility Pattern allows layered processing by passing requests through a chain, enabling modular handling and conditional processing. Finally, the State Pattern dynamically selects behaviors based on internal states, allowing the system to adapt to different stages seamlessly. Together, they make the codebase more organized, adaptable, and easier to extend.
+- **Benefits:** These design patterns enhance system flexibility, modularity, and maintainability. The Command Pattern encapsulates actions as objects, simplifying undo/redo functionality. The Chain of Responsibility Pattern allows layered processing by passing requests through a chain, enabling modular handling and conditional processing. Finally, the Builder Pattern do the step-by-step construction, fluent interface, and handling complex object construction.
 
 
 
