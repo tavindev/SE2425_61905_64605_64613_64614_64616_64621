@@ -167,12 +167,358 @@ private boolean addEntity(Entity entity) {
 ![alt text](image-1.png)
 ---
 
-### 3. Pattern Name
-- **Description:** Description of the pattern.
-- **Justification:** Why we you chose this pattern
+### 3. Observer
+
+worldedit-core\src\main\java\com\sk89q\worldedit\extension\platform\PlatformManager.java
+
+The Observer Pattern is used in the PlatformManager class to allow objects to subscribe to events and be notified when those events occur. The PlatformManager class registers itself with the EventBus to listen for various events and handle them accordingly.
+
+The PlatformManager class contains methods annotated with @Subscribe to handle different types of events such as PlatformsRegisteredEvent, PlatformReadyEvent, PlatformUnreadyEvent, BlockInteractEvent, and PlayerInputEvent.
+
+```java
+public class PlatformManager {
+
+    private static final Logger LOGGER = LogManagerCompat.getLogger();
+
+    private final WorldEdit worldEdit;
+    private final PlatformCommandManager platformCommandManager;
+    private final List<Platform> platforms = new ArrayList<>();
+    private final Map<Capability, Platform> preferences = new EnumMap<>(Capability.class);
+    private @Nullable String firstSeenVersion;
+    private final AtomicBoolean initialized = new AtomicBoolean();
+    private final AtomicBoolean configured = new AtomicBoolean();
+
+    /**
+     * Create a new platform manager.
+     *
+     * @param worldEdit the WorldEdit instance
+     */
+    public PlatformManager(WorldEdit worldEdit) {
+        checkNotNull(worldEdit);
+        this.worldEdit = worldEdit;
+        this.platformCommandManager = new PlatformCommandManager(worldEdit, this);
+
+        // Register this instance for events
+        worldEdit.getEventBus().register(this);
+    }
+}
+
+/**
+ * Internal, do not call.
+ */
+@Subscribe
+public void handlePlatformsRegistered(PlatformsRegisteredEvent event) {
+    choosePreferred();
+    if (initialized.compareAndSet(false, true)) {
+        worldEdit.getEventBus().post(new PlatformInitializeEvent());
+    }
+}
+
+/**
+ * Internal, do not call.
+ */
+@Subscribe
+public void handleNewPlatformReady(PlatformReadyEvent event) {
+    preferences.forEach((cap, platform) -> cap.ready(this, platform));
+}
+
+/**
+ * Internal, do not call.
+ */
+@Subscribe
+public void handleNewPlatformUnready(PlatformUnreadyEvent event) {
+    preferences.forEach((cap, platform) -> cap.unready(this, platform));
+}
+
+@Subscribe
+public void handleBlockInteract(BlockInteractEvent event) {
+    // Create a proxy actor with a potentially different world for
+    // making changes to the world
+    Actor actor = createProxyActor(event.getCause());
+
+    Location location = event.getLocation();
+
+    // At this time, only handle interaction from players
+    if (!(actor instanceof Player player)) {
+        return;
+    }
+    LocalSession session = worldEdit.getSessionManager().get(actor);
+
+    Request.reset();
+    Request.request().setSession(session);
+    Request.request().setWorld(player.getWorld());
+
+    try {
+        if (event.getType() == Interaction.HIT) {
+            // superpickaxe is special because its primary interaction is a left click, not a right click
+            // in addition, it is implicitly bound to all pickaxe items, not just a single tool item
+            if (session.hasSuperPickAxe() && player.isHoldingPickAxe()) {
+                final BlockTool superPickaxe = session.getSuperPickaxe();
+                if (superPickaxe != null && superPickaxe.canUse(player)) {
+                    if (superPickaxe.actPrimary(queryCapability(Capability.WORLD_EDITING),
+                            getConfiguration(), player, session, location, event.getFace())) {
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
+            }
+
+            Tool tool = session.getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+            if (tool instanceof DoubleActionBlockTool && tool.canUse(player)) {
+                if (((DoubleActionBlockTool) tool).actSecondary(queryCapability(Capability.WORLD_EDITING),
+                        getConfiguration(), player, session, location, event.getFace())) {
+                    event.setCancelled(true);
+                }
+            }
+
+        } else if (event.getType() == Interaction.OPEN) {
+            Tool tool = session.getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+            if (tool instanceof BlockTool && tool.canUse(player)) {
+                if (((BlockTool) tool).actPrimary(queryCapability(Capability.WORLD_EDITING),
+                        getConfiguration(), player, session, location, event.getFace())) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    } finally {
+        Request.reset();
+    }
+}
+
+@Subscribe
+public void handlePlayerInput(PlayerInputEvent event) {
+    // Create a proxy actor with a potentially different world for
+    // making changes to the world
+    Player player = createProxyActor(event.getPlayer());
+    LocalSession session = worldEdit.getSessionManager().get(player);
+    Request.reset();
+    Request.request().setSession(session);
+    Request.request().setWorld(player.getWorld());
+
+    try {
+        switch (event.getInputType()) {
+            case PRIMARY: {
+                Tool tool = session.getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+                if (tool instanceof DoubleActionTraceTool && tool.canUse(player)) {
+                    if (((DoubleActionTraceTool) tool).actSecondary(queryCapability(Capability.WORLD_EDITING),
+                            getConfiguration(), player, session)) {
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
+
+                break;
+            }
+
+            case SECONDARY: {
+                Tool tool = session.getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+                if (tool instanceof TraceTool && tool.canUse(player)) {
+                    if (((TraceTool) tool).actPrimary(queryCapability(Capability.WORLD_EDITING),
+                            getConfiguration(), player, session)) {
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
+
+                break;
+            }
+
+            default:
+                break;
+        }
+    } finally {
+        Request.reset();
+    }
+}
+
+@Subscribe
+public void handlePlayerInput(PlayerInputEvent event) {
+    // Create a proxy actor with a potentially different world for
+    // making changes to the world
+    Player player = createProxyActor(event.getPlayer());
+    LocalSession session = worldEdit.getSessionManager().get(player);
+    Request.reset();
+    Request.request().setSession(session);
+    Request.request().setWorld(player.getWorld());
+
+    try {
+        switch (event.getInputType()) {
+            case PRIMARY: {
+                Tool tool = session.getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+                if (tool instanceof DoubleActionTraceTool && tool.canUse(player)) {
+                    if (((DoubleActionTraceTool) tool).actSecondary(queryCapability(Capability.WORLD_EDITING),
+                            getConfiguration(), player, session)) {
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
+
+                break;
+            }
+
+            case SECONDARY: {
+                Tool tool = session.getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+                if (tool instanceof TraceTool && tool.canUse(player)) {
+                    if (((TraceTool) tool).actPrimary(queryCapability(Capability.WORLD_EDITING),
+                            getConfiguration(), player, session)) {
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
+
+                break;
+            }
+
+            default:
+                break;
+        }
+    } finally {
+        Request.reset();
+    }
+}
+```
+
+@Subscribe
+public void handleNewPlatformUnready(PlatformUnreadyEvent event) {
+    preferences.forEach((cap, platform) -> cap.unready(this, platform));
+}
+
+worldedit-core\src\main\java\com\sk89q\worldedit\extension\platform\WorldEdit.java
+
+```java
+    private final EventBus eventBus = new EventBus();
+```
+
+worldedit-core\src\main\java\com\sk89q\worldedit\util\eventbus\EventBus.java
+
+```java
+public void subscribe(Class<?> clazz, EventHandler handler) {
+        checkNotNull(clazz);
+        checkNotNull(handler);
+        lock.writeLock().lock();
+        try {
+            handlersByType.put(clazz, handler);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Registers the given handler for the given class to receive events.
+     *
+     * @param handlers a map of handlers
+     */
+    public void subscribeAll(Multimap<Class<?>, EventHandler> handlers) {
+        checkNotNull(handlers);
+        lock.writeLock().lock();
+        try {
+            handlersByType.putAll(handlers);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Unregisters the given handler for the given class.
+     *
+     * @param clazz the class
+     * @param handler the handler
+     */
+    public void unsubscribe(Class<?> clazz, EventHandler handler) {
+        checkNotNull(clazz);
+        checkNotNull(handler);
+        lock.writeLock().lock();
+        try {
+            handlersByType.remove(clazz, handler);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Unregisters the given handlers.
+     *
+     * @param handlers a map of handlers
+     */
+    public void unsubscribeAll(Multimap<Class<?>, EventHandler> handlers) {
+        checkNotNull(handlers);
+        lock.writeLock().lock();
+        try {
+            for (Map.Entry<Class<?>, Collection<EventHandler>> entry : handlers.asMap().entrySet()) {
+                handlersByType.get(entry.getKey()).removeAll(entry.getValue());
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Registers all handler methods on {@code object} to receive events.
+     * Handler methods are selected and classified using this EventBus's
+     * {@link SubscriberFindingStrategy}; the default strategy is the
+     * {@link AnnotatedSubscriberFinder}.
+     *
+     * @param object object whose handler methods should be registered.
+     */
+    public void register(Object object) {
+        subscribeAll(finder.findAllSubscribers(object));
+    }
+
+    /**
+     * Unregisters all handler methods on a registered {@code object}.
+     *
+     * @param object  object whose handler methods should be unregistered.
+     * @throws IllegalArgumentException if the object was not previously registered.
+     */
+    public void unregister(Object object) {
+        unsubscribeAll(finder.findAllSubscribers(object));
+    }
+
+    /**
+     * Posts an event to all registered handlers.  This method will return
+     * successfully after the event has been posted to all handlers, and
+     * regardless of any exceptions thrown by handlers.
+     *
+     * @param event  event to post.
+     */
+    public void post(Object event) {
+        List<EventHandler> dispatching = new ArrayList<>();
+
+        Set<Class<?>> dispatchTypes = flattenHierarchyCache.get(event.getClass());
+        lock.readLock().lock();
+        try {
+            for (Class<?> eventType : dispatchTypes) {
+                Set<EventHandler> wrappers = handlersByType.get(eventType);
+
+                if (wrappers != null && !wrappers.isEmpty()) {
+                    dispatching.addAll(wrappers);
+                }
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+
+        Collections.sort(dispatching);
+
+        for (EventHandler handler : dispatching) {
+            dispatch(event, handler);
+        }
+    }
+
+    /**
+     * Dispatches {@code event} to the handler in {@code handler}.
+     *
+     * @param event  event to dispatch.
+     * @param handler  handler that will call the handler.
+     */
+    private void dispatch(Object event, EventHandler handler) {
+        try {
+            handler.handleEvent(event);
+        } catch (InvocationTargetException e) {
+            LOGGER.error("Could not dispatch event: " + event + " to handler " + handler, e);
+        }
+    }
+```
 
 ---
 
-### Summary
-- **Patterns Chosen:** 
-- **Benefits:** Do they benefit the system somehow?

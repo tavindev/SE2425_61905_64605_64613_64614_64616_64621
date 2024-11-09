@@ -21,6 +21,7 @@ The Composite pattern is effectively applied in `RegionIntersection`, allowing a
 ### Conclusion
 - **Final Thoughts**: The Composite pattern is well-implemented, ensuring both clarity and flexibility. For larger datasets, performance and scalability should be considered, with potential optimizations to maintain efficiency.
 
+
 ## Reviewer: [Rildo Franco]
 ## Author: [Rodrigo Castro]
 ## Date: [11/08/2024]
