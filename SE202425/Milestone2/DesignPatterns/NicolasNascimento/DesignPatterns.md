@@ -113,32 +113,65 @@ if (world != null) {
 ### 3. Builder
 
 File in
-worldedit-core/src/main/java/com/sk89q/worldedit/EditSessionBuilder.java
+File
+worldedit-core/src/main/java/com/sk89q/worldedit/command/util/AsyncCommandBuilder.java
 
-- This whole class exemplifies the builder design pattern, because is used to construct a complex object step by step. It allows step-by-step configuration of an EditSession object with methods like world(), maxBlocks(), actor(), and others to set different properties. Each method returns the builder itself (EditSessionBuilder), supporting method chaining. Finally, the build() method constructs and returns the configured EditSession object. This design encapsulates the construction logic and makes it easier to create complex EditSession objects.
+
+- This whole class exemplifies the builder design pattern, because it is used to construct a complex object step by step. AsyncCommandBuilder allows various configuration options (e.g., delay messages, success/failure handling, and supervisor monitoring) to be set for an asynchronous command execution. The final object is constructed and executed using the buildAndExec method, which combines the values set through the chain of method calls.
 ```java
-public final class EditSessionBuilder {
+private final Callable<T> callable;
+private final Actor sender;
 
-    private final EventBus eventBus;
-    private @Nullable World world;
-    private int maxBlocks = -1;
-    private @Nullable Actor actor;
-    private @Nullable BlockBag blockBag;
-    private boolean tracing;
 
-    EditSessionBuilder(EventBus eventBus) {
-        this.eventBus = eventBus;
-    }
-    
-    (...)
+@Nullable
+private Supervisor supervisor;
+@Nullable
+private String description;
+@Nullable
+private Component delayMessage;
+@Nullable
+private Component workingMessage;
 
-    public EditSession build() {
-        if (WorldEdit.getInstance().getConfiguration().traceUnflushedSessions) {
-            return new TracedEditSession(eventBus, world, maxBlocks, blockBag, actor, tracing);
-        }
-        return new EditSession(eventBus, world, maxBlocks, blockBag, actor, tracing);
-    }
+
+@Nullable
+private Component successMessage;
+@Nullable
+private Consumer<T> consumer;
+
+
+@Nullable
+private Component failureMessage;
+@Nullable
+private ExceptionConverter exceptionConverter;
+
+
+private AsyncCommandBuilder(Callable<T> callable, Actor sender) {
+    checkNotNull(callable);
+    checkNotNull(sender);
+    this.callable = callable;
+    this.sender = sender;
 }
+
+
+(...)
+
+
+public ListenableFuture<T> buildAndExec(ListeningExecutorService executor) {
+    final ListenableFuture<T> future = checkNotNull(executor).submit(this::runTask);
+    if (delayMessage != null) {
+        FutureProgressListener.addProgressListener(
+                future,
+                sender,
+                delayMessage,
+                workingMessage
+        );
+    }
+    if (supervisor != null && description != null) {
+        supervisor.monitor(FutureForwardingTask.create(future, description, sender));
+    }
+    return future;
+}
+
 ```
 ![alt_text](builder_dp.png)
 
