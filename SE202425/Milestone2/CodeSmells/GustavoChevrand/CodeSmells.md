@@ -11,14 +11,80 @@ Location: worldedit-core/src/main/java/com/sk89q/worldedit/command/tool/AreaPick
 The `actPrimary` method accepts 6 parameters.
 
 ```java
-public boolean actPrimary(Platform server, LocalConfiguration config, Player player, LocalSession session, Location clicked, @Nullable Direction face) {
-            // ...
+public class AreaPickaxe implements BlockTool {
+
+  // ...
+
+  public boolean actPrimary(Platform server, LocalConfiguration config, Player player, LocalSession session, Location clicked, @Nullable Direction face) {
+              // ...
+  }
+
+  // ...
 }
 ```
 
 ### Solution:
 
-First, the `face` parameter is not used so we would remove it.
+
+We can create a abstract class `AbstractBlockTool` that accepts a `Platform` instance as a constructor parameter. This is because the platform remains constant throughout the plugin’s execution, and therefore, it does not need to be passed as a parameter to each method call.
+
+We can also create a `ToolContext` class that contains `LocalConfiguration`, `Player` and `LocalSession`, since they are concepts that change during the execution of the program.
+
+After this refactor we would have the following:
+
+```java
+public abstract class AbstractBlockTool implements BlockTool {
+  protected Platform server;
+
+  public AbstractBlockTool(Platform server) {
+    this.server = server
+  }
+
+  public abstract boolean canUse(Actor actor);
+
+  public abstract boolean actPrimary(ToolContext context, Location clicked, @Nullable Direction face);
+}
+
+public class ToolContext { 
+  private final LocalConfiguration config;
+  private final Player player;
+  private final LocalSession session;
+
+  public ToolContext(LocalConfiguration config, Player player, LocalSession session) { 
+    this.config = config;
+    this.player = player;
+    this.session = session;
+  }
+
+  public LocalConfiguration getConfig() { 
+    return config;
+  }
+
+  public Player getPlayer() { 
+    return player;
+  }
+
+  public LocalSession getSession() { 
+    return session;
+  }
+}
+
+public class AreaPickaxe extends AbstractBlockTool {
+  public AreaPickaxe(Platform server, int range) {
+    super(server);
+
+    this.range = range;
+  }
+
+  // ...
+
+  public boolean actPrimary(ToolContext context, Location clicked, @Nullable Direction face) {
+    // ...
+  }
+}
+```
+
+Act primary has now only 3 parameters.
 
 ----
 
