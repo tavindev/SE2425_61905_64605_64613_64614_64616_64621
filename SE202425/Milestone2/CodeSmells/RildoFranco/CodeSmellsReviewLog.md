@@ -39,3 +39,19 @@
 
 ### Conclusion
 - **Final Thoughts:** The proposed solution to refactor the `EditSession` class by applying the Single Responsibility Principle and extracting functionality into separate classes is a sound approach. This will make the code more modular, easier to understand, and maintain. Future refactoring efforts should ensure that all references to the `EditSession` class are updated to use the new structure. Overall, addressing this code smell will enhance the code's readability, maintainability, and scalability.
+
+---
+
+## Reviewer: [Rildo Franco] 
+## Author: [Rodrigo Castro]  
+## Date: [11/10/2024]
+
+### General Comments
+- The code smells report effectively identifies the "Message Chain" issue in the `getGroups` method within the `SpongePlayer` class. This code smell occurs when a method calls a series of methods on different objects, creating a long chain of method calls. This can make the code harder to read, understand, and maintain.
+
+### Specific Comments
+- **Message Chain:** The `getGroups` method currently calls `SpongeWorldEdit.inst().getPermissionsProvider().getGroups(this.player)`, which is a classic example of a message chain. This tightly couples the `SpongePlayer` class to the `SpongeWorldEdit` singleton and the `PermissionsProvider`, making the code less flexible and harder to test.
+- **Refactoring Suggestion:** To address this issue, we can consider introduce a method in the `SpongeWorldEdit` class that directly returns the groups for a player. This will reduce the message chain and make the code more readable and maintainable.
+
+### Conclusion
+- **Final Thoughts:** Refactoring the `getGroups` method to reduce the message chain will improve the code's readability, maintainability, and testability. By introducing a method in the `SpongeWorldEdit` class that directly returns the groups for a player, you can decouple the `SpongePlayer` class from the `PermissionsProvider` and make the code more modular.
