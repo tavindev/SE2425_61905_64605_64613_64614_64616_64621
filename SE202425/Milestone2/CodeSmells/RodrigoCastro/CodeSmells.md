@@ -37,7 +37,43 @@ public abstract class CraftScriptEnvironment {
 Merge CraftScriptEnvironment and CraftScriptContext if there’s no foreseeable subclassing.
 
 ---
-### 2.
+### 2. Data Class
+- Location: worldedit-core/src/main/java/com/sk89q/worldedit/history/UndoContext.java
+
+- This class only contains:
+A single Extent field.
+A getter and setter for extent.
+Without any additional behavior, it essentially serves as a passive data holder.
+
+```java
+public class UndoContext {
+
+    private Extent extent;
+
+    /**
+     * Get the extent set on this context.
+     *
+     * @return an extent or null
+     */
+    public @Nullable Extent getExtent() {
+        return extent;
+    }
+
+    /**
+     * Set the extent on this context.
+     *
+     * @param extent an extent or null
+     */
+    public void setExtent(@Nullable Extent extent) {
+        this.extent = extent;
+    }
+}
+```
+## Solution: 
+To improve UndoContext, could be added meaningful methods to encapsulate behavior related to extent, particularly around how it should interact with undo/redo operations. 
+
+---
+### 3. 
 
 ### Summary
 - **Overall Code Health:** Summary
