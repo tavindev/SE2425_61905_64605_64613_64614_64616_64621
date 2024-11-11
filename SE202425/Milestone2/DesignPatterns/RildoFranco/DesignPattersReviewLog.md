@@ -43,3 +43,32 @@ The Command pattern is effectively adapted in `HistoryCommands`, `LocalSession`,
 
 ### Conclusion
 - **Final Thoughts**: The Command pattern is well-adapted, ensuring both clarity and efficiency. The use of `EditSession` objects as command units simplifies the design and enhances memory efficiency. For larger datasets, performance and scalability should be considered, with potential optimizations to maintain efficiency. The inclusion of permission and error handling further strengthens the robustness of the implementation.
+
+
+## Reviewer: [Rildo Franco]
+## Author: [Nicolas Nascimento]
+## Date: [11/11/2024]
+
+---
+
+### General Comments
+The builder pattern is well-implemented in this class, effectively showcasing its purpose by progressively configuring an asynchronous command object. The design is clean, and the code adheres to good software engineering principles. The use of nullable fields ensures flexibility while still maintaining strong type safety where necessary. The integration of multiple patterns (Command, Chain of Responsibility, and State) is a good choice to enhance system modularity and flexibility.
+
+---
+
+### Specific Comments
+- **Code Structure**: Code Structure: The class is easy to follow, and the method names are descriptive. However, consider adding more inline comments for clarity, especially regarding the purpose of certain nullable fields like `exceptionConverter` and `failureMessage`.
+
+- **Build Method**: The `buildAndExec` method is a key point of the class and is implemented well. The way it integrates the asynchronous execution with potential future progress listeners and task monitoring is impressive. However, you might want to add more exception handling or logging in this method to deal with potential issues in real-world applications.
+
+- **Fluent Interface**: The builder pattern's fluent interface is properly used, allowing for readable and clear method chaining. The configuration options are neatly divided into logically grouped setter methods.
+
+### Conclusion
+- **Final Thoughts**: This implementation demonstrates the Builder pattern’s power in a complex, real-world scenario. The code is well-organized and provides clear points for extension. However, we can consider adding more explicit documentation and possibly refining the error handling and logging aspects to make the system more resilient.
+
+---
+
+
+
+
+
