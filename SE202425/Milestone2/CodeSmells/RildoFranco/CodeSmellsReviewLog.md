@@ -40,7 +40,7 @@
 ---
 
 ## Reviewer: [Rildo Franco] 
-## Author: [Rodrigo Castro]  
+## Author: [Pedro Amorim]  
 ## Date: [11/10/2024]
 
 ### General Comments
