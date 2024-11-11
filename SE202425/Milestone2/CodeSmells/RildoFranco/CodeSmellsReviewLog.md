@@ -21,24 +21,21 @@
 --- 
 
 ## Reviewer: [Rildo Franco] 
-## Author: [Nicolas Nascimento]  
+## Author: [Pedro Amorim]  
 ## Date: [11/10/2024]
 
 ---
 
 ### General Comments
-- The code smells report effectively identifies the "Large Class" issue in the `EditSession` class located at `worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java`. It provides a clear explanation of how this code smell can negatively impact code readability, maintainability, and scalability.
+- The code smells report effectively identifies the "Large Class" issue in the `PaperweightDataConverters` class. This code smell occurs when a class has grown too big and is trying to handle too many responsibilities. This can make the code harder to read, understand, and maintain.
 
 ### Specific Comments
-- **Large Class:** The `EditSession` class currently has 2981 lines of code, which is significantly large and indicates that the class is handling too many responsibilities. This violates the Single Responsibility Principle (SRP) and makes the class difficult to understand, maintain, and extend.
-
-- **Extent Management:** The class handles extent configuration, which could be moved to a separate `ExtentManager` class.
-
-- **Undo/Redo Operations:** The class manages undo and redo operations, which could be moved to a separate `UndoRedoManager` class.
+- **Large Class:** The `PaperweightDataConverters` class currently handles multiple types of data conversions, which violates the Single Responsibility Principle (SRP). This makes the class harder to maintain and test.
+- **Refactoring Suggestion:** To address this issue, we can consider breaking down the `PaperweightDataConverters` class into smaller, more focused classes. Each new class should handle a specific type of data conversion. This will improve the code's readability, maintainability, and testability.
 
 
 ### Conclusion
-- **Final Thoughts:** The proposed solution to refactor the `EditSession` class by applying the Single Responsibility Principle and extracting functionality into separate classes is a sound approach. This will make the code more modular, easier to understand, and maintain. Future refactoring efforts should ensure that all references to the `EditSession` class are updated to use the new structure. Overall, addressing this code smell will enhance the code's readability, maintainability, and scalability.
+- **Final Thoughts:** Refactoring the PaperweightDataConverters class to reduce its size and focus on single responsibilities will improve the code's readability, maintainability, and testability. By breaking down the class into smaller, more focused classes, you can make the code more modular and easier to work with.
 
 ---
 
