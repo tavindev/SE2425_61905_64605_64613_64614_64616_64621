@@ -520,5 +520,7 @@ public void subscribe(Class<?> clazz, EventHandler handler) {
     }
 ```
 
+![alt text](Observer.png)
+
 ---
 

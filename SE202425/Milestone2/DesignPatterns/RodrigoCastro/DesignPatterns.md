@@ -50,7 +50,7 @@ public void undo(Actor actor, LocalSession session,
         }
     }
 ```
-- Diagram
+![CommandPatternDiagram](https://github.com/user-attachments/assets/44792f29-1d18-4037-8328-3a087a332141)
 
 ---
 
@@ -100,8 +100,8 @@ worldedit-core/src/main/java/com/sk89q/worldedit/command/argument/DirectionVecto
 
 ```
 
-- Diagram
-  
+![TemplateMethodPatternDiagram](https://github.com/user-attachments/assets/13ef6aba-64a7-4bd8-8a9c-f0e178619b06)
+
 ---
 
 ### 3. Composite
@@ -132,8 +132,8 @@ public class MaskIntersection2D implements Mask2D {
     }
 ```
 
-- Diagram
-  
+![CompositePatternDiagram](https://github.com/user-attachments/assets/698c863f-96f3-440b-b61b-12f94cadfc81)
+
 ---
 
 ### Summary
