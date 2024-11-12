@@ -9,15 +9,14 @@ EditSessionBuilder is a well-implemented Builder pattern class. It demonstrates 
 ---
 
 ## Reviewer: [Rodrigo Castro]
-## Author: []
+## Author: [Lucas Tobias]
 
-### General Comments
-- Comments on the pattern
+## 2. Factory Method
+The factory method in PluginPermissionsResolver is a true Factory Method because it encapsulates the decision-making logic required to create and return a PermissionsResolver instance based on specific conditions.
 
 ---
 
-### Specific Comments
-Specific comments about the patterns the author chose
+## Reviewer: [Rodrigo Castro]
+## Author: [Lucas Tobias]
 
-### Conclusion
-- **Final Thoughts:** Final thoughts
+## 3.
