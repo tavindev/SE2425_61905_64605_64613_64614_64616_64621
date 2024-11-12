@@ -17,6 +17,7 @@ The factory method in PluginPermissionsResolver is a true Factory Method because
 ---
 
 ## Reviewer: [Rodrigo Castro]
-## Author: [Lucas Tobias]
+## Author: [Rildo Franco]
 
-## 3.
+## 3. Observer
+The design aligns with the Observer Pattern as it uses an event-driven model where PlatformManager subscribes to events (i.e., listens for updates) through EventBus. It reacts to these events by taking specific actions, such as updating platform preferences and notifying other components.
