@@ -1,12 +1,12 @@
 # Design Patterns Report
 
-## Author: [Your Name]
-## Date: [MM/DD/YYYY]
+## Author: Lucas Tobias
+## Date: 12-2-2021
 
 ---
 
 ### 1. Factory Method
-- Factory Method is a creative design pattern that provides an interface for creating objects in a superclass, but allows subclasses to change the type of objects that will be created. Its use is found in PermissionsResolver, because it is necessary to create a PermissionsResolver object, but the type of object that will be created depends on the context. PermissionsResolver's factory method is responsible for creating the correct PermissionsResolver object, depending on the context. If the server has a registered permissions service, the factory method will create a PluginPermissionsResolver. Otherwise, it will look for a plugin that implements the PermissionsProvider interface and create a PluginPermissionsResolver based on that plugin.
+- Factory Method is a creative design pattern that provides an interface for creating objects in a superclass, but allows subclasses to change the type of objects that will be created. Its use is found in PermissionsResolver, because it is necessary to create a PermissionsResolver object, but the type of object that will be created depends on the context. `PermissionsResolver` is factory method is responsible for creating the correct PermissionsResolver object, depending on the context. If the server has a registered permissions service, the factory method will create a PluginPermissionsResolver. Otherwise, it will look for a plugin that implements the `PermissionsProvider` interface and create a `PluginPermissionsResolver` based on that plugin.
 
 ```java
     public static PermissionsResolver factory(Server server, YAMLProcessor config) {
@@ -31,8 +31,8 @@
 ---
 
 ### 2. Command
-- Command é um design comportamental, 
-pq se encontra aqui
+- Command is a behavioral design that transforms a request into an independent object that contains all the information about the request. It allows you to pass requests as method arguments, postpone or queue the execution of a request and support operations that can be undone. 
+- The CommandDispatcher is responsible for registering commands in the system. The `register` method registers a command in the system. It creates a CommandRunner which is responsible for executing the command and posts a CommandEvent to the WorldEdit EventBus. The CommandEvent is responsible for notifying listeners of the execution of a command. After the request, it creates an object.
 ```java
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, org.enginehub.piston.Command command) {
     ImmutableList.Builder<String> aliases = ImmutableList.builder();
@@ -46,7 +46,7 @@ pq se encontra aqui
         return 0;
     };
 ```
-pq se encontra aqui
+- The `suggest` method is responsible for suggesting arguments to the command. After the request, it creates an object.
 ```java
     private static CompletableFuture<Suggestions> suggest(CommandContext<CommandSourceStack> context,
             SuggestionsBuilder builder) throws CommandSyntaxException {
@@ -85,9 +85,8 @@ pq se encontra aqui
 ---
 
 ### 3. Strategy
-- Strategy is a behavioral design pattern that allows you to define a family of algorithms, encapsulate each one of them, and make them interchangeable. In the case of TreeGenerator, each type of tree (TreeType) implements the tree generation strategy differently.
-A classe TreeGenerator utiliza o padrão de projeto Strategy. Esse padrão permite que você defina uma família de algoritmos, encapsule cada um deles e os torne intercambiáveis. No caso da TreeGenerator, cada tipo de árvore (TreeType) implementa a estratégia de geração de árvores de maneira diferente.
-Cada tipo de árvore (TreeType) implementa o método generate, que é responsável por criar a árvore específica. Isso permite que a lógica de criação de cada tipo de árvore seja encapsulada dentro da própria enumeração, seguindo o padrão Strategy.
+- Strategy is a behavioral design pattern that allows you to define a family of algorithms, encapsulate each of them and make their objects interchangeable. In the case of TreeGenerator, each tree type (TreeType) implements the tree generation strategy differently.
+  Each TreeType implements the generate method, which is responsible for creating the specific tree. This allows the logic for creating each type of tree to be encapsulated within the enumeration itself, randomly, following the Strategy pattern.
 
 ```java
 public enum TreeType {
@@ -105,6 +104,4 @@ RANDOM_REDWOOD("Random spruce tree", "randspruce", "randredwood", "randomredwood
 },
 
 ```
-### Summary
-- **Patterns Chosen:** 
-- **Benefits:** Do they benefit the system somehow?
+
