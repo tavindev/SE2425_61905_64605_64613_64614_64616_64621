@@ -18,7 +18,7 @@
 - **Name**: Apply Heightmap
 - **Description**: Applies a heightmap based on an image to the terrain, using pixel brightness to determine elevation.
 - **Primary Actor**: Player
-- **Secondary Actor**: None
+- **Secondary Actor**: Server
 - **Pre-conditions**:
     - The player has permissions to use the heightmap tool.
     - The specified heightmap image is accessible and compatible.
@@ -34,7 +34,7 @@
 - **Name**: Modify Biome
 - **Description**: Alters the biome of a specific region, modifying environmental factors like vegetation and climate.
 - **Primary Actor**: Player
-- **Secondary Actor**: None
+- **Secondary Actor**: Server
 - **Pre-conditions**:
     - The player has permissions to change biomes.
     - The selected area and biome type are compatible.
@@ -49,7 +49,7 @@
 - **Name**: Paste Clipboard Structure
 - **Description**: Pastes a previously copied or cut structure from the clipboard at the player’s current position.
 - **Primary Actor**: Player
-- **Secondary Actor**: None
+- **Secondary Actor**: Server
 - **Pre-conditions**:
     - The player has permissions to paste structures.
     - A structure is stored in the clipboard.
@@ -65,7 +65,7 @@
 - **Name**: Manage Mobs
 - **Description**: Removes mobs within a specific area, with options to target specific types, such as animals, NPCs, or hostile mobs.
 - **Primary Actor**: Player
-- **Secondary Actor**: None
+- **Secondary Actor**: Server
 - **Pre-conditions**:
     - The player has permissions to manage mobs.
     - The radius for mob removal is specified and valid.
@@ -80,7 +80,7 @@
 - **Name**: Apply Terrain Morphology
 - **Description**: Modifies terrain morphology by applying transformations like erosion or expansion to smooth or alter block shapes.
 - **Primary Actor**: Player
-- **Secondary Actor**: None
+- **Secondary Actor**: Server
 - **Pre-conditions**:
     - The player has permissions to alter terrain morphology.
     - The selected area does not exceed maximum size limitations.
@@ -95,7 +95,7 @@
 - **Name**: Apply Environmental Features
 - **Description**: Spreads natural features, such as grass or flowers, across a selected area.
 - **Primary Actor**: Player
-- **Secondary Actor**: None
+- **Secondary Actor**: Server
 - **Pre-conditions**:
     - The player has permissions to apply environmental features.
     - The selected area for feature application is within acceptable limits.
@@ -110,7 +110,7 @@
 - **Name**: Simulate Gravity
 - **Description**: Applies gravity to unsupported blocks within a specified radius, causing them to fall naturally.
 - **Primary Actor**: Player
-- **Secondary Actor**: None
+- **Secondary Actor**: Server
 - **Pre-conditions**:
     - The player has permissions to apply gravity effects.
     - The area specified for gravity simulation is within size limits.
