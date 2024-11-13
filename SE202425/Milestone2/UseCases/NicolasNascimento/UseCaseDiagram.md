@@ -16,7 +16,7 @@
 - **Description:** Deletes the selected region, permanently removing the blocks within it from the world.
 - **Primary Actor:** User (Player)
 - **Secondary Actor:** Minecraft Server
-- 
+
 ## Use Case 3: Shift Region
 - **Description:** Moves the selected region of blocks to a different location in the Minecraft world.
 - **Primary Actor:** User (Player)
