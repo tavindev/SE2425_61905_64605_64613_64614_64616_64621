@@ -1,18 +1,28 @@
 # Code Metrics Review Log
 
-## Reviewer: [Reviewer’s Name]
-## Author: [Author’s Name]
-## Date: [MM/DD/YYYY]
+## WIP*
+
+## Reviewer: Nicolas Nascimento
+## Date: 11/13/2024
 
 ---
 
-### General Comments
-- Overall Comments
+### Code Metrics analyzed: Number of Parameters in method
+### Author: Gustavo Chevrand
+
+
 
 ---
 
-### Specific Comments
-Directioned Comments
+### Code Metrics analyzed: Cognitive Complexity Calculation
+### Author: Lucas Tobias
 
-### Conclusion
-- **Final Thoughts:** Concluding comments or additional review points.
+
+---
+
+### Code Metrics analyzed: NOM Calculation (Li-Henry Metrics Set) - Class Level:
+### Author: Rodrigo Castro
+
+
+
+
