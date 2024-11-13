@@ -24,4 +24,10 @@ Author: Nicolas Nascimento 61905
 
 The player is the primary actor because they issue the command. There is no secondary actor, since the server for example, doesn't do anythin. The use case is correct.
 
-## 5. 
+## 5. Apply heightmap
+
+Author: Pedro Amorim 64614
+
+The player is the primary actor because they issue the command, while the server is the secondary actor because it modifies the world terrain. The use case is correct.
+
+
