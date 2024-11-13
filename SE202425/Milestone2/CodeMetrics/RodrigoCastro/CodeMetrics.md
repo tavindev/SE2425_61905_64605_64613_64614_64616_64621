@@ -39,6 +39,7 @@
 ---
 
 ## CC Calculation (McCabe Cyclomatic Complexity) - Method Level:
+Method: UpdateServerCUI(Actor actor)
 - Value collected: 10
 - Reference values (Regular): [0..3]
 - Extreme range: [7, +∞]
