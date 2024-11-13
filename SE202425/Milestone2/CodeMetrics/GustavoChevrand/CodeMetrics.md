@@ -8,7 +8,9 @@ Value: 397
 
 Reference value: [0..12)
 
-A higher value suggests a more complex class, which may be more difficult to comprehend, maintain, and test. It also suggests potential issues like code bloat or poor cohesion, indicating the need for refactoring. 
+The Weighted Methods per Class (WMC) metric, a software measurement in object-oriented programming, quantifies the complexity of a class by summing the complexities of its methods. Each method within a class is assigned a weight, typically based on its individual complexity measured using metrics like cyclomatic complexity. A higher value indicates a more complex class, which may be more challenging to comprehend, maintain, and test. It also suggests potential issues like code bloat or poor cohesion, prompting the need for refactoring. 
+
+The value 397 suggests that the EditSession class is highly complex and presents a significant challenge in the process of refactoring.
 
 ## 2. Number of Parameters
 
