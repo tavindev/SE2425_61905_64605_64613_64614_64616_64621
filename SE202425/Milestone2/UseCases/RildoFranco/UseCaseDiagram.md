@@ -32,4 +32,4 @@
 
 Diagram
 
-![alt text](<UC Diagram.png>)
+![alt text](UC.png)
