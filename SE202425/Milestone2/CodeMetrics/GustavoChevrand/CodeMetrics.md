@@ -1,20 +1,35 @@
 # Code Metrics Analysis
 
-## Author: [Your Name]
-## Date: [MM/DD/YYYY]
+## 1. Weighted Methods per Class 
 
----
+Class: EditSession.java
 
-### Metrics Collected
-The metrics collected.
+Value: 397
 
----
+Reference value: [0..12)
 
-### Observations
-- **Code Quality Issues:** Issues found on the code
-- **Improvement Suggestions:** Suggest areas for improvement based on the metrics.
+A higher value suggests a more complex class, which may be more difficult to comprehend, maintain, and test. It also suggests potential issues like code bloat or poor cohesion, indicating the need for refactoring. 
 
----
+## 2. Number of Parameters
 
-### Summary
-- **Overall Assessment:** Summarize the quality of the code based on the metrics and any actionable insights.
+Method: fillXZ(BlockVector3 origin, B block, double radius, int depth, boolean recursive);
+
+Located in Class: EditSession.java
+
+Value: 5
+
+Reference value: [0..3)
+
+This metric suggests a substantial number of parameters, which may imply a high level of complexity associated with the method, leading to increased cognitive load for developers who must understand and remember the purpose and order of each parameter. Furthermore, it implies an increased maintainability cost due to the heightened risk of errors in parameter usage, challenges in refactoring the method without affecting multiple parts of the codebase, and difficulties in testing all parameter combinations thoroughly. This complexity can also result in potential usability challenges, as methods with many parameters can be less intuitive and harder to use correctly, potentially deterring developers from utilizing the method effectively and impacting the overall readability and quality of the code.
+
+## 3. Condition Nesting Depth
+
+Method: redo(EditSession editSession);
+
+Value: 0
+
+Reference value: [0..2)
+
+This metric measures the depth of nested control structures, i.e, how many levels of nested conditional statements and loops exist within the method or function. A higher value implies more intricate code, which can be more challenging to comprehend, maintain, and read. Conversely, a lower nesting depth indicates simpler and more straightforward code.
+
+In this particular case, there's no nesting, which makes the code easier to understand.

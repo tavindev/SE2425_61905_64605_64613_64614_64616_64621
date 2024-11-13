@@ -5,30 +5,83 @@
 
 ---
 
-### 1. Command 
-In line 852 of the file
+### 1. Template Method 
+
+In line 2319 of the file
 worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java
-- This code exemplifies the Command Design Pattern by encapsulating 
-the undo and redo actions as commands within specific methods, making them
-independent of the calling system. Each action creates an UndoContext and uses ChangeSetExecutor to execute undo or redo, effectively decoupling the action’s execution from its invocation. This approach allows for storing, reusing, and reversing actions, which is ideal for systems requiring history and reversibility, such as editors.
+
+- The makeShape method in the EditSession class leverages the Template Method design pattern. This pattern is evident because makeShape defines a high-level process for creating shapes, but delegates specific aspects of material selection for each block to a method (getMaterial) that subclasses or anonymous classes are expected to implement. makeShape sets up the parameters for creating a shape and calls the generate method on an ArbitraryShape instance, which is an abstract class. This class has an abstract getMaterial method that subclasses override to provide concrete block materials depending on position and context.
 
 ```java
-public void undo(EditSession editSession) {
-   UndoContext context = new UndoContext();
-   context.setExtent(editSession.bypassHistory);
-   Operations.completeBlindly(ChangeSetExecutor.createUndo(changeSet, context));
-   editSession.internalFlushSession();
-}
+public int makeShape(final Region region, final Vector3 zero, final Vector3 unit,
+                     final Pattern pattern, final Expression expression, final boolean hollow, final int timeout)
+        throws ExpressionException, MaxChangedBlocksException {
 
-public void redo(EditSession editSession) {
-   UndoContext context = new UndoContext();
-   context.setExtent(editSession.bypassHistory);
-   Operations.completeBlindly(ChangeSetExecutor.createRedo(changeSet, context));
-   editSession.internalFlushSession();
+    expression.getSlots().getVariable("x")
+            .orElseThrow(IllegalStateException::new);
+    expression.getSlots().getVariable("y")
+            .orElseThrow(IllegalStateException::new);
+    expression.getSlots().getVariable("z")
+            .orElseThrow(IllegalStateException::new);
+
+    final Variable typeVariable = expression.getSlots().getVariable("type")
+            .orElseThrow(IllegalStateException::new);
+    final Variable dataVariable = expression.getSlots().getVariable("data")
+            .orElseThrow(IllegalStateException::new);
+
+    final WorldEditExpressionEnvironment environment = new WorldEditExpressionEnvironment(this, unit, zero);
+    expression.setEnvironment(environment);
+
+    final int[] timedOut = {0};
+    final ArbitraryShape shape = new ArbitraryShape(region) {
+        @Override
+        protected BaseBlock getMaterial(int x, int y, int z, BaseBlock defaultMaterial) {
+            final Vector3 current = Vector3.at(x, y, z);
+            environment.setCurrentBlock(current);
+            final Vector3 scaled = current.subtract(zero).divide(unit);
+
+            try {
+                int[] legacy = LegacyMapper.getInstance().getLegacyFromBlock(defaultMaterial.toImmutableState());
+                int typeVar = 0;
+                int dataVar = 0;
+                if (legacy != null) {
+                    typeVar = legacy[0];
+                    if (legacy.length > 1) {
+                        dataVar = legacy[1];
+                    }
+                }
+                if (expression.evaluate(new double[]{ scaled.x(), scaled.y(), scaled.z(), typeVar, dataVar}, timeout) <= 0) {
+                    return null;
+                }
+                int newType = (int) typeVariable.value();
+                int newData = (int) dataVariable.value();
+                if (newType != typeVar || newData != dataVar) {
+                    BlockState state = LegacyMapper.getInstance().getBlockFromLegacy(newType, newData);
+                    return state == null ? defaultMaterial : state.toBaseBlock();
+                } else {
+                    return defaultMaterial;
+                }
+            } catch (ExpressionTimeoutException e) {
+                timedOut[0] = timedOut[0] + 1;
+                return null;
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    };
+    int changed = shape.generate(this, pattern, hollow);
+    if (timedOut[0] > 0) {
+        throw new ExpressionTimeoutException(
+                String.format("%d blocks changed. %d blocks took too long to evaluate (increase with //timeout).",
+                        changed, timedOut[0]));
+    }
+    return changed;
 }
 ``` 
 
-![alt_text](command_dp.png)
+![alt_text](template_dp.png)
 
 ---
 
