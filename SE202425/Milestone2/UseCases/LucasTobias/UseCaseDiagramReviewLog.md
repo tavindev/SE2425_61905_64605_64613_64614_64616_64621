@@ -38,6 +38,7 @@ The main actor (Player) is requests, he is the one who performs the action of re
 
 The main actor (Player) is correct, it is he who requests the action of cutting the region, and Minecraft serves as a secondary actor, since it is he who removes the blocks from the region and stores them on an imaginary clipboard. The server does the cutting.
 
+---
 ### Use Case: Rotate Region
 ### Author: Gustavo Chevrand
 
