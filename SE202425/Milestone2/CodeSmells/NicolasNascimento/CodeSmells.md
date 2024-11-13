@@ -20,7 +20,7 @@ public void undo(EditSession editSession) {
     }
 ```
 
-2. Stotgun Surgery
+2. Shotgun Surgery
     - Location: Constructor of EditSession in file: worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java
     - Issue: Modifying a function or attribute in the EditSession class may require changes in multiple areas of the code that rely heavily on several Extents. This is because EditSession triggers several instances of Extent in sequence, each with unique responsibilities. If any logic changes, it may be necessary to update several of these Extents, as well as other associated classes (Watchdog, SideEffectExtent, ChunkLoadingExtent, etc.).
     - Example: In the setBlock() method, there are references to bypassNone, bypassHistory, and bypassReorderHistory, which are stage-specific. Any change in the block definition logic for a specific state requires that all extensions and the setBlock() logic be reviewed to ensure consistency.
