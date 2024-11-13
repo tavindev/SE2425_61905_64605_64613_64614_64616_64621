@@ -1,22 +1,50 @@
 # Use Case Diagram Report
 
-## Author: [Your Name]
-## Date: [MM/DD/YYYY]
+## Author: [Rodrigo Castro]
+## Generation Commands
+---
+
+## Use Case for Hollow Cylinder (hcyl)
+- ID: 64621_UC1
+- Name: Create Hollow Cylinder
+- Description: Creates a hollow vertical cylinder around the player’s feet, using the specified radius and height.
+- Primary Actor: Player
+- Secondary Actor: None
 
 ---
 
-### Use Case Overview
-- **System Component:** Description of the part of the system covered by this diagram.
-- **Actors:** List the primary actors involved.
-- **Primary Use Cases:** List and describe each use case included in the diagram.
+## Use Case for Solid Cylinder (cyl)
+- ID: 64621_UC2
+- Name: Create Solid Cylinder
+- Description: Creates a solid vertical cylinder around the player’s feet, using specified x and y radius and height.
+- Primary Actor: Player
+- Secondary Actor: None
 
 ---
 
-### Diagram Explanation
-- **Details:** Explain the relationships and interactions shown in the use case diagram.
-- **Special Scenarios:** Describe any alternative flows or special cases depicted.
+## Use Case for Sphere (sphere)
+- ID: 64621_UC3
+- Name: Create Solid Sphere
+- Description: Creates a solid sphere around the player’s feet with specified x, y, and z radius.
+- Primary Actor: Player
+- Secondary Actor: None
 
 ---
 
-### Summary
-- **Impact:** Briefly discuss the impact this part of the system has on overall functionality.
+## Use Case for Hollow Sphere (hsphere)
+- ID: 64621_UC4
+- Name: Create Hollow Sphere
+- Description: Creates a hollow sphere around the player’s feet with specified x, y, and z radius.
+- Primary Actor: Player
+- Secondary Actor: None
+
+---
+
+## Use Case for Pyramid (pyramid)
+- ID: 64621_UC5
+- Name: Create Pyramid
+- Description: Creates a pyramid at the player’s location with specified size and height.
+- Primary Actor: Player
+- Secondary Actor: None
+
+---
