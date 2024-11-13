@@ -9,21 +9,13 @@ It's indeed a Primitive Type Obsession because it uses separate int values to re
 
 ---
 
-## 2. Large class
+## 2. Long Parameter List
 ## Author: [Lucas Tobias]
 
-The Large Class code smell is easily identifiable in the EditSession class as it has over 2900 LOC. In fact, this suggests that the class has an excessive number of responsibilities and should be refactored into smaller classes and modules.
-
+The Long Parameter List smell is apparent in the setBlockStateHook method, which has five parameters. This indicates the method could be simplified by encapsulating these parameters into a single object, reducing complexity and improving readability.
 ---
 
-## Author: []
+## 3. Large Class
+## Author: [Lucas Tobias]
 
 
-### General Comments
-- Feedback on the code smells report.
-
-### Specific Comments
-Directioned comments
-
-### Conclusion
-- **Final Thoughts:** Wrap-up comments.
