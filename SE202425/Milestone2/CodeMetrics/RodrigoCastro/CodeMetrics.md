@@ -46,7 +46,7 @@
 - What It Means:
 Cyclomatic Complexity (CC) is a metric that quantifies the complexity of a method by counting its decision points, such as conditional statements, loops, and case labels. A higher value indicates more paths through the code, often making it harder to understand, test, and maintain.
 
--What It Indicates:
+- What It Indicates:
 The CC value of 10 exceeds both the regular threshold of 3 and the extreme threshold of 7, indicating that this method has multiple branching conditions, resulting in high complexity. This can make it challenging to ensure that all code paths are tested and can hinder readability.
 
 ## Observations
@@ -54,10 +54,10 @@ The CC value of 10 exceeds both the regular threshold of 3 and the extreme thres
 - Code Quality Issues:
 The high CC value suggests the updateServerCUI method has multiple if statements and nested conditions that increase the branching logic. This complexity can lead to potential issues in understanding and testing, as there are many possible paths to account for.
 
--Improvement Suggestions:
+- Improvement Suggestions:
 Consider refactoring the method to reduce the number of conditional checks and nested statements. For instance, splitting logic into smaller, more focused methods or using early returns where possible could simplify the control flow and improve readability.
 
 ---
 
 ### Summary
-- **Overall Assessment:** 
+- **Overall Assessment:** Together, these metrics (RFC, NOM, and CC) depict a class that is not only handling too many responsibilities but is also composed of methods with complex internal logic. Refactoring both at the class level (to reduce the number of methods and external dependencies) and within individual methods (to simplify control flow) would help make the code more modular, readable, and maintainable.
