@@ -25,7 +25,7 @@ The suggestion to break down `EditSession` into separate, focused classes or mod
 
 Author: Lucas Tobias
 
-Location: line 74 of the file, worldedit-fabric/src/main/java/com/sk89q/worldedit/fabric/mixin/MixinLevelChunkSetBlockHook.java, method `setBlockStateHook`
+Location: line 74 of the file, worldedit-fabric/src/main/java/com/sk89q/worldedit/fabric/mixin/MixinLevelChunkSetBlockHook.java, method `setBlockStateHook` 
 
 The analysis correctly identifies a **Long Parameter List** code smell in the `setBlockStateHook` method, which uses five parameters: `BlockState target, Level world, BlockPos pos, BlockState old, boolean move`. Passing multiple parameters like this can make the method more challenging to use and understand, especially as parameter lists grow and if parameter types are similar.
 
