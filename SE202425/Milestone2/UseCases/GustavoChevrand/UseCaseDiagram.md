@@ -1,6 +1,6 @@
 # Use Case Diagram Report
 
-# ID: UC1
+# ID: 64616_UC1
 
 Name: Copy region
 
@@ -10,7 +10,7 @@ Primary Actor: Player
 
 Secondary Actor: None
 
-# ID: UC2
+# ID: 64616_UC2
 
 Name: Cut region
 
@@ -20,7 +20,7 @@ Primary Actor: Player
 
 Secondary Actor: Server
 
-# ID: UC3
+# ID: 64616_UC3
 
 Name: Paste region
 
@@ -30,7 +30,7 @@ Primary Actor: Player
 
 Secondary Actor: Server
 
-# ID: UC4
+# ID: 64616_UC4
 
 Name: Rotate region
 
@@ -40,7 +40,7 @@ Primary Actor: Player
 
 Secondary Actor: None
 
-# ID: UC5
+# ID: 64616_UC5
 
 Name: Flip region
 
