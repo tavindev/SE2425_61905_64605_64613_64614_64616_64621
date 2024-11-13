@@ -29,3 +29,5 @@
 - **Description:** The player is teleported to a position at the specified height.
 - **Primary Actor:** User (Player)
 - **Secondary Actor:** None
+
+![alt text](UseCase2.png)
