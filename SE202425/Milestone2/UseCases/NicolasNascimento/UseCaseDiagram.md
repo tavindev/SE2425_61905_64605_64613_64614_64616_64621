@@ -3,6 +3,8 @@
 ## Author: Nicolas Nascimento
 ## Date: 11/11/2024
 
+![alt_text](uc_diagram.png)
+
 # Use Case Descriptions
 
 ## Use Case 1: Resize Region
