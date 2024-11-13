@@ -4,7 +4,7 @@
 
 ## Class: LocalSession
 ---
-## RFC Calculation (Chidamber-Kemerer Metrics Set):
+## RFC Calculation (Chidamber-Kemerer Metrics Set) - Class Level:
 - Value collected: 194
 - Reference values(Regular): [0..45]
 - Extreme range: [80, +∞]
@@ -21,7 +21,7 @@
 
 ---
 
-## NOM Calculation (Li-Henry Metrics Set):
+## NOM Calculation (Li-Henry Metrics Set) - Class Level:
 - Value collected: 94
 - Reference values (Regular): [0..7]
 - Extreme range: [25, +∞]
@@ -31,11 +31,33 @@
 - What It Indicates: A NOM value of 94 significantly exceeds the upper reference limit of 7, indicating that the class has a very high number of methods. This suggests a large, potentially overburdened class, which may be handling too many responsibilities and could be difficult to manage or test effectively.
 
 ## Observations
+
 - Code Quality Issues: The high NOM value suggests that the class is likely overloaded with functionality, which can lead to reduced readability, increased maintenance costs, and a higher chance of introducing errors during updates.
 
 - Improvement Suggestions: Refactor the class to distribute functionality across smaller, more cohesive classes. Applying principles such as Single Responsibility and modular design can reduce the method count and improve the class’s maintainability and clarity.
 
 ---
 
+## CC Calculation (McCabe Cyclomatic Complexity) - Method Level:
+- Value collected: 10
+- Reference values (Regular): [0..3]
+- Extreme range: [7, +∞]
+  
+- What It Means:
+Cyclomatic Complexity (CC) is a metric that quantifies the complexity of a method by counting its decision points, such as conditional statements, loops, and case labels. A higher value indicates more paths through the code, often making it harder to understand, test, and maintain.
+
+-What It Indicates:
+The CC value of 10 exceeds both the regular threshold of 3 and the extreme threshold of 7, indicating that this method has multiple branching conditions, resulting in high complexity. This can make it challenging to ensure that all code paths are tested and can hinder readability.
+
+## Observations
+
+- Code Quality Issues:
+The high CC value suggests the updateServerCUI method has multiple if statements and nested conditions that increase the branching logic. This complexity can lead to potential issues in understanding and testing, as there are many possible paths to account for.
+
+-Improvement Suggestions:
+Consider refactoring the method to reduce the number of conditional checks and nested statements. For instance, splitting logic into smaller, more focused methods or using early returns where possible could simplify the control flow and improve readability.
+
+---
+
 ### Summary
-- **Overall Assessment:** Summarize the quality of the code based on the metrics and any actionable insights.
+- **Overall Assessment:** 
