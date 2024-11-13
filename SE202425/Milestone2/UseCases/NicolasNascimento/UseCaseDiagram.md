@@ -5,6 +5,7 @@
 
 ![alt_text](uc_diagram.png)
 
+
 # Use Case Descriptions
 
 ## Use Case 1: Resize Region
