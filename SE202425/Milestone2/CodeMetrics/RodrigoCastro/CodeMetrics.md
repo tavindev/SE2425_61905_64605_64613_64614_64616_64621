@@ -21,9 +21,19 @@
 
 ---
 
-### Observations
-- **Code Quality Issues:** Issues found on the code
-- **Improvement Suggestions:** Suggest areas for improvement based on the metrics.
+## NOM Calculation (Li-Henry Metrics Set):
+- Value collected: 94
+- Reference values (Regular): [0..7]
+- Extreme range: [25, +∞]
+
+- What It Means: Number Of Methods (NOM) is a metric that counts the total number of methods defined in a class. This includes both public and private methods and provides insight into the size and potential complexity of the class.
+
+- What It Indicates: A NOM value of 94 significantly exceeds the upper reference limit of 7, indicating that the class has a very high number of methods. This suggests a large, potentially overburdened class, which may be handling too many responsibilities and could be difficult to manage or test effectively.
+
+## Observations
+- Code Quality Issues: The high NOM value suggests that the class is likely overloaded with functionality, which can lead to reduced readability, increased maintenance costs, and a higher chance of introducing errors during updates.
+
+- Improvement Suggestions: Refactor the class to distribute functionality across smaller, more cohesive classes. Applying principles such as Single Responsibility and modular design can reduce the method count and improve the class’s maintainability and clarity.
 
 ---
 
