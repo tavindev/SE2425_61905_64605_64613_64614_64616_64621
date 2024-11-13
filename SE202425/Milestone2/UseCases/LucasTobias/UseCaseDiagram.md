@@ -1,22 +1,31 @@
 # Use Case Diagram Report
 
-## Author: [Your Name]
-## Date: [MM/DD/YYYY]
+## Author: Lucas Tobias
+## Date: [11/11/2024]
 
----
+# Use Case Descriptions
 
-### Use Case Overview
-- **System Component:** Description of the part of the system covered by this diagram.
-- **Actors:** List the primary actors involved.
-- **Primary Use Cases:** List and describe each use case included in the diagram.
+## Use Case 1: Unstuck Player
+- **Description:** When the User is stuck in a block, they are teleported to the nearest position where they are not stuck.
+- **Primary Actor:** User (Player)
+- **Secondary Actor:** None
 
----
+## Use Case 2: Ascend Levels
+- **Description:** The player is teleported to the platform of the specified floor (one position above the current one).
+- **Primary Actor:** User (Player)
+- **Secondary Actor:** None
 
-### Diagram Explanation
-- **Details:** Explain the relationships and interactions shown in the use case diagram.
-- **Special Scenarios:** Describe any alternative flows or special cases depicted.
+## Use Case 3: Descend Levels
+- **Description:** The player is teleported to the platform of the specified floor (one position below the current one).
+- **Primary Actor:** User (Player)
+- **Secondary Actor:** None
 
----
+## Use Case 4: Teleport to Targeted Block
+- **Description:** The player is teleported to the position of the target block.
+- **Primary Actor:** User (Player)
+- **Secondary Actor:** None
 
-### Summary
-- **Impact:** Briefly discuss the impact this part of the system has on overall functionality.
+## Use Case 5: Teleport Upwards
+- **Description:** The player is teleported to a position at the specified height.
+- **Primary Actor:** User (Player)
+- **Secondary Actor:** None
