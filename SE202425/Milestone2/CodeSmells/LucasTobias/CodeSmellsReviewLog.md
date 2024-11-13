@@ -1,16 +1,31 @@
 # Code Smells Review Log
 
-## Reviewer: [Reviewer’s Name]
-## Author: [Author’s Name]
-## Date: [MM/DD/YYYY]
+## Reviewer: Lucas Tobias
 
 ---
 
-### General Comments
-- Feedback on the code smells report.
+### Author: Rildo Franco
+Code Smell: Data Clumps
 
-### Specific Comments
-Directioned comments
+#### Location:
 
-### Conclusion
-- **Final Thoughts:** Wrap-up comments.
+
+
+---
+
+### Author: Rodrigo Castro
+Code Smell: Duplicate Code
+
+#### Location:
+
+
+
+---
+### Author: Nicolas Nascimento
+Code Smell: Shotgun Surgery
+
+#### Location:
+
+
+
+---
