@@ -2,57 +2,61 @@
 
 ## Author: Nicolas Nascimento
 
-## WIP*
-
----
-## Attribute Hiding Factor (AHF) - Class Level:
-- **Value collected**: 0,3767
-- **Reference values(Regular)**: [0..0.5]
-
-- **What It Means**: The Attribute Hiding Factor quantifies how much of a class’s behavior is encapsulated in its attributes, potentially hiding the class’s internal details. A high value indicates that the class hides its attributes from the outside world, which can reduce transparency.
-
-- **What It Indicates**: A value of 0,3767 suggests that this class moderately hides its attributes. It’s a reasonable level, indicating that the class does not overly expose its internal attributes while still providing necessary access through methods.
-
-## Observations
-
-- **Code Quality Issues**: No immediate issues are apparent. However, in cases where transparency or testing is a priority, the value could be lowered by exposing more attributes directly or via getter/setter methods.
-
-- **Improvement Suggestions**: If the goal is to improve transparency or simplify interactions with the class, consider providing more direct access to critical attributes, or documenting the class’s internal structure better.
+## Class: BlockState
 
 ---
 
-## Coupling Factor (CF) - Class Level:
-- **Value collected**: 0,0042
-- **Reference values(Regular)**: [0..0.1]
+## RFC Calculation (Chidamber-Kemerer Metrics Set) - Class Level:
+- Value collected: 152
+- Reference values (Regular): [0..45]
+- Extreme range: [80, +∞]
 
-- **What It Means**: The Coupling Factor measures the degree of dependency a class has on other classes. A low CF value indicates that the class has fewer external dependencies, which is generally desirable for maintainability.
+- **What It Means:** Response For a Class (RFC) is a metric that measures the number of methods that can be executed in response to a message received by an object of this class. It accounts for methods within the class itself as well as any methods directly invoked.
 
-- **What It Indicates**: A value of 0,0042 is quite low, suggesting that MyClass is well-encapsulated and doesn’t heavily rely on other components of the system. This is a good sign for modularity and ease of maintenance.
+- **What It Indicates:** The RFC value of 152 is significantly above the upper reference limit of 45, which indicates high coupling and an extensive number of method interactions. This high RFC may point to multiple responsibilities within the class, making it more challenging to understand, test, and maintain.
 
 ## Observations
 
-- **Code Quality Issues**: There are no immediate issues. The low CF indicates good modularity and design, which makes the class easier to modify and test independently.
+- **Code Quality Issues:** The high RFC value suggests this class may be overly complex, with excessive dependencies on other methods and classes, which can complicate testing and maintenance.
 
-- **Improvement Suggestions**: Continue to avoid unnecessary dependencies on other classes to maintain the low coupling and modular structure. If any dependencies are introduced, ensure they are essential for the functionality of the class.
+- **Improvement Suggestions:** Consider refactoring by delegating responsibilities to smaller, more focused classes. Applying the Single Responsibility Principle can help to reduce dependencies and improve code modularity.
 
 ---
 
-## Halstead Difficulty (PRHD) - Method Level:
+## NOM Calculation (Li-Henry Metrics Set) - Class Level:
+- Value collected: 87
+- Reference values (Regular): [0..7]
+- Extreme range: [25, +∞]
 
-- **Value collected**: 36872,1395
-- **Reference values(Regular)**: [0..50]
+- **What It Means:** Number of Methods (NOM) measures the total number of methods within a class, providing an overview of the class's functional size and potential complexity.
 
-- **What It Means**: Halstead Difficulty measures the difficulty of understanding the code based on the number of distinct operators and operands. A high value suggests the code is complex and potentially harder to maintain.
-
-- **What It Indicates**: With a value of 36872,1395, this method is highly complex. The code may involve a large number of unique operations and operands, making it challenging to understand and maintain.
+- **What It Indicates:** With a NOM of 87, `BlockState` surpasses the standard upper limit of 7 and even the extreme threshold of 25, suggesting it is overloaded with functionality. This large method count can indicate that the class is handling many responsibilities, leading to decreased readability and maintainability.
 
 ## Observations
 
-- **Code Quality Issues**: The high difficulty suggests that the method might be too intricate, potentially involving many different operations that increase the cognitive load needed to understand the code.
+- **Code Quality Issues:** A high number of methods implies that the class may be performing too many tasks, which can reduce clarity and increase the likelihood of errors during modification.
 
-- **Improvement Suggestions**: Refactor the method by breaking it down into smaller, more manageable functions. By reducing the number of unique operations and improving the method’s clarity, you can make the code easier to maintain and understand.
+- **Improvement Suggestions:** Consider breaking down the class into smaller, more cohesive components. Using modular design principles, such as the Single Responsibility Principle, can improve readability and maintainability by distributing functionality across smaller classes.
+
+---
+
+## CC Calculation (McCabe Cyclomatic Complexity) - Method Level:
+Method: generateStateMap()
+- Value collected: 12
+- Reference values (Regular): [0..3]
+- Extreme range: [7, +∞]
+
+- **What It Means:** Cyclomatic Complexity (CC) counts the decision points in a method, such as `if` statements, loops, and `switch` cases. Higher values indicate more paths through the code, which can increase difficulty in understanding, testing, and maintaining.
+
+- **What It Indicates:** The CC of 12 in the `generateStateMap` method exceeds both regular and extreme thresholds, showing that it contains numerous conditional branches, making it a highly complex method. This high complexity can make testing challenging as multiple paths must be accounted for.
+
+## Observations
+
+- **Code Quality Issues:** The method's complexity suggests that it includes several conditional and loop constructs, resulting in branching that may obscure its logic.
+
+- **Improvement Suggestions:** Refactor by breaking the method into smaller helper functions to manage complexity. Using early returns or restructuring the flow can also help reduce the number of branches and improve readability.
 
 ---
 
 ### Summary
-- **Overall Assessment:** The analysis of these metrics indicates that the class exhibits good modularity and low coupling, which are strengths. However, the method could benefit from refactoring due to its high Halstead Difficulty. Reducing the complexity of this method would improve the overall maintainability of the class. Additionally, while the Attribute Hiding Factor is within a reasonable range, further transparency could be considered depending on the specific use case.
+- **Overall Assessment:** The `BlockState` class, with its high RFC, NOM, and individual method complexities, reflects a structure that could benefit greatly from refactoring. Dividing responsibilities among smaller, cohesive classes would improve maintainability, and simplifying control flow within complex methods would enhance readability and testability.
