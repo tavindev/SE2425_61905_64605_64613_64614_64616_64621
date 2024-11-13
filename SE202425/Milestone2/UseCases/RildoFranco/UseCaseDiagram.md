@@ -29,3 +29,7 @@
 - **Description:** User retrieves the earliest snapshot created after a specified date, enabling a targeted review of recent backups.
 - **Primary Actor:** User (Player)
 - **Secondary Actor:** None
+
+Diagram
+
+![alt text](<UC Diagram.png>)
