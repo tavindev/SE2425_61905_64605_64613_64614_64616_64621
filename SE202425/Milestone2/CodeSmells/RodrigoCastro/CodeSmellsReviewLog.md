@@ -1,10 +1,16 @@
 # Code Smells Review Log
 
-## Reviewer: [Reviewer’s Name]
-## Author: [Author’s Name]
-## Date: [MM/DD/YYYY]
+## Reviewer: [Rodrigo Castro]
+## Author: [Gustavo Chevrand]
+
+##1. Primitive Type Obssession
+It's indeed a Primitive Type Obsession because it uses separate int values to represent coordinates instead of encapsulating them in a single, meaningful object (BlockVector3).
 
 ---
+
+## Reviewer: [Rodrigo Castro]
+## Author: []
+
 
 ### General Comments
 - Feedback on the code smells report.
