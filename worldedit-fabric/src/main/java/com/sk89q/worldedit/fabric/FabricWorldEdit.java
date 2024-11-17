@@ -152,6 +152,9 @@ public class FabricWorldEdit implements ModInitializer {
             () -> new IllegalStateException("WorldEdit mod missing in Fabric")
         );
 
+        FabricKeyHandler keyHandler = new FabricKeyHandler();
+        keyHandler.onInitializeClient();
+
         // Setup working directory
         workingDir = FabricLoader.getInstance().getConfigDir().resolve("worldedit");
         if (!Files.exists(workingDir)) {
