@@ -6,7 +6,11 @@
 Gustavo Chevrand
 
 ## Management info
-- Burndown chart
 - Scrum board
 
-![alt text](image-1.png)
+<img width="1527" alt="image" src="https://github.com/user-attachments/assets/14c8a163-9c9a-4374-bcee-5b4d451f965a">
+
+- Burndown chart
+
+<img width="1510" alt="image" src="https://github.com/user-attachments/assets/074c6853-1f23-4a1e-a7c7-5e98b12533df">
+

@@ -41,3 +41,4 @@ public interface Brush {
     void build(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException;
 
 }
+    
