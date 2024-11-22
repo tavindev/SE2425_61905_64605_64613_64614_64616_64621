@@ -54,7 +54,14 @@ public class WorldEditCommandEdit extends Screen {
 
 
     protected void onDone() {
-        this.minecraft.setScreen(null);
+        String cmd = this.commandEdit.getValue();
+        if (cmd.isEmpty()) {
+            // Mensagem de erro?
+        } else {
+            // idk
+            // commandEdit.setValue(cmd);
+            this.minecraft.setScreen(null);
+        }
     }
 
     private void drawCenteredStringWithWrap(GuiGraphics pGuiGraphics, Font font, FormattedText formattedText, int i, int j, int k, int l) {
@@ -69,6 +76,7 @@ public class WorldEditCommandEdit extends Screen {
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         pGuiGraphics.drawCenteredString(this.font, MODE_LABEL, this.width / 2, 20, 16777215);
+        pGuiGraphics.fill(this.width / 2 - 160, 40, this.width / 2 + 160, 100, 0xAA000000);
         Component TEXT_TEST = Component.translatable("How many dragons are in the world? The magic is dead here, everyone who stands in these lands are spiritless souls. The last dragon stands in the only world who it can, The End.");
         drawCenteredStringWithWrap(pGuiGraphics, this.font, TEXT_TEST, this.width / 2, 50, this.width / 2, 16777215);
     }
