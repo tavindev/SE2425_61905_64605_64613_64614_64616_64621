@@ -151,12 +151,12 @@ public class FabricWorldEdit implements ModInitializer {
         inst = this;
     }
 
-    public static final Item THUNDERBOLT_BLADE = new ThunderboltBlade(
-            new Item.Properties()
-                    .stacksTo(1)
-                    .fireResistant()
-                    .durability(2032)
-    );
+//    public static final Item THUNDERBOLT_BLADE = new ThunderboltBlade(
+//            new Item.Properties()
+//                    .stacksTo(1)
+//                    .fireResistant()
+//                    .durability(2032)
+//    );
 
 //    public void registerItems() {
 //        ResourceLocation itemID = new ResourceLocation(MOD_ID, "thunderbolt_blade");
