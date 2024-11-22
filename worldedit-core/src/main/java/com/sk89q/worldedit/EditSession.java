@@ -194,6 +194,40 @@ public class EditSession implements Extent, AutoCloseable {
         }
     }
 
+    private class AppliedBrush {
+        private boolean selected = false;
+        private EditSession session;
+        private Pattern pattern;
+
+        List<BlockVector3> positions = new ArrayList<>();
+
+        AppliedBrush(EditSession session, Pattern pattern) {
+            this.session = session;
+            this.pattern = pattern;
+        }
+
+        boolean setBlock(BlockVector3 position) throws MaxChangedBlocksException {
+            positions.add(position);
+            return session.setBlock(position, this.pattern);
+        }
+
+        void toggleSelect() throws MaxChangedBlocksException {
+            Pattern pattern = selected ? this.pattern : BlockTypes.LIGHT_BLUE_STAINED_GLASS.getDefaultState();
+
+            for (BlockVector3 position : positions) {
+                session.setBlock(position, pattern);
+            }
+
+            session.internalFlushSession();
+            
+            selected = !selected;
+        }
+
+        boolean isSelected() {
+            return selected;
+        }
+    }
+
     @SuppressWarnings("ProtectedField")
     protected final World world;
     private final @Nullable Actor actor;
@@ -222,15 +256,18 @@ public class EditSession implements Extent, AutoCloseable {
 
     private Mask oldMask;
 
+    private AppliedBrush currentBrush;
+
+
     /**
      * Construct the object with a maximum number of blocks and a block bag.
      *
-     * @param eventBus the event bus
-     * @param world the world
+     * @param eventBus  the event bus
+     * @param world     the world
      * @param maxBlocks the maximum number of blocks that can be changed, or -1 to use no limit
-     * @param blockBag an optional {@link BlockBag} to use, otherwise null
-     * @param actor the actor that owns the session
-     * @param tracing if tracing is enabled. An actor is required if this is {@code true}
+     * @param blockBag  an optional {@link BlockBag} to use, otherwise null
+     * @param actor     the actor that owns the session
+     * @param tracing   if tracing is enabled. An actor is required if this is {@code true}
      */
     EditSession(EventBus eventBus, World world, int maxBlocks, @Nullable BlockBag blockBag,
                 @Nullable Actor actor,
@@ -251,7 +288,7 @@ public class EditSession implements Extent, AutoCloseable {
         if (world != null) {
             EditSessionEvent event = new EditSessionEvent(world, actor, maxBlocks, null);
             Watchdog watchdog = WorldEdit.getInstance().getPlatformManager()
-                .queryCapability(Capability.GAME_HOOKS).getWatchdog();
+                    .queryCapability(Capability.GAME_HOOKS).getWatchdog();
             Extent extent;
 
             // These extents are ALWAYS used
@@ -309,6 +346,13 @@ public class EditSession implements Extent, AutoCloseable {
         setReorderMode(this.reorderMode);
     }
 
+
+    void toggleSelect() throws MaxChangedBlocksException {
+        if (currentBrush != null) {
+            currentBrush.toggleSelect();
+        }
+    }
+
     private Extent traceIfNeeded(Extent input) {
         Extent output = input;
         if (tracingExtents != null) {
@@ -353,8 +397,8 @@ public class EditSession implements Extent, AutoCloseable {
             return ImmutableList.of();
         }
         return tracingExtents.stream()
-            .filter(TracingExtent::isActive)
-            .toList();
+                .filter(TracingExtent::isActive)
+                .toList();
     }
 
     /**
@@ -717,8 +761,8 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Returns the highest solid 'terrain' block.
      *
-     * @param x the X coordinate
-     * @param z the Z coordinate
+     * @param x    the X coordinate
+     * @param z    the Z coordinate
      * @param minY minimal height
      * @param maxY maximal height
      * @return height of highest block found or 'minY'
@@ -730,10 +774,10 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Returns the highest solid 'terrain' block.
      *
-     * @param x the X coordinate
-     * @param z the Z coordinate
-     * @param minY minimal height
-     * @param maxY maximal height
+     * @param x      the X coordinate
+     * @param z      the Z coordinate
+     * @param minY   minimal height
+     * @param maxY   maximal height
      * @param filter a mask of blocks to consider, or null to consider any solid (movement-blocking) block
      * @return height of highest block found or 'minY'
      */
@@ -754,8 +798,8 @@ public class EditSession implements Extent, AutoCloseable {
      * Set a block, bypassing both history and block re-ordering.
      *
      * @param position the position to set the block at
-     * @param block the block
-     * @param stage the level
+     * @param block    the block
+     * @param stage    the level
      * @return whether the block changed
      * @throws WorldEditException thrown on a set error
      */
@@ -772,7 +816,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Set a block, bypassing both history and block re-ordering.
      *
      * @param position the position to set the block at
-     * @param block the block
+     * @param block    the block
      * @return whether the block changed
      */
     public <B extends BlockStateHolder<B>> boolean rawSetBlock(BlockVector3 position, B block) {
@@ -787,7 +831,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Set a block, bypassing history but still utilizing block re-ordering.
      *
      * @param position the position to set the block at
-     * @param block the block
+     * @param block    the block
      * @return whether the block changed
      */
     public <B extends BlockStateHolder<B>> boolean smartSetBlock(BlockVector3 position, B block) {
@@ -813,7 +857,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Sets the block at a position, subject to both history and block re-ordering.
      *
      * @param position the position
-     * @param pattern a pattern to use
+     * @param pattern  a pattern to use
      * @return Whether the block changed -- not entirely dependable
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -825,7 +869,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Set blocks that are in a set of positions and return the number of times
      * that the block set calls returned true.
      *
-     * @param vset a set of positions
+     * @param vset    a set of positions
      * @param pattern the pattern
      * @return the number of changed blocks
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -951,7 +995,7 @@ public class EditSession implements Extent, AutoCloseable {
                     .filter(it -> it.getTouchedLocations().contains(loc))
                     .toList();
             boolean anyFailed = stack.stream()
-                .anyMatch(it -> it.getFailedActions().containsKey(loc));
+                    .anyMatch(it -> it.getFailedActions().containsKey(loc));
             if (anyFailed && stacks.add(stack)) {
                 stackToPosition.put(stack, loc);
             }
@@ -960,12 +1004,12 @@ public class EditSession implements Extent, AutoCloseable {
             // stack can never be empty, something has to have touched the position
             TracingExtent failure = stack.get(0);
             actor.printDebug(TranslatableComponent.builder("worldedit.trace.action-failed")
-                .args(
-                    TextComponent.of(failure.getFailedActions().get(position).toString()),
-                    TextComponent.of(position.toString()),
-                    TextComponent.of(failure.getExtent().getClass().getName())
-                )
-                .build());
+                    .args(
+                            TextComponent.of(failure.getFailedActions().get(position).toString()),
+                            TextComponent.of(position.toString()),
+                            TextComponent.of(failure.getExtent().getClass().getName())
+                    )
+                    .build());
         });
     }
 
@@ -992,7 +1036,7 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Count the number of blocks of a list of types in a region.
      *
-     * @param region the region
+     * @param region       the region
      * @param searchBlocks the list of blocks to search
      * @return the number of blocks that matched the block
      */
@@ -1004,7 +1048,7 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Count the number of blocks of a list of types in a region.
      *
-     * @param region the region
+     * @param region     the region
      * @param searchMask mask to match
      * @return the number of blocks that matched the mask
      */
@@ -1019,10 +1063,10 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Fills an area recursively in the X/Z directions.
      *
-     * @param origin the location to start from
-     * @param block the block to fill with
-     * @param radius the radius of the spherical area to fill
-     * @param depth the maximum depth, starting from the origin
+     * @param origin    the location to start from
+     * @param block     the block to fill with
+     * @param radius    the radius of the spherical area to fill
+     * @param depth     the maximum depth, starting from the origin
      * @param recursive whether a breadth-first search should be performed
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1034,10 +1078,10 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Fills an area recursively in the X/Z directions.
      *
-     * @param origin the origin to start the fill from
-     * @param pattern the pattern to fill with
-     * @param radius the radius of the spherical area to fill, with 0 as the smallest radius
-     * @param depth the maximum depth, starting from the origin, with 1 as the smallest depth
+     * @param origin    the origin to start the fill from
+     * @param pattern   the pattern to fill with
+     * @param radius    the radius of the spherical area to fill, with 0 as the smallest radius
+     * @param depth     the maximum depth, starting from the origin, with 1 as the smallest depth
      * @param recursive whether a breadth-first search should be performed
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1086,8 +1130,8 @@ public class EditSession implements Extent, AutoCloseable {
      * Remove a cuboid above the given position with a given apothem and a given height.
      *
      * @param position base position
-     * @param apothem an apothem of the cuboid (on the XZ plane), where the minimum is 1
-     * @param height the height of the cuboid, where the minimum is 1
+     * @param apothem  an apothem of the cuboid (on the XZ plane), where the minimum is 1
+     * @param height   the height of the cuboid, where the minimum is 1
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -1107,8 +1151,8 @@ public class EditSession implements Extent, AutoCloseable {
      * Remove a cuboid below the given position with a given apothem and a given height.
      *
      * @param position base position
-     * @param apothem an apothem of the cuboid (on the XZ plane), where the minimum is 1
-     * @param height the height of the cuboid, where the minimum is 1
+     * @param apothem  an apothem of the cuboid (on the XZ plane), where the minimum is 1
+     * @param height   the height of the cuboid, where the minimum is 1
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -1128,8 +1172,8 @@ public class EditSession implements Extent, AutoCloseable {
      * Remove blocks of a certain type nearby a given position.
      *
      * @param position center position of cuboid
-     * @param mask the mask to match
-     * @param apothem an apothem of the cuboid, where the minimum is 1
+     * @param mask     the mask to match
+     * @param apothem  an apothem of the cuboid, where the minimum is 1
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -1149,7 +1193,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Sets all the blocks inside a region to a given block type.
      *
      * @param region the region
-     * @param block the block
+     * @param block  the block
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -1160,7 +1204,7 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Sets all the blocks inside a region to a given pattern.
      *
-     * @param region the region
+     * @param region  the region
      * @param pattern the pattern that provides the replacement block
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1179,8 +1223,8 @@ public class EditSession implements Extent, AutoCloseable {
      * Replaces all the blocks matching a given filter, within a given region, to a block
      * returned by a given pattern.
      *
-     * @param region the region to replace the blocks within
-     * @param filter a list of block types to match, or null to use {@link com.sk89q.worldedit.function.mask.ExistingBlockMask}
+     * @param region      the region to replace the blocks within
+     * @param filter      a list of block types to match, or null to use {@link com.sk89q.worldedit.function.mask.ExistingBlockMask}
      * @param replacement the replacement block
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1193,8 +1237,8 @@ public class EditSession implements Extent, AutoCloseable {
      * Replaces all the blocks matching a given filter, within a given region, to a block
      * returned by a given pattern.
      *
-     * @param region the region to replace the blocks within
-     * @param filter a list of block types to match, or null to use {@link com.sk89q.worldedit.function.mask.ExistingBlockMask}
+     * @param region  the region to replace the blocks within
+     * @param filter  a list of block types to match, or null to use {@link com.sk89q.worldedit.function.mask.ExistingBlockMask}
      * @param pattern the pattern that provides the new blocks
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1208,8 +1252,8 @@ public class EditSession implements Extent, AutoCloseable {
      * Replaces all the blocks matching a given mask, within a given region, to a block
      * returned by a given pattern.
      *
-     * @param region the region to replace the blocks within
-     * @param mask the mask that blocks must match
+     * @param region  the region to replace the blocks within
+     * @param mask    the mask that blocks must match
      * @param pattern the pattern that provides the new blocks
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1231,7 +1275,7 @@ public class EditSession implements Extent, AutoCloseable {
      * If the center sits between two blocks on a certain axis, then two blocks
      * will be placed to mark the center.
      *
-     * @param region the region to find the center of
+     * @param region  the region to find the center of
      * @param pattern the replacement pattern
      * @return the number of blocks placed
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1255,7 +1299,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Make the faces of the given region as if it was a {@link CuboidRegion}.
      *
      * @param region the region
-     * @param block the block to place
+     * @param block  the block to place
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      * @deprecated Use {@link EditSession#makeCuboidFaces(Region, Pattern)}.
@@ -1268,7 +1312,7 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Make the faces of the given region as if it was a {@link CuboidRegion}.
      *
-     * @param region the region
+     * @param region  the region
      * @param pattern the pattern to place
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1287,7 +1331,7 @@ public class EditSession implements Extent, AutoCloseable {
      * may be inefficient, because there may not be an efficient implementation supported
      * for that specific shape.
      *
-     * @param region the region
+     * @param region  the region
      * @param pattern the pattern to place
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1309,7 +1353,7 @@ public class EditSession implements Extent, AutoCloseable {
      * as if it was a {@link CuboidRegion}.
      *
      * @param region the region
-     * @param block the block to place
+     * @param block  the block to place
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -1321,7 +1365,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Make the walls (all faces but those parallel to the X-Z plane) of the given region
      * as if it was a {@link CuboidRegion}.
      *
-     * @param region the region
+     * @param region  the region
      * @param pattern the pattern to place
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1340,7 +1384,7 @@ public class EditSession implements Extent, AutoCloseable {
      * may be inefficient, because there may not be an efficient implementation supported
      * for that specific shape.
      *
-     * @param region the region
+     * @param region  the region
      * @param pattern the pattern to place
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1374,7 +1418,7 @@ public class EditSession implements Extent, AutoCloseable {
      * (as if it were a cuboid).
      *
      * @param region the region
-     * @param block the placed block
+     * @param block  the placed block
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      * @deprecated Use {@link EditSession#overlayCuboidBlocks(Region, Pattern)}.
@@ -1390,7 +1434,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Places a layer of blocks on top of ground blocks in the given region
      * (as if it were a cuboid).
      *
-     * @param region the region
+     * @param region  the region
      * @param pattern the placed block pattern
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1429,9 +1473,9 @@ public class EditSession implements Extent, AutoCloseable {
      * Stack a cuboid region. For compatibility, entities are copied by biomes are not.
      * Use {@link #stackCuboidRegion(Region, BlockVector3, int, boolean, boolean, Mask)} to fine tune.
      *
-     * @param region the region to stack
-     * @param dir the direction to stack
-     * @param count the number of times to stack
+     * @param region  the region to stack
+     * @param dir     the direction to stack
+     * @param count   the number of times to stack
      * @param copyAir true to also copy air blocks
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1443,12 +1487,12 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Stack a cuboid region.
      *
-     * @param region the region to stack
-     * @param offset how far to move the contents each stack
-     * @param count the number of times to stack
+     * @param region       the region to stack
+     * @param offset       how far to move the contents each stack
+     * @param count        the number of times to stack
      * @param copyEntities true to copy entities
-     * @param copyBiomes true to copy biomes
-     * @param mask source mask for the operation (only matching blocks are copied)
+     * @param copyBiomes   true to copy biomes
+     * @param mask         source mask for the operation (only matching blocks are copied)
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -1469,15 +1513,15 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Stack a region using block units.
      *
-     * @param region the region to stack
-     * @param offset how far to move the contents each stack in block units
-     * @param count the number of times to stack
+     * @param region       the region to stack
+     * @param offset       how far to move the contents each stack in block units
+     * @param count        the number of times to stack
      * @param copyEntities true to copy entities
-     * @param copyBiomes true to copy biomes
-     * @param mask source mask for the operation (only matching blocks are copied)
+     * @param copyBiomes   true to copy biomes
+     * @param mask         source mask for the operation (only matching blocks are copied)
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
-     * @throws RegionOperationException thrown if the region operation is invalid
+     * @throws RegionOperationException  thrown if the region operation is invalid
      */
     public int stackRegionBlockUnits(Region region, BlockVector3 offset, int count,
                                      boolean copyEntities, boolean copyBiomes, Mask mask) throws MaxChangedBlocksException, RegionOperationException {
@@ -1506,10 +1550,10 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Move the blocks in a region a certain direction.
      *
-     * @param region the region to move
-     * @param offset the offset
-     * @param multiplier the number to multiply the offset by
-     * @param copyAir true to copy air blocks
+     * @param region      the region to move
+     * @param offset      the offset
+     * @param multiplier  the number to multiply the offset by
+     * @param copyAir     true to copy air blocks
      * @param replacement the replacement pattern to fill in after moving, or null to use air
      * @return number of blocks moved
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1521,16 +1565,16 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Move the blocks in a region a certain direction.
      *
-     * @param region the region to move
-     * @param offset the offset
-     * @param multiplier the number to multiply the offset by
+     * @param region       the region to move
+     * @param offset       the offset
+     * @param multiplier   the number to multiply the offset by
      * @param moveEntities true to move entities
-     * @param copyBiomes true to copy biomes (source biome is unchanged)
-     * @param mask source mask for the operation (only matching blocks are moved)
-     * @param replacement the replacement pattern to fill in after moving, or null to use air
+     * @param copyBiomes   true to copy biomes (source biome is unchanged)
+     * @param mask         source mask for the operation (only matching blocks are moved)
+     * @param replacement  the replacement pattern to fill in after moving, or null to use air
      * @return number of blocks moved
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
-     * @throws IllegalArgumentException thrown if the region is not a flat region, but copyBiomes is true
+     * @throws IllegalArgumentException  thrown if the region is not a flat region, but copyBiomes is true
      */
     public int moveRegion(Region region, BlockVector3 offset, int multiplier,
                           boolean moveEntities, boolean copyBiomes, Mask mask, Pattern replacement) throws MaxChangedBlocksException {
@@ -1543,8 +1587,8 @@ public class EditSession implements Extent, AutoCloseable {
 
         // Remove the original blocks
         Pattern pattern = replacement != null
-            ? replacement
-            : BlockTypes.AIR.getDefaultState();
+                ? replacement
+                : BlockTypes.AIR.getDefaultState();
         BlockReplace remove = new BlockReplace(this, pattern);
 
         // Copy to a buffer so we don't destroy our original before we can copy all the blocks from it
@@ -1581,10 +1625,10 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Move the blocks in a region a certain direction.
      *
-     * @param region the region to move
-     * @param dir the direction
-     * @param distance the distance to move
-     * @param copyAir true to copy air blocks
+     * @param region      the region to move
+     * @param dir         the direction
+     * @param distance    the distance to move
+     * @param copyAir     true to copy air blocks
      * @param replacement the replacement pattern to fill in after moving, or null to use air
      * @return number of blocks moved
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1608,8 +1652,8 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Drain nearby pools of water or lava, optionally removed waterlogged states from blocks.
      *
-     * @param origin the origin to drain from, which will search a 3x3 area
-     * @param radius the radius of the removal, where a value should be 0 or greater
+     * @param origin      the origin to drain from, which will search a 3x3 area
+     * @param radius      the radius of the removal, where a value should be 0 or greater
      * @param waterlogged true to make waterlogged blocks non-waterlogged as well
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1628,7 +1672,7 @@ public class EditSession implements Extent, AutoCloseable {
                 new BoundedHeightMask(getWorld().getMinY(), getWorld().getMaxY()),
                 new RegionMask(new EllipsoidRegion(null, origin, Vector3.at(radius, radius, radius))),
                 waterlogged ? new MaskUnion(getWorld().createLiquidMask(), waterloggedMask)
-                            : getWorld().createLiquidMask());
+                        : getWorld().createLiquidMask());
 
         BlockReplace replace;
         if (waterlogged) {
@@ -1655,7 +1699,7 @@ public class EditSession implements Extent, AutoCloseable {
      *
      * @param origin the original position
      * @param radius the radius to fix
-     * @param fluid the type of the fluid
+     * @param fluid  the type of the fluid
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -1694,8 +1738,8 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Makes a cylinder.
      *
-     * @param pos Center of the cylinder
-     * @param block The block pattern to use
+     * @param pos    Center of the cylinder
+     * @param block  The block pattern to use
      * @param radius The cylinder's radius
      * @param height The cylinder's up/down extent. If negative, extend downward.
      * @param filled If false, only a shell will be generated.
@@ -1709,12 +1753,12 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Makes a cylinder.
      *
-     * @param pos Center of the cylinder
-     * @param block The block pattern to use
+     * @param pos     Center of the cylinder
+     * @param block   The block pattern to use
      * @param radiusX The cylinder's largest north/south extent
      * @param radiusZ The cylinder's largest east/west extent
-     * @param height The cylinder's up/down extent. If negative, extend downward.
-     * @param filled If false, only a shell will be generated.
+     * @param height  The cylinder's up/down extent. If negative, extend downward.
+     * @param filled  If false, only a shell will be generated.
      * @return number of blocks changed
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -1744,11 +1788,13 @@ public class EditSession implements Extent, AutoCloseable {
         final int ceilRadiusZ = (int) Math.ceil(radiusZ);
 
         double nextXn = 0;
-        forX: for (int x = 0; x <= ceilRadiusX; ++x) {
+        forX:
+        for (int x = 0; x <= ceilRadiusX; ++x) {
             final double xn = nextXn;
             nextXn = (x + 1) * invRadiusX;
             double nextZn = 0;
-            forZ: for (int z = 0; z <= ceilRadiusZ; ++z) {
+            forZ:
+            for (int z = 0; z <= ceilRadiusZ; ++z) {
                 final double zn = nextZn;
                 nextZn = (z + 1) * invRadiusZ;
 
@@ -1789,12 +1835,12 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Makes a cone.
      *
-     * @param pos Center of the cone
-     * @param block The block pattern to use
-     * @param radiusX The cone's largest north/south extent
-     * @param radiusZ The cone's largest east/west extent
-     * @param height The cone's up/down extent. If negative, extend downward.
-     * @param filled If false, only a shell will be generated.
+     * @param pos       Center of the cone
+     * @param block     The block pattern to use
+     * @param radiusX   The cone's largest north/south extent
+     * @param radiusZ   The cone's largest east/west extent
+     * @param height    The cone's up/down extent. If negative, extend downward.
+     * @param filled    If false, only a shell will be generated.
      * @param thickness The cone's wall thickness, if it's hollow.
      * @return number of blocks changed
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -1819,7 +1865,7 @@ public class EditSession implements Extent, AutoCloseable {
                 for (int z = 0; z <= ceilRadiusZ; ++z) {
                     double zSquaredOverRadiusZ = Math.pow(z, 2) / radiusZPow;
                     double distanceFromOriginMinusHeightSquared = xSquaredOverRadiusX + zSquaredOverRadiusZ
-                        - ySquaredMinusHeightOverHeightSquared;
+                            - ySquaredMinusHeightOverHeightSquared;
 
                     if (distanceFromOriginMinusHeightSquared > 1) {
                         if (z == 0) {
@@ -1830,11 +1876,11 @@ public class EditSession implements Extent, AutoCloseable {
 
                     if (!filled) {
                         double xNext = Math.pow(x + thickness, 2) / radiusXPow
-                            + zSquaredOverRadiusZ - ySquaredMinusHeightOverHeightSquared;
+                                + zSquaredOverRadiusZ - ySquaredMinusHeightOverHeightSquared;
                         double yNext = xSquaredOverRadiusX + zSquaredOverRadiusZ
-                            - Math.pow(y + thickness - height, 2) / heightPow;
+                                - Math.pow(y + thickness - height, 2) / heightPow;
                         double zNext = xSquaredOverRadiusX + Math.pow(z + thickness, 2)
-                            / radiusZPow - ySquaredMinusHeightOverHeightSquared;
+                                / radiusZPow - ySquaredMinusHeightOverHeightSquared;
                         if (xNext <= 0 && zNext <= 0 && (yNext <= 0 && y + thickness != height)) {
                             continue;
                         }
@@ -1861,15 +1907,15 @@ public class EditSession implements Extent, AutoCloseable {
     }
 
     /**
-    * Makes a sphere.
-    *
-    * @param pos Center of the sphere or ellipsoid
-    * @param block The block pattern to use
-    * @param radius The sphere's radius
-    * @param filled If false, only a shell will be generated.
-    * @return number of blocks changed
-    * @throws MaxChangedBlocksException thrown if too many blocks are changed
-    */
+     * Makes a sphere.
+     *
+     * @param pos    Center of the sphere or ellipsoid
+     * @param block  The block pattern to use
+     * @param radius The sphere's radius
+     * @param filled If false, only a shell will be generated.
+     * @return number of blocks changed
+     * @throws MaxChangedBlocksException thrown if too many blocks are changed
+     */
     public int makeSphere(BlockVector3 pos, Pattern block, double radius, boolean filled) throws MaxChangedBlocksException {
         return makeSphere(pos, block, radius, radius, radius, filled);
     }
@@ -1877,16 +1923,18 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Makes a sphere or ellipsoid.
      *
-     * @param pos Center of the sphere or ellipsoid
-     * @param block The block pattern to use
+     * @param pos     Center of the sphere or ellipsoid
+     * @param block   The block pattern to use
      * @param radiusX The sphere/ellipsoid's largest north/south extent
      * @param radiusY The sphere/ellipsoid's largest up/down extent
      * @param radiusZ The sphere/ellipsoid's largest east/west extent
-     * @param filled If false, only a shell will be generated.
+     * @param filled  If false, only a shell will be generated.
      * @return number of blocks changed
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
     public int makeSphere(BlockVector3 pos, Pattern block, double radiusX, double radiusY, double radiusZ, boolean filled) throws MaxChangedBlocksException {
+        AppliedBrush brush = new AppliedBrush(this, block);
+
         int affected = 0;
 
         radiusX += 0.5;
@@ -1902,15 +1950,18 @@ public class EditSession implements Extent, AutoCloseable {
         final int ceilRadiusZ = (int) Math.ceil(radiusZ);
 
         double nextXn = 0;
-        forX: for (int x = 0; x <= ceilRadiusX; ++x) {
+        forX:
+        for (int x = 0; x <= ceilRadiusX; ++x) {
             final double xn = nextXn;
             nextXn = (x + 1) * invRadiusX;
             double nextYn = 0;
-            forY: for (int y = 0; y <= ceilRadiusY; ++y) {
+            forY:
+            for (int y = 0; y <= ceilRadiusY; ++y) {
                 final double yn = nextYn;
                 nextYn = (y + 1) * invRadiusY;
                 double nextZn = 0;
-                forZ: for (int z = 0; z <= ceilRadiusZ; ++z) {
+                forZ:
+                for (int z = 0; z <= ceilRadiusZ; ++z) {
                     final double zn = nextZn;
                     nextZn = (z + 1) * invRadiusZ;
 
@@ -1931,33 +1982,35 @@ public class EditSession implements Extent, AutoCloseable {
                         }
                     }
 
-                    if (setBlock(pos.add(x, y, z), block)) {
+                    if (brush.setBlock(pos.add(x, y, z))) {
                         ++affected;
                     }
-                    if (setBlock(pos.add(-x, y, z), block)) {
+                    if (brush.setBlock(pos.add(-x, y, z))) {
                         ++affected;
                     }
-                    if (setBlock(pos.add(x, -y, z), block)) {
+                    if (brush.setBlock(pos.add(x, -y, z))) {
                         ++affected;
                     }
-                    if (setBlock(pos.add(x, y, -z), block)) {
+                    if (brush.setBlock(pos.add(x, y, -z))) {
                         ++affected;
                     }
-                    if (setBlock(pos.add(-x, -y, z), block)) {
+                    if (brush.setBlock(pos.add(-x, -y, z))) {
                         ++affected;
                     }
-                    if (setBlock(pos.add(x, -y, -z), block)) {
+                    if (brush.setBlock(pos.add(x, -y, -z))) {
                         ++affected;
                     }
-                    if (setBlock(pos.add(-x, y, -z), block)) {
+                    if (brush.setBlock(pos.add(-x, y, -z))) {
                         ++affected;
                     }
-                    if (setBlock(pos.add(-x, -y, -z), block)) {
+                    if (brush.setBlock(pos.add(-x, -y, -z))) {
                         ++affected;
                     }
                 }
             }
         }
+
+        currentBrush = brush;
 
         return affected;
     }
@@ -1966,9 +2019,9 @@ public class EditSession implements Extent, AutoCloseable {
      * Makes a pyramid.
      *
      * @param position a position
-     * @param block a block
-     * @param size size of pyramid
-     * @param filled true if filled
+     * @param block    a block
+     * @param size     size of pyramid
+     * @param filled   true if filled
      * @return number of blocks changed
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -2008,29 +2061,29 @@ public class EditSession implements Extent, AutoCloseable {
      * Thaw blocks in a radius.
      *
      * @param position the position
-     * @param radius the radius
+     * @param radius   the radius
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      * @deprecated Use {@link #thaw(BlockVector3, double, int)}.
      */
     @Deprecated
     public int thaw(BlockVector3 position, double radius)
-        throws MaxChangedBlocksException {
+            throws MaxChangedBlocksException {
         return thaw(position, radius,
-            WorldEdit.getInstance().getConfiguration().defaultVerticalHeight);
+                WorldEdit.getInstance().getConfiguration().defaultVerticalHeight);
     }
 
     /**
      * Thaw blocks in a cylinder.
      *
      * @param position the position
-     * @param radius the radius
-     * @param height the height (upwards and downwards)
+     * @param radius   the radius
+     * @param height   the height (upwards and downwards)
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
     public int thaw(BlockVector3 position, double radius, int height)
-        throws MaxChangedBlocksException {
+            throws MaxChangedBlocksException {
         int affected = 0;
         double radiusSq = radius * radius;
 
@@ -2080,7 +2133,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Make snow in a radius.
      *
      * @param position a position
-     * @param radius a radius
+     * @param radius   a radius
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      * @deprecated Use {@link #simulateSnow(BlockVector3, double, int)}.
@@ -2088,20 +2141,20 @@ public class EditSession implements Extent, AutoCloseable {
     @Deprecated
     public int simulateSnow(BlockVector3 position, double radius) throws MaxChangedBlocksException {
         return simulateSnow(position, radius,
-            WorldEdit.getInstance().getConfiguration().defaultVerticalHeight);
+                WorldEdit.getInstance().getConfiguration().defaultVerticalHeight);
     }
 
     /**
      * Make snow in a cylinder.
      *
      * @param position a position
-     * @param radius a radius
-     * @param height the height (upwards and downwards)
+     * @param radius   a radius
+     * @param height   the height (upwards and downwards)
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
     public int simulateSnow(BlockVector3 position, double radius, int height)
-        throws MaxChangedBlocksException {
+            throws MaxChangedBlocksException {
 
         return simulateSnow(new CylinderRegion(position, Vector2.at(radius, radius), position.y(), height), false);
     }
@@ -2111,7 +2164,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Make snow in a region.
      *
      * @param region the region to simulate snow in
-     * @param stack whether it should stack existing snow
+     * @param stack  whether it should stack existing snow
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -2128,8 +2181,8 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Make dirt green.
      *
-     * @param position a position
-     * @param radius a radius
+     * @param position       a position
+     * @param radius         a radius
      * @param onlyNormalDirt only affect normal dirt (all default properties)
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -2137,23 +2190,23 @@ public class EditSession implements Extent, AutoCloseable {
      */
     @Deprecated
     public int green(BlockVector3 position, double radius, boolean onlyNormalDirt)
-        throws MaxChangedBlocksException {
+            throws MaxChangedBlocksException {
         return green(position, radius,
-            WorldEdit.getInstance().getConfiguration().defaultVerticalHeight, onlyNormalDirt);
+                WorldEdit.getInstance().getConfiguration().defaultVerticalHeight, onlyNormalDirt);
     }
 
     /**
      * Make dirt green in a cylinder.
      *
-     * @param position the position
-     * @param radius the radius
-     * @param height the height
+     * @param position       the position
+     * @param radius         the radius
+     * @param height         the height
      * @param onlyNormalDirt only affect normal dirt (all default properties)
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
     public int green(BlockVector3 position, double radius, int height, boolean onlyNormalDirt)
-        throws MaxChangedBlocksException {
+            throws MaxChangedBlocksException {
         int affected = 0;
         final double radiusSq = radius * radius;
 
@@ -2179,7 +2232,7 @@ public class EditSession implements Extent, AutoCloseable {
                     final BlockState block = getBlock(pt);
 
                     if (block.getBlockType() == BlockTypes.DIRT
-                        || (!onlyNormalDirt && block.getBlockType() == BlockTypes.COARSE_DIRT)) {
+                            || (!onlyNormalDirt && block.getBlockType() == BlockTypes.COARSE_DIRT)) {
                         if (setBlock(pt, grass)) {
                             ++affected;
                         }
@@ -2200,7 +2253,7 @@ public class EditSession implements Extent, AutoCloseable {
      * Makes pumpkin patches randomly in an area around the given position.
      *
      * @param position the base position
-     * @param apothem the apothem of the (square) area
+     * @param apothem  the apothem of the (square) area
      * @return number of patches created
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -2227,9 +2280,9 @@ public class EditSession implements Extent, AutoCloseable {
      * Makes a forest.
      *
      * @param basePosition a position
-     * @param size a size
-     * @param density between 0 and 1, inclusive
-     * @param treeType the tree type
+     * @param size         a size
+     * @param density      between 0 and 1, inclusive
+     * @param treeType     the tree type
      * @return number of trees created
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -2240,8 +2293,8 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Makes a forest.
      *
-     * @param region the region to generate trees in
-     * @param density between 0 and 1, inclusive
+     * @param region   the region to generate trees in
+     * @param density  between 0 and 1, inclusive
      * @param treeType the tree type
      * @return number of trees created
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
@@ -2271,14 +2324,14 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Generate a shape for the given expression.
      *
-     * @param region the region to generate the shape in
-     * @param zero the coordinate origin for x/y/z variables
-     * @param unit the scale of the x/y/z/ variables
-     * @param pattern the default material to make the shape from
+     * @param region           the region to generate the shape in
+     * @param zero             the coordinate origin for x/y/z variables
+     * @param unit             the scale of the x/y/z/ variables
+     * @param pattern          the default material to make the shape from
      * @param expressionString the expression defining the shape
-     * @param hollow whether the shape should be hollow
+     * @param hollow           whether the shape should be hollow
      * @return number of blocks changed
-     * @throws ExpressionException if there is a problem with the expression
+     * @throws ExpressionException       if there is a problem with the expression
      * @throws MaxChangedBlocksException if the maximum block change limit is exceeded
      */
     public int makeShape(final Region region, final Vector3 zero, final Vector3 unit,
@@ -2290,15 +2343,15 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Generate a shape for the given expression.
      *
-     * @param region the region to generate the shape in
-     * @param zero the coordinate origin for x/y/z variables
-     * @param unit the scale of the x/y/z/ variables
-     * @param pattern the default material to make the shape from
+     * @param region           the region to generate the shape in
+     * @param zero             the coordinate origin for x/y/z variables
+     * @param unit             the scale of the x/y/z/ variables
+     * @param pattern          the default material to make the shape from
      * @param expressionString the expression defining the shape
-     * @param hollow whether the shape should be hollow
-     * @param timeout the time, in milliseconds, to wait for each expression evaluation before halting it. -1 to disable
+     * @param hollow           whether the shape should be hollow
+     * @param timeout          the time, in milliseconds, to wait for each expression evaluation before halting it. -1 to disable
      * @return number of blocks changed
-     * @throws ExpressionException if there is a problem with the expression
+     * @throws ExpressionException       if there is a problem with the expression
      * @throws MaxChangedBlocksException if the maximum block change limit is exceeded
      */
     public int makeShape(final Region region, final Vector3 zero, final Vector3 unit,
@@ -2321,16 +2374,16 @@ public class EditSession implements Extent, AutoCloseable {
             throws ExpressionException, MaxChangedBlocksException {
 
         expression.getSlots().getVariable("x")
-            .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
         expression.getSlots().getVariable("y")
-            .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
         expression.getSlots().getVariable("z")
-            .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
 
         final Variable typeVariable = expression.getSlots().getVariable("type")
-            .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
         final Variable dataVariable = expression.getSlots().getVariable("data")
-            .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
 
         final WorldEditExpressionEnvironment environment = new WorldEditExpressionEnvironment(this, unit, zero);
         expression.setEnvironment(environment);
@@ -2353,7 +2406,7 @@ public class EditSession implements Extent, AutoCloseable {
                             dataVar = legacy[1];
                         }
                     }
-                    if (expression.evaluate(new double[]{ scaled.x(), scaled.y(), scaled.z(), typeVar, dataVar}, timeout) <= 0) {
+                    if (expression.evaluate(new double[]{scaled.x(), scaled.y(), scaled.z(), typeVar, dataVar}, timeout) <= 0) {
                         return null;
                     }
                     int newType = (int) typeVariable.value();
@@ -2388,14 +2441,12 @@ public class EditSession implements Extent, AutoCloseable {
      * to an expression, and then sets the block to the block given by the resulting values of the variables, if they
      * have changed.
      *
-     * @param region the region to deform
-     * @param zero the origin of the coordinate system
-     * @param unit the scale of the coordinate system
+     * @param region           the region to deform
+     * @param zero             the origin of the coordinate system
+     * @param unit             the scale of the coordinate system
      * @param expressionString the expression to evaluate for each block
-     *
      * @return number of blocks changed
-     *
-     * @throws ExpressionException thrown on invalid expression input
+     * @throws ExpressionException       thrown on invalid expression input
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
     public int deformRegion(final Region region, final Vector3 zero, final Vector3 unit, final String expressionString)
@@ -2408,15 +2459,13 @@ public class EditSession implements Extent, AutoCloseable {
      * to an expression, and then sets the block to the block given by the resulting values of the variables, if they
      * have changed.
      *
-     * @param region the region to deform
-     * @param zero the origin of the coordinate system
-     * @param unit the scale of the coordinate system
+     * @param region           the region to deform
+     * @param zero             the origin of the coordinate system
+     * @param unit             the scale of the coordinate system
      * @param expressionString the expression to evaluate for each block
-     * @param timeout maximum time for the expression to evaluate for each block. -1 for unlimited.
-     *
+     * @param timeout          maximum time for the expression to evaluate for each block. -1 for unlimited.
      * @return number of blocks changed
-     *
-     * @throws ExpressionException thrown on invalid expression input
+     * @throws ExpressionException       thrown on invalid expression input
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
     public int deformRegion(final Region region, final Vector3 zero, final Vector3 unit, final String expressionString,
@@ -2436,11 +2485,11 @@ public class EditSession implements Extent, AutoCloseable {
     public int deformRegion(final Region region, final Vector3 zero, final Vector3 unit, final Expression expression,
                             final int timeout) throws ExpressionException, MaxChangedBlocksException {
         final Variable x = expression.getSlots().getVariable("x")
-            .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
         final Variable y = expression.getSlots().getVariable("y")
-            .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
         final Variable z = expression.getSlots().getVariable("z")
-            .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
 
         final WorldEditExpressionEnvironment environment = new WorldEditExpressionEnvironment(this, unit, zero);
         expression.setEnvironment(environment);
@@ -2455,7 +2504,7 @@ public class EditSession implements Extent, AutoCloseable {
             final Vector3 scaled = targetPosition.subtract(zero).divide(unit);
 
             // transform
-            expression.evaluate(new double[]{ scaled.x(), scaled.y(), scaled.z() }, timeout);
+            expression.evaluate(new double[]{scaled.x(), scaled.y(), scaled.z()}, timeout);
 
             final BlockVector3 sourcePosition = environment.toWorld(x.value(), y.value(), z.value());
 
@@ -2483,10 +2532,9 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Hollows out the region (Semi-well-defined for non-cuboid selections).
      *
-     * @param region the region to hollow out.
+     * @param region    the region to hollow out.
      * @param thickness the thickness of the shell to leave (manhattan distance)
-     * @param pattern The block pattern to use
-     *
+     * @param pattern   The block pattern to use
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -2528,7 +2576,8 @@ public class EditSession implements Extent, AutoCloseable {
 
         final Set<BlockVector3> newOutside = new HashSet<>();
         for (int i = 1; i < thickness; ++i) {
-            outer: for (BlockVector3 position : region) {
+            outer:
+            for (BlockVector3 position : region) {
                 for (BlockVector3 recurseDirection : recurseDirections) {
                     BlockVector3 neighbor = position.add(recurseDirection);
 
@@ -2543,7 +2592,8 @@ public class EditSession implements Extent, AutoCloseable {
             newOutside.clear();
         }
 
-        outer: for (BlockVector3 position : region) {
+        outer:
+        for (BlockVector3 position : region) {
             for (BlockVector3 recurseDirection : recurseDirections) {
                 BlockVector3 neighbor = position.add(recurseDirection);
 
@@ -2564,14 +2614,12 @@ public class EditSession implements Extent, AutoCloseable {
      * Draws a line (out of blocks) between two vectors.
      *
      * @param pattern The block pattern used to draw the line.
-     * @param pos1 One of the points that define the line.
-     * @param pos2 The other point that defines the line.
-     * @param radius The radius (thickness) of the line.
-     * @param filled If false, only a shell will be generated.
-     *
+     * @param pos1    One of the points that define the line.
+     * @param pos2    The other point that defines the line.
+     * @param radius  The radius (thickness) of the line.
+     * @param filled  If false, only a shell will be generated.
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
-     *
      * @see #drawLine(Pattern, List, double, boolean)
      */
     public int drawLine(Pattern pattern, BlockVector3 pos1, BlockVector3 pos2, double radius, boolean filled)
@@ -2584,9 +2632,8 @@ public class EditSession implements Extent, AutoCloseable {
      *
      * @param pattern The block pattern used to draw the line.
      * @param vectors the list of vectors to draw the line between
-     * @param radius The radius (thickness) of the line.
-     * @param filled If false, only a shell will be generated.
-     *
+     * @param radius  The radius (thickness) of the line.
+     * @param filled  If false, only a shell will be generated.
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -2655,15 +2702,14 @@ public class EditSession implements Extent, AutoCloseable {
     /**
      * Draws a spline (out of blocks) between specified vectors.
      *
-     * @param pattern The block pattern used to draw the spline.
+     * @param pattern     The block pattern used to draw the spline.
      * @param nodevectors The list of vectors to draw through.
-     * @param tension The tension of every node.
-     * @param bias The bias of every node.
-     * @param continuity The continuity of every node.
-     * @param quality The quality of the spline. Must be greater than 0.
-     * @param radius The radius (thickness) of the spline.
-     * @param filled If false, only a shell will be generated.
-     *
+     * @param tension     The tension of every node.
+     * @param bias        The bias of every node.
+     * @param continuity  The continuity of every node.
+     * @param quality     The quality of the spline. Must be greater than 0.
+     * @param radius      The radius (thickness) of the spline.
+     * @param filled      If false, only a shell will be generated.
      * @return number of blocks affected
      * @throws MaxChangedBlocksException thrown if too many blocks are changed
      */
@@ -2729,11 +2775,11 @@ public class EditSession implements Extent, AutoCloseable {
             double y = v.y();
             double z = v.z();
             if (!(vset.contains(BlockVector3.at(x + 1, y, z))
-                && vset.contains(BlockVector3.at(x - 1, y, z))
-                && vset.contains(BlockVector3.at(x, y + 1, z))
-                && vset.contains(BlockVector3.at(x, y - 1, z))
-                && vset.contains(BlockVector3.at(x, y, z + 1))
-                && vset.contains(BlockVector3.at(x, y, z - 1)))) {
+                    && vset.contains(BlockVector3.at(x - 1, y, z))
+                    && vset.contains(BlockVector3.at(x, y + 1, z))
+                    && vset.contains(BlockVector3.at(x, y - 1, z))
+                    && vset.contains(BlockVector3.at(x, y, z + 1))
+                    && vset.contains(BlockVector3.at(x, y, z - 1)))) {
                 returnset.add(v);
             }
         }
@@ -2789,7 +2835,7 @@ public class EditSession implements Extent, AutoCloseable {
                 final Vector3 scaled = current.subtract(zero).divide(unit);
 
                 try {
-                    if (expression.evaluate(new double[]{ scaled.x(), scaled.y(), scaled.z() }, timeout) <= 0) {
+                    if (expression.evaluate(new double[]{scaled.x(), scaled.y(), scaled.z()}, timeout) <= 0) {
                         return null;
                     }
 
