@@ -391,12 +391,6 @@ public class PlatformManager {
                     if (((DoubleActionBlockTool) tool).actSecondary(queryCapability(Capability.WORLD_EDITING),
                             getConfiguration(), player, session, location, event.getFace())) {
                         event.setCancelled(true);
-
-                        try {
-                            session.toggleSelect(player);
-                        } catch (MaxChangedBlocksException e) {
-                            throw new RuntimeException(e);
-                        }
                     }
                 }
 

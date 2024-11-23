@@ -50,6 +50,7 @@ import com.sk89q.worldedit.session.Placement;
 import com.sk89q.worldedit.session.PlacementType;
 import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.util.Countable;
+import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.SideEffectSet;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.world.World;
@@ -130,11 +131,15 @@ public class LocalSession {
     private Boolean navWandItemDefault;
 
 
-    public void toggleSelect(Actor actor) throws MaxChangedBlocksException {
+    public boolean selectStructure(Location clicked) {
         for (EditSession editSession : history) {
-            prepareEditingExtents(editSession, actor);
-            editSession.toggleSelect();
+            if (editSession.isGeneratedStructure(clicked)) {
+                editSession.toggleSelect();
+                return true;
+            }
         }
+
+        return false;
     }
 
     /**

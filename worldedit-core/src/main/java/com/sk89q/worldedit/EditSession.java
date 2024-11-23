@@ -107,10 +107,7 @@ import com.sk89q.worldedit.regions.shape.ArbitraryBiomeShape;
 import com.sk89q.worldedit.regions.shape.ArbitraryShape;
 import com.sk89q.worldedit.regions.shape.RegionShape;
 import com.sk89q.worldedit.regions.shape.WorldEditExpressionEnvironment;
-import com.sk89q.worldedit.util.Countable;
-import com.sk89q.worldedit.util.Direction;
-import com.sk89q.worldedit.util.SideEffectSet;
-import com.sk89q.worldedit.util.TreeGenerator;
+import com.sk89q.worldedit.util.*;
 import com.sk89q.worldedit.util.collection.BlockMap;
 import com.sk89q.worldedit.util.collection.DoubleArrayList;
 import com.sk89q.worldedit.util.eventbus.EventBus;
@@ -196,8 +193,8 @@ public class EditSession implements Extent, AutoCloseable {
 
     private class AppliedBrush {
         private boolean selected = false;
-        private EditSession session;
-        private Pattern pattern;
+        private final EditSession session;
+        private final Pattern pattern;
 
         List<BlockVector3> positions = new ArrayList<>();
 
@@ -211,6 +208,7 @@ public class EditSession implements Extent, AutoCloseable {
             return session.setBlock(position, this.pattern);
         }
 
+
         void toggleSelect() throws MaxChangedBlocksException {
             Pattern pattern = selected ? this.pattern : BlockTypes.LIGHT_BLUE_STAINED_GLASS.getDefaultState();
 
@@ -219,12 +217,22 @@ public class EditSession implements Extent, AutoCloseable {
             }
 
             session.internalFlushSession();
-            
+
             selected = !selected;
         }
 
         boolean isSelected() {
             return selected;
+        }
+
+        boolean isGeneratedStructure(Location clicked) {
+            for (BlockVector3 position : positions) {
+                if (position.equals(clicked.toVector().toBlockPoint())) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 
@@ -258,6 +266,11 @@ public class EditSession implements Extent, AutoCloseable {
 
     private AppliedBrush currentBrush;
 
+    boolean isGeneratedStructure(Location clicked) {
+        if (currentBrush == null) return false;
+
+        return currentBrush.isGeneratedStructure(clicked);
+    }
 
     /**
      * Construct the object with a maximum number of blocks and a block bag.
@@ -347,9 +360,14 @@ public class EditSession implements Extent, AutoCloseable {
     }
 
 
-    void toggleSelect() throws MaxChangedBlocksException {
+    boolean toggleSelect() {
         if (currentBrush != null) {
-            currentBrush.toggleSelect();
+            try {
+                currentBrush.toggleSelect();
+                return true;
+            } catch (MaxChangedBlocksException e) {
+                return false;
+            }
         }
     }
 
