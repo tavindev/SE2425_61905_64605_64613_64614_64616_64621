@@ -24,14 +24,14 @@ import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockTypes;
+import net.royawesome.jlibnoise.model.Sphere;
 
-public class HollowSphereBrush implements Brush {
-
+public class HollowSphereBrush extends SphereBrush {
     @Override
-    public void build(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException {
+    public int createStructure(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException {
         if (pattern == null) {
             pattern = BlockTypes.COBBLESTONE.getDefaultState();
         }
-        editSession.makeSphere(position, pattern, size, size, size, false);
+        return createStructure(editSession, position, pattern, size, size, size, false);
     }
 }

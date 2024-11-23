@@ -133,8 +133,7 @@ public class LocalSession {
 
     public boolean selectStructure(Location clicked) {
         for (EditSession editSession : history) {
-            if (editSession.isGeneratedStructure(clicked)) {
-                editSession.toggleSelect();
+            if (editSession.selectStructure(clicked)) {
                 return true;
             }
         }

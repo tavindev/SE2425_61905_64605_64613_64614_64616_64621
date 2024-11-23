@@ -20,6 +20,7 @@
 package com.sk89q.worldedit;
 
 import com.google.common.collect.ImmutableList;
+import com.sk89q.worldedit.command.tool.brush.SelectableStructure;
 import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.event.extent.EditSessionEvent;
@@ -80,6 +81,8 @@ import com.sk89q.worldedit.function.visitor.NonRisingVisitor;
 import com.sk89q.worldedit.function.visitor.RecursiveVisitor;
 import com.sk89q.worldedit.function.visitor.RegionVisitor;
 import com.sk89q.worldedit.history.UndoContext;
+import com.sk89q.worldedit.history.change.BlockChange;
+import com.sk89q.worldedit.history.change.Change;
 import com.sk89q.worldedit.history.changeset.BlockOptimizedHistory;
 import com.sk89q.worldedit.history.changeset.ChangeSet;
 import com.sk89q.worldedit.internal.expression.Expression;
@@ -124,15 +127,7 @@ import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldedit.world.registry.LegacyMapper;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 
@@ -191,51 +186,6 @@ public class EditSession implements Extent, AutoCloseable {
         }
     }
 
-    private class AppliedBrush {
-        private boolean selected = false;
-        private final EditSession session;
-        private final Pattern pattern;
-
-        List<BlockVector3> positions = new ArrayList<>();
-
-        AppliedBrush(EditSession session, Pattern pattern) {
-            this.session = session;
-            this.pattern = pattern;
-        }
-
-        boolean setBlock(BlockVector3 position) throws MaxChangedBlocksException {
-            positions.add(position);
-            return session.setBlock(position, this.pattern);
-        }
-
-
-        void toggleSelect() throws MaxChangedBlocksException {
-            Pattern pattern = selected ? this.pattern : BlockTypes.LIGHT_BLUE_STAINED_GLASS.getDefaultState();
-
-            for (BlockVector3 position : positions) {
-                session.setBlock(position, pattern);
-            }
-
-            session.internalFlushSession();
-
-            selected = !selected;
-        }
-
-        boolean isSelected() {
-            return selected;
-        }
-
-        boolean isGeneratedStructure(Location clicked) {
-            for (BlockVector3 position : positions) {
-                if (position.equals(clicked.toVector().toBlockPoint())) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
-
     @SuppressWarnings("ProtectedField")
     protected final World world;
     private final @Nullable Actor actor;
@@ -264,13 +214,8 @@ public class EditSession implements Extent, AutoCloseable {
 
     private Mask oldMask;
 
-    private AppliedBrush currentBrush;
+    private SelectableStructure selectableStructure;
 
-    boolean isGeneratedStructure(Location clicked) {
-        if (currentBrush == null) return false;
-
-        return currentBrush.isGeneratedStructure(clicked);
-    }
 
     /**
      * Construct the object with a maximum number of blocks and a block bag.
@@ -360,15 +305,17 @@ public class EditSession implements Extent, AutoCloseable {
     }
 
 
-    boolean toggleSelect() {
-        if (currentBrush != null) {
-            try {
-                currentBrush.toggleSelect();
-                return true;
-            } catch (MaxChangedBlocksException e) {
-                return false;
-            }
+    public void storeGeneratedStructure() {
+        this.selectableStructure = new SelectableStructure(this);
+    }
+
+
+    boolean selectStructure(Location clicked) {
+        if (this.selectableStructure == null) {
+            return false;
         }
+
+        return this.selectableStructure.select(clicked);
     }
 
     private Extent traceIfNeeded(Extent input) {
@@ -1042,7 +989,7 @@ public class EditSession implements Extent, AutoCloseable {
         internalFlushSession();
     }
 
-    private void internalFlushSession() {
+    void internalFlushSession() {
         Operations.completeBlindly(commit());
     }
 
@@ -1769,88 +1716,6 @@ public class EditSession implements Extent, AutoCloseable {
     }
 
     /**
-     * Makes a cylinder.
-     *
-     * @param pos     Center of the cylinder
-     * @param block   The block pattern to use
-     * @param radiusX The cylinder's largest north/south extent
-     * @param radiusZ The cylinder's largest east/west extent
-     * @param height  The cylinder's up/down extent. If negative, extend downward.
-     * @param filled  If false, only a shell will be generated.
-     * @return number of blocks changed
-     * @throws MaxChangedBlocksException thrown if too many blocks are changed
-     */
-    public int makeCylinder(BlockVector3 pos, Pattern block, double radiusX, double radiusZ, int height, boolean filled) throws MaxChangedBlocksException {
-        int affected = 0;
-
-        radiusX += 0.5;
-        radiusZ += 0.5;
-
-        if (height == 0) {
-            return 0;
-        } else if (height < 0) {
-            height = -height;
-            pos = pos.subtract(0, height, 0);
-        }
-
-        if (pos.y() < world.getMinY()) {
-            pos = pos.withY(world.getMinY());
-        } else if (pos.y() + height - 1 > world.getMaxY()) {
-            height = world.getMaxY() - pos.y() + 1;
-        }
-
-        final double invRadiusX = 1 / radiusX;
-        final double invRadiusZ = 1 / radiusZ;
-
-        final int ceilRadiusX = (int) Math.ceil(radiusX);
-        final int ceilRadiusZ = (int) Math.ceil(radiusZ);
-
-        double nextXn = 0;
-        forX:
-        for (int x = 0; x <= ceilRadiusX; ++x) {
-            final double xn = nextXn;
-            nextXn = (x + 1) * invRadiusX;
-            double nextZn = 0;
-            forZ:
-            for (int z = 0; z <= ceilRadiusZ; ++z) {
-                final double zn = nextZn;
-                nextZn = (z + 1) * invRadiusZ;
-
-                double distanceSq = lengthSq(xn, zn);
-                if (distanceSq > 1) {
-                    if (z == 0) {
-                        break forX;
-                    }
-                    break forZ;
-                }
-
-                if (!filled) {
-                    if (lengthSq(nextXn, zn) <= 1 && lengthSq(xn, nextZn) <= 1) {
-                        continue;
-                    }
-                }
-
-                for (int y = 0; y < height; ++y) {
-                    if (setBlock(pos.add(x, y, z), block)) {
-                        ++affected;
-                    }
-                    if (setBlock(pos.add(-x, y, z), block)) {
-                        ++affected;
-                    }
-                    if (setBlock(pos.add(x, y, -z), block)) {
-                        ++affected;
-                    }
-                    if (setBlock(pos.add(-x, y, -z), block)) {
-                        ++affected;
-                    }
-                }
-            }
-        }
-
-        return affected;
-    }
-
-    /**
      * Makes a cone.
      *
      * @param pos       Center of the cone
@@ -1921,115 +1786,6 @@ public class EditSession implements Extent, AutoCloseable {
                 }
             }
         }
-        return affected;
-    }
-
-    /**
-     * Makes a sphere.
-     *
-     * @param pos    Center of the sphere or ellipsoid
-     * @param block  The block pattern to use
-     * @param radius The sphere's radius
-     * @param filled If false, only a shell will be generated.
-     * @return number of blocks changed
-     * @throws MaxChangedBlocksException thrown if too many blocks are changed
-     */
-    public int makeSphere(BlockVector3 pos, Pattern block, double radius, boolean filled) throws MaxChangedBlocksException {
-        return makeSphere(pos, block, radius, radius, radius, filled);
-    }
-
-    /**
-     * Makes a sphere or ellipsoid.
-     *
-     * @param pos     Center of the sphere or ellipsoid
-     * @param block   The block pattern to use
-     * @param radiusX The sphere/ellipsoid's largest north/south extent
-     * @param radiusY The sphere/ellipsoid's largest up/down extent
-     * @param radiusZ The sphere/ellipsoid's largest east/west extent
-     * @param filled  If false, only a shell will be generated.
-     * @return number of blocks changed
-     * @throws MaxChangedBlocksException thrown if too many blocks are changed
-     */
-    public int makeSphere(BlockVector3 pos, Pattern block, double radiusX, double radiusY, double radiusZ, boolean filled) throws MaxChangedBlocksException {
-        AppliedBrush brush = new AppliedBrush(this, block);
-
-        int affected = 0;
-
-        radiusX += 0.5;
-        radiusY += 0.5;
-        radiusZ += 0.5;
-
-        final double invRadiusX = 1 / radiusX;
-        final double invRadiusY = 1 / radiusY;
-        final double invRadiusZ = 1 / radiusZ;
-
-        final int ceilRadiusX = (int) Math.ceil(radiusX);
-        final int ceilRadiusY = (int) Math.ceil(radiusY);
-        final int ceilRadiusZ = (int) Math.ceil(radiusZ);
-
-        double nextXn = 0;
-        forX:
-        for (int x = 0; x <= ceilRadiusX; ++x) {
-            final double xn = nextXn;
-            nextXn = (x + 1) * invRadiusX;
-            double nextYn = 0;
-            forY:
-            for (int y = 0; y <= ceilRadiusY; ++y) {
-                final double yn = nextYn;
-                nextYn = (y + 1) * invRadiusY;
-                double nextZn = 0;
-                forZ:
-                for (int z = 0; z <= ceilRadiusZ; ++z) {
-                    final double zn = nextZn;
-                    nextZn = (z + 1) * invRadiusZ;
-
-                    double distanceSq = lengthSq(xn, yn, zn);
-                    if (distanceSq > 1) {
-                        if (z == 0) {
-                            if (y == 0) {
-                                break forX;
-                            }
-                            break forY;
-                        }
-                        break forZ;
-                    }
-
-                    if (!filled) {
-                        if (lengthSq(nextXn, yn, zn) <= 1 && lengthSq(xn, nextYn, zn) <= 1 && lengthSq(xn, yn, nextZn) <= 1) {
-                            continue;
-                        }
-                    }
-
-                    if (brush.setBlock(pos.add(x, y, z))) {
-                        ++affected;
-                    }
-                    if (brush.setBlock(pos.add(-x, y, z))) {
-                        ++affected;
-                    }
-                    if (brush.setBlock(pos.add(x, -y, z))) {
-                        ++affected;
-                    }
-                    if (brush.setBlock(pos.add(x, y, -z))) {
-                        ++affected;
-                    }
-                    if (brush.setBlock(pos.add(-x, -y, z))) {
-                        ++affected;
-                    }
-                    if (brush.setBlock(pos.add(x, -y, -z))) {
-                        ++affected;
-                    }
-                    if (brush.setBlock(pos.add(-x, y, -z))) {
-                        ++affected;
-                    }
-                    if (brush.setBlock(pos.add(-x, -y, -z))) {
-                        ++affected;
-                    }
-                }
-            }
-        }
-
-        currentBrush = brush;
-
         return affected;
     }
 
