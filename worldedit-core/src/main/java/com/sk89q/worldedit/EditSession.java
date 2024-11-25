@@ -1699,22 +1699,7 @@ public class EditSession implements Extent, AutoCloseable {
 
         return visitor.getAffected();
     }
-
-    /**
-     * Makes a cylinder.
-     *
-     * @param pos    Center of the cylinder
-     * @param block  The block pattern to use
-     * @param radius The cylinder's radius
-     * @param height The cylinder's up/down extent. If negative, extend downward.
-     * @param filled If false, only a shell will be generated.
-     * @return number of blocks changed
-     * @throws MaxChangedBlocksException thrown if too many blocks are changed
-     */
-    public int makeCylinder(BlockVector3 pos, Pattern block, double radius, int height, boolean filled) throws MaxChangedBlocksException {
-        return makeCylinder(pos, block, radius, radius, height, filled);
-    }
-
+    
     /**
      * Makes a cone.
      *
