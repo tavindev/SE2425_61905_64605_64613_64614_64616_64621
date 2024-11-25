@@ -36,6 +36,7 @@ import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extension.platform.Locatable;
 import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.function.mask.Mask;
+import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.internal.cui.CUIEvent;
 import com.sk89q.worldedit.internal.cui.CUIRegion;
 import com.sk89q.worldedit.internal.cui.SelectionShapeEvent;
@@ -128,11 +129,19 @@ public class LocalSession {
     private String navWandItem;
     private Boolean navWandItemDefault;
 
+    // Preview Brush Preview
+    private boolean isPreviewActive = false;
+    private Map<BlockVector3, BaseBlock> previewBlocks = new HashMap<>();
+    private Region lastPreviewRegion;
+    private Pattern currentBrushPattern;
+
     /**
      * Construct the object.
      *
-     * <p>{@link #setConfiguration(LocalConfiguration)} should be called
-     * later with configuration.</p>
+     * <p>
+     * {@link #setConfiguration(LocalConfiguration)} should be called
+     * later with configuration.
+     * </p>
      */
     public LocalSession() {
     }
@@ -248,7 +257,7 @@ public class LocalSession {
      * Performs an undo.
      *
      * @param newBlockBag a new block bag
-     * @param actor the actor
+     * @param actor       the actor
      * @return whether anything was undone
      */
     public EditSession undo(@Nullable BlockBag newBlockBag, Actor actor) {
@@ -256,10 +265,9 @@ public class LocalSession {
         --historyPointer;
         if (historyPointer >= 0) {
             EditSession editSession = history.get(historyPointer);
-            try (EditSession newEditSession =
-                     WorldEdit.getInstance().newEditSessionBuilder()
-                         .world(editSession.getWorld()).blockBag(newBlockBag).actor(actor)
-                         .build()) {
+            try (EditSession newEditSession = WorldEdit.getInstance().newEditSessionBuilder()
+                    .world(editSession.getWorld()).blockBag(newBlockBag).actor(actor)
+                    .build()) {
                 prepareEditingExtents(newEditSession, actor);
                 editSession.undo(newEditSession);
             }
@@ -274,17 +282,16 @@ public class LocalSession {
      * Performs a redo.
      *
      * @param newBlockBag a new block bag
-     * @param actor the actor
+     * @param actor       the actor
      * @return whether anything was redone
      */
     public EditSession redo(@Nullable BlockBag newBlockBag, Actor actor) {
         checkNotNull(actor);
         if (historyPointer < history.size()) {
             EditSession editSession = history.get(historyPointer);
-            try (EditSession newEditSession =
-                     WorldEdit.getInstance().newEditSessionBuilder()
-                         .world(editSession.getWorld()).blockBag(newBlockBag).actor(actor)
-                         .build()) {
+            try (EditSession newEditSession = WorldEdit.getInstance().newEditSessionBuilder()
+                    .world(editSession.getWorld()).blockBag(newBlockBag).actor(actor)
+                    .build()) {
                 prepareEditingExtents(newEditSession, actor);
                 editSession.redo(newEditSession);
             }
@@ -366,7 +373,7 @@ public class LocalSession {
     /**
      * Set the region selector.
      *
-     * @param world the world
+     * @param world    the world
      * @param selector the selector
      */
     public void setRegionSelector(World world, RegionSelector selector) {
@@ -387,7 +394,8 @@ public class LocalSession {
      */
     public boolean isSelectionDefined(World world) {
         checkNotNull(world);
-        if (selector.getIncompleteRegion().getWorld() == null || !selector.getIncompleteRegion().getWorld().equals(world)) {
+        if (selector.getIncompleteRegion().getWorld() == null
+                || !selector.getIncompleteRegion().getWorld().equals(world)) {
             return false;
         }
         return selector.isDefined();
@@ -398,7 +406,8 @@ public class LocalSession {
      * call learnRegionChanges(). If the selection is not fully defined,
      * the {@code IncompleteRegionException} exception will be thrown.
      *
-     * <p>Note that this method will return a region in the current selection world,
+     * <p>
+     * Note that this method will return a region in the current selection world,
      * which is not guaranteed to be the player's world or even the current world
      * override. If you require a specific world, use the
      * {@link LocalSession#getSelection(World)} overload instead.
@@ -418,11 +427,12 @@ public class LocalSession {
      *
      * @param world the world
      * @return a region
-     * @throws IncompleteRegionException if no region is selected, or the provided world is null
+     * @throws IncompleteRegionException if no region is selected, or the provided
+     *                                   world is null
      */
     public Region getSelection(@Nullable World world) throws IncompleteRegionException {
         if (world == null || selector.getIncompleteRegion().getWorld() == null
-            || !selector.getIncompleteRegion().getWorld().equals(world)) {
+                || !selector.getIncompleteRegion().getWorld().equals(world)) {
             throw new IncompleteRegionException();
         }
         return selector.getRegion();
@@ -454,7 +464,9 @@ public class LocalSession {
     /**
      * Sets the clipboard.
      *
-     * <p>Pass {@code null} to clear the clipboard.</p>
+     * <p>
+     * Pass {@code null} to clear the clipboard.
+     * </p>
      *
      * @param clipboard the clipboard, or null if the clipboard is to be cleared
      */
@@ -502,7 +514,8 @@ public class LocalSession {
     }
 
     /**
-     * Get the maximum time allowed for certain executions to run before cancelling them, such as expressions.
+     * Get the maximum time allowed for certain executions to run before cancelling
+     * them, such as expressions.
      *
      * @return timeout time, in milliseconds
      */
@@ -513,7 +526,8 @@ public class LocalSession {
     /**
      * Set the maximum number of blocks that can be changed.
      *
-     * @param timeout the time, in milliseconds, to limit certain executions to, or -1 to disable
+     * @param timeout the time, in milliseconds, to limit certain executions to, or
+     *                -1 to disable
      */
     public void setTimeout(int timeout) {
         this.maxTimeoutTime = timeout;
@@ -565,7 +579,8 @@ public class LocalSession {
     }
 
     /**
-     * Returns the current placement used for many operations, like <code>//sphere</code>.
+     * Returns the current placement used for many operations, like
+     * <code>//sphere</code>.
      *
      * @return the placement.
      */
@@ -574,9 +589,11 @@ public class LocalSession {
     }
 
     /**
-     * Sets the current placement used for many operations, like <code>//sphere</code>.
+     * Sets the current placement used for many operations, like
+     * <code>//sphere</code>.
      * <p>
-     * Example usage: <code>session.setPlacement(new Placement(PlacementType.WORLD, BlockVector3.at(123, 456, 789)</code>
+     * Example usage:
+     * <code>session.setPlacement(new Placement(PlacementType.WORLD, BlockVector3.at(123, 456, 789)</code>
      * </p>
      *
      * @param placement the placement.
@@ -721,8 +738,9 @@ public class LocalSession {
      * @param item the item type
      * @return the tool, or {@code null}
      * @throws InvalidToolBindException if the item can't be bound to that item
-     * @deprecated Use {@link #getBrush(ItemType)} or {@link #forceBrush(ItemType, Brush, String)}
-     *     if you need to bind a specific brush
+     * @deprecated Use {@link #getBrush(ItemType)} or
+     *             {@link #forceBrush(ItemType, Brush, String)}
+     *             if you need to bind a specific brush
      */
     @Deprecated
     public BrushTool getBrushTool(ItemType item) throws InvalidToolBindException {
@@ -748,10 +766,11 @@ public class LocalSession {
     }
 
     /**
-     * Force the tool to become a brush tool with the specified brush and permission.
+     * Force the tool to become a brush tool with the specified brush and
+     * permission.
      *
-     * @param item the item type
-     * @param brush the brush to bind
+     * @param item       the item type
+     * @param brush      the brush to bind
      * @param permission the permission to check before use is allowed
      * @return the brush tool assigned to the item type
      */
@@ -900,13 +919,11 @@ public class LocalSession {
         BaseBlock block = ServerCUIHandler.createStructureBlock(player);
         if (block != null) {
             LinCompoundTag tags = Objects.requireNonNull(
-                block.getNbt(), "createStructureBlock should return nbt"
-            );
+                    block.getNbt(), "createStructureBlock should return nbt");
             BlockVector3 tempCuiTemporaryBlock = BlockVector3.at(
-                tags.getTag("x", LinTagType.intTag()).valueAsInt(),
-                tags.getTag("y", LinTagType.intTag()).valueAsInt(),
-                tags.getTag("z", LinTagType.intTag()).valueAsInt()
-            );
+                    tags.getTag("x", LinTagType.intTag()).valueAsInt(),
+                    tags.getTag("y", LinTagType.intTag()).valueAsInt(),
+                    tags.getTag("z", LinTagType.intTag()).valueAsInt());
             // If it's null, we don't need to do anything. The old was already removed.
             if (cuiTemporaryBlock != null && !tempCuiTemporaryBlock.equals(cuiTemporaryBlock)) {
                 // Update the existing block if it's the same location
@@ -1005,7 +1022,8 @@ public class LocalSession {
         checkNotNull(text);
         if (this.hasCUISupport) {
             // WECUI is a bit aggressive about re-initializing itself
-            // the last attempt to touch handshakes didn't go well, so this will do... for now
+            // the last attempt to touch handshakes didn't go well, so this will do... for
+            // now
             dispatchCUISelection(actor);
             return;
         } else if (this.failedCuiAttempts > 3) {
@@ -1067,7 +1085,8 @@ public class LocalSession {
      */
     public void setCUIVersion(int cuiVersion) {
         if (cuiVersion < 0) {
-            throw new IllegalArgumentException("CUI protocol version must be non-negative, but '" + cuiVersion + "' was received.");
+            throw new IllegalArgumentException(
+                    "CUI protocol version must be non-negative, but '" + cuiVersion + "' was received.");
         }
 
         this.cuiVersion = cuiVersion;
@@ -1113,10 +1132,10 @@ public class LocalSession {
 
         // Create an edit session
         EditSessionBuilder builder = WorldEdit.getInstance().newEditSessionBuilder()
-            .world(world)
-            .actor(actor)
-            .maxBlocks(getBlockChangeLimit())
-            .tracing(isTracingActions());
+                .world(world)
+                .actor(actor)
+                .maxBlocks(getBlockChangeLimit())
+                .tracing(isTracingActions());
         if (actor.isPlayer() && actor instanceof Player) {
             builder.blockBag(getBlockBag((Player) actor));
         }
@@ -1216,7 +1235,9 @@ public class LocalSession {
     }
 
     /**
-     * Get the preferred wand item for this user, or {@code null} to use the default.
+     * Get the preferred wand item for this user, or {@code null} to use the
+     * default.
+     * 
      * @return item id of wand item, or {@code null}
      */
     public String getWandItem() {
@@ -1237,7 +1258,9 @@ public class LocalSession {
     }
 
     /**
-     * Get the preferred navigation wand item for this user, or {@code null} to use the default.
+     * Get the preferred navigation wand item for this user, or {@code null} to use
+     * the default.
+     * 
      * @return item id of nav wand item, or {@code null}
      */
     public String getNavWandItem() {
@@ -1276,11 +1299,107 @@ public class LocalSession {
     /**
      * Call when this session has become inactive.
      *
-     * <p>This is for internal use only.</p>
+     * <p>
+     * This is for internal use only.
+     * </p>
      */
     public void onIdle() {
         this.cuiVersion = CUI_VERSION_UNINITIALIZED;
         this.hasCUISupport = false;
         this.failedCuiAttempts = 0;
     }
+
+    /**
+     * Show a preview using glass blocks.
+     *
+     * @param region      The region affected by the brush.
+     * @param glassBlock  The glass block used for preview.
+     * @param editSession The current edit session.
+     */
+    public void showPreview(Region region, BaseBlock glassBlock, EditSession editSession) throws WorldEditException {
+        if (isPreviewActive) {
+            cancelPreview(editSession); // Clear any existing preview
+        }
+
+        lastPreviewRegion = region; // Track the region for future operations
+        currentBrushPattern = null; // Reset the current brush material for this preview
+
+        for (BlockVector3 position : region) {
+            BaseBlock originalBlock = editSession.getBlock(position).toBaseBlock();
+
+            // Store the original block for potential restoration
+            previewBlocks.put(position, originalBlock);
+
+            // Temporarily set glass blocks
+            editSession.setBlock(position, glassBlock);
+        }
+
+        isPreviewActive = true;
+    }
+
+    /**
+     * Confirm the preview and apply real changes.
+     *
+     * @param region      The region affected by the brush.
+     * @param pattern     The real block pattern to place.
+     * @param editSession The current edit session.
+     */
+    public void confirmPreview(Region region, Pattern pattern, EditSession editSession) throws WorldEditException {
+        for (BlockVector3 position : region) {
+            editSession.setBlock(position, pattern.apply(position)); // Replace preview blocks with real material
+        }
+
+        editSession.close(); // Finalize changes to the world
+        clearPreviewState();
+    }
+
+    /**
+     * Cancel the preview and revert original blocks.
+     *
+     * @param editSession The current edit session.
+     */
+    public void cancelPreview(EditSession editSession) throws WorldEditException {
+        for (Map.Entry<BlockVector3, BaseBlock> entry : previewBlocks.entrySet()) {
+            editSession.setBlock(entry.getKey(), entry.getValue()); // Restore original blocks
+        }
+
+        editSession.close(); // Finalize the undo operation
+        clearPreviewState();
+    }
+
+    /**
+     * Get the last previewed region.
+     *
+     * @return The last previewed region.
+     */
+    public Region getLastPreviewRegion() {
+        return lastPreviewRegion;
+    }
+
+    /**
+     * Get the current brush pattern.
+     *
+     * @return The current brush pattern.
+     */
+    public Pattern getCurrentBrushPattern() {
+        return currentBrushPattern;
+    }
+
+    /**
+     * Set the current brush pattern.
+     *
+     * @param pattern The pattern to set.
+     */
+    public void setCurrentBrushPattern(Pattern pattern) {
+        this.currentBrushPattern = pattern;
+    }
+
+    /**
+     * Clear the preview state.
+     */
+    private void clearPreviewState() {
+        previewBlocks.clear();
+        isPreviewActive = false;
+    }
+
 }

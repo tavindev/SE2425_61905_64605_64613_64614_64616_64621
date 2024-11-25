@@ -23,6 +23,7 @@ import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.LocalConfiguration;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.command.tool.brush.SphereBrush;
 import com.sk89q.worldedit.entity.Player;
@@ -32,8 +33,13 @@ import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.mask.MaskIntersection;
 import com.sk89q.worldedit.function.pattern.Pattern;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.Location;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
+import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockTypes;
 
 import javax.annotation.Nullable;
 
@@ -54,6 +60,9 @@ public class BrushTool implements TraceTool {
     private double size = 1;
     private String permission;
 
+    // Brush Preview Mode
+    private boolean previewMode = false;
+
     /**
      * Construct the tool.
      *
@@ -67,7 +76,7 @@ public class BrushTool implements TraceTool {
     /**
      * Construct the tool.
      *
-     * @param brush the brush to bind
+     * @param brush      the brush to bind
      * @param permission the permission to check before use is allowed
      */
     public BrushTool(Brush brush, String permission) {
@@ -121,7 +130,7 @@ public class BrushTool implements TraceTool {
     /**
      * Set the brush.
      *
-     * @param brush the brush
+     * @param brush      the brush
      * @param permission the permission
      */
     public void setBrush(Brush brush, String permission) {
@@ -152,7 +161,8 @@ public class BrushTool implements TraceTool {
      *
      * @return the material
      */
-    @Nullable public Pattern getMaterial() {
+    @Nullable
+    public Pattern getMaterial() {
         return material;
     }
 
@@ -201,25 +211,44 @@ public class BrushTool implements TraceTool {
             return true;
         }
 
-        BlockBag bag = session.getBlockBag(player);
-
         try (EditSession editSession = session.createEditSession(player)) {
-            if (mask != null) {
-                Mask existingMask = editSession.getMask();
 
-                if (existingMask == null) {
-                    editSession.setMask(mask);
-                } else if (existingMask instanceof MaskIntersection) {
-                    ((MaskIntersection) existingMask).add(mask);
-                } else {
-                    MaskIntersection newMask = new MaskIntersection(existingMask);
-                    newMask.add(mask);
-                    editSession.setMask(newMask);
+            BlockVector3 center = target.toVector().toBlockPoint();
+            Region region = calculateAffectedRegion(center, size);
+
+            if (previewMode) {
+                BaseBlock glassBlock = BlockTypes.GLASS.getDefaultState().toBaseBlock();
+
+                try {
+                    session.showPreview(region, glassBlock, editSession); // Display preview
+                    session.setCurrentBrushPattern(material); // Track material
+                    player.printMessage(TranslatableComponent.of("worldedit.tool.preview-shown"));
+                } catch (WorldEditException e) {
+                    player.printError(TranslatableComponent.of("worldedit.tool.preview-error"));
+                    e.printStackTrace();
+                }
+            } else {
+                // Normal brush operation
+                BlockBag bag = session.getBlockBag(player);
+
+                if (mask != null) {
+                    Mask existingMask = editSession.getMask();
+
+                    if (existingMask == null) {
+                        editSession.setMask(mask);
+                    } else if (existingMask instanceof MaskIntersection) {
+                        ((MaskIntersection) existingMask).add(mask);
+                    } else {
+                        MaskIntersection newMask = new MaskIntersection(existingMask);
+                        newMask.add(mask);
+                        editSession.setMask(newMask);
+                    }
                 }
             }
 
             try {
                 brush.build(editSession, target.toVector().toBlockPoint(), material, size);
+                player.printMessage(TranslatableComponent.of("worldedit.tool.brush-success"));
             } catch (MaxChangedBlocksException e) {
                 player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
             } finally {
@@ -234,4 +263,27 @@ public class BrushTool implements TraceTool {
         return true;
     }
 
+    /**
+     * Calculate the region affected by the brush.
+     *
+     * @param center The center of the region (brush target).
+     * @param size   The size (radius) of the brush.
+     * @return A cuboid region representing the affected area.
+     */
+    public Region calculateAffectedRegion(BlockVector3 center, double size) {
+        int radius = (int) Math.ceil(size);
+
+        // Define the minimum and maximum corners of the cuboid
+        BlockVector3 min = center.subtract(radius, radius, radius);
+        BlockVector3 max = center.add(radius, radius, radius);
+
+        return new CuboidRegion(min, max);
+    }
+
+    /**
+     * Toggle preview mode for the brush tool.
+     */
+    public void togglePreviewMode() {
+        this.previewMode = !this.previewMode;
+    }
 }
