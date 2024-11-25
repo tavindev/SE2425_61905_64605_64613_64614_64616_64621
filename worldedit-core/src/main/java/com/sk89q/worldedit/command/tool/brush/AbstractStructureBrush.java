@@ -6,7 +6,7 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 
 public abstract class AbstractStructureBrush implements Brush {
-    public void build(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException {
+    public final void build(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException {
         this.createStructure(editSession, position, pattern, size);
 
         editSession.storeGeneratedStructure();
