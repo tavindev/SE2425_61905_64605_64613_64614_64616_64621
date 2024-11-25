@@ -211,6 +211,8 @@ public class BrushTool implements TraceTool {
             return true;
         }
 
+        BlockBag bag = session.getBlockBag(player);
+
         try (EditSession editSession = session.createEditSession(player)) {
 
             BlockVector3 center = target.toVector().toBlockPoint();
@@ -222,14 +224,13 @@ public class BrushTool implements TraceTool {
                 try {
                     session.showPreview(region, glassBlock, editSession); // Display preview
                     session.setCurrentBrushPattern(material); // Track material
-                    player.printMessage(TranslatableComponent.of("worldedit.tool.preview-shown"));
+                    player.print(TranslatableComponent.of("worldedit.tool.preview-shown"));
                 } catch (WorldEditException e) {
                     player.printError(TranslatableComponent.of("worldedit.tool.preview-error"));
                     e.printStackTrace();
                 }
             } else {
-                // Normal brush operation
-                BlockBag bag = session.getBlockBag(player);
+
 
                 if (mask != null) {
                     Mask existingMask = editSession.getMask();
@@ -248,7 +249,7 @@ public class BrushTool implements TraceTool {
 
             try {
                 brush.build(editSession, target.toVector().toBlockPoint(), material, size);
-                player.printMessage(TranslatableComponent.of("worldedit.tool.brush-success"));
+                player.print(TranslatableComponent.of("worldedit.tool.brush-success"));
             } catch (MaxChangedBlocksException e) {
                 player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
             } finally {
