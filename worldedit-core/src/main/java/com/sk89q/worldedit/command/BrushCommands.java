@@ -64,6 +64,7 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.internal.annotation.ClipboardMask;
 import com.sk89q.worldedit.internal.annotation.VertHeight;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.factory.CuboidRegionFactory;
 import com.sk89q.worldedit.regions.factory.CylinderRegionFactory;
 import com.sk89q.worldedit.regions.factory.FixedHeightCuboidRegionFactory;
@@ -756,10 +757,9 @@ public class BrushCommands {
             }
 
             session.confirmPreview(region, pattern, editSession); 
-            player.printMessage(TranslatableComponent.of("worldedit.tool.preview-confirmed"));
+            player.print(TranslatableComponent.of("worldedit.tool.preview-confirmed"));
         } catch (WorldEditException e) {
             player.printError(TranslatableComponent.of("worldedit.tool.confirm-error"));
-            e.printStackTrace();
         }
     }
 
@@ -776,10 +776,9 @@ public class BrushCommands {
             }
 
             session.cancelPreview(editSession); // Revert preview changes
-            player.printMessage(TranslatableComponent.of("worldedit.tool.preview-cancelled"));
+            player.print(TranslatableComponent.of("worldedit.tool.preview-cancelled"));
         } catch (WorldEditException e) {
             player.printError(TranslatableComponent.of("worldedit.tool.cancel-error"));
-            e.printStackTrace();
         }
     }
 
@@ -789,7 +788,7 @@ public class BrushCommands {
     )
     @CommandPermissions("worldedit.brush")
     public void previewToggle(Player player, BrushTool brushTool) {
-        brushTool.togglePreviewMode(player);
+        brushTool.togglePreviewMode();
     }
 
 }

@@ -143,12 +143,4 @@ public class HistoryCommands {
         actor.printInfo(TranslatableComponent.of("worldedit.clearhistory.cleared"));
     }
 
-
-    @Command(
-            name = "rebrush",
-            aliases = { "/rebrush" },
-            desc = "Rebrushes the select region"
-    )
-    public void rebrush(Actor actor, LocalSession session) {
-    }
 }

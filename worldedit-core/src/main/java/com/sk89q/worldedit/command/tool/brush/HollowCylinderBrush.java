@@ -25,13 +25,20 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-public class HollowCylinderBrush extends CylinderBrush {
+public class HollowCylinderBrush implements Brush {
+
+    private final int height;
+
     public HollowCylinderBrush(int height) {
-        super(height);
+        this.height = height;
     }
 
     @Override
-    public int createStructure(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException {
-        return createStructure(editSession, position, pattern, size, false);
+    public void build(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException {
+        if (pattern == null) {
+            pattern = BlockTypes.COBBLESTONE.getDefaultState();
+        }
+        editSession.makeCylinder(position, pattern, size, size, height, false);
     }
+
 }

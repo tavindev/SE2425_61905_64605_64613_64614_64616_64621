@@ -52,8 +52,6 @@ import com.sk89q.worldedit.session.Placement;
 import com.sk89q.worldedit.session.PlacementType;
 import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.util.Countable;
-import com.sk89q.worldedit.util.HandSide;
-import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.SideEffectSet;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.world.World;
@@ -140,16 +138,6 @@ public class LocalSession {
     private Set<BlockVector3> previewBlocks = new HashSet<>();
     private Region lastPreviewRegion;
     private Pattern currentBrushPattern;
-
-    public boolean selectStructure(Location clicked) {
-        for (EditSession editSession : history) {
-            if (editSession.selectStructure(clicked)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     /**
      * Construct the object.
@@ -626,6 +614,7 @@ public class LocalSession {
      * Sets whether placement is at POS1 or PLAYER.
      *
      * @param placeAtPos1 true=POS1, false=PLAYER
+     *
      * @deprecated Use {@link #setPlacement(Placement)}
      */
     @Deprecated
@@ -637,6 +626,7 @@ public class LocalSession {
      * Gets whether placement is at POS1 or PLAYER.
      *
      * @return true=POS1, false=PLAYER
+     *
      * @deprecated Use {@link #getPlacement()}
      */
     @Deprecated
@@ -752,15 +742,9 @@ public class LocalSession {
      * @param item the item type
      * @return the tool, or {@code null}
      * @throws InvalidToolBindException if the item can't be bound to that item
-     *                                  <<<<<<< HEAD
      * @deprecated Use {@link #getBrush(ItemType)} or
      *             {@link #forceBrush(ItemType, Brush, String)}
      *             if you need to bind a specific brush
-     *             =======
-     * @deprecated Use {@link #getBrush(ItemType)} or
-     *             {@link #forceBrush(ItemType, Brush, String)}
-     *             if you need to bind a specific brush
-     *             >>>>>>> version/7.3.x
      */
     @Deprecated
     public BrushTool getBrushTool(ItemType item) throws InvalidToolBindException {
@@ -1255,15 +1239,8 @@ public class LocalSession {
     }
 
     /**
-     * <<<<<<< HEAD
      * Get the preferred wand item for this user, or {@code null} to use the
      * default.
-     * 
-     * =======
-     * Get the preferred wand item for this user, or {@code null} to use the
-     * default.
-     *
-     * >>>>>>> version/7.3.x
      * 
      * @return item id of wand item, or {@code null}
      */
@@ -1285,15 +1262,8 @@ public class LocalSession {
     }
 
     /**
-     * <<<<<<< HEAD
      * Get the preferred navigation wand item for this user, or {@code null} to use
      * the default.
-     * 
-     * =======
-     * Get the preferred navigation wand item for this user, or {@code null} to use
-     * the default.
-     *
-     * >>>>>>> version/7.3.x
      * 
      * @return item id of nav wand item, or {@code null}
      */
@@ -1349,10 +1319,9 @@ public class LocalSession {
      * Show a preview using glass blocks.
      *
      * @param region      The region affected by the brush.
-     * @param glassBlock  The glass block used for preview.
      * @param editSession The current edit session.
      */
-    /*public void showPreview(Region region, BaseBlock glassBlock, EditSession editSession) throws WorldEditException {
+    public void showPreview(Region region, EditSession editSession) throws WorldEditException {
         if (isPreviewActive) {
             cancelPreview(editSession); // Clear any existing preview
         }
@@ -1367,7 +1336,7 @@ public class LocalSession {
             previewBlocks.put(position, originalBlock);
 
             // Temporarily set glass blocks
-            editSession.setBlock(position, glassBlock);
+            editSession.setBlock(position, BlockTypes.GLASS.getDefaultState().toBaseBlock());
         }
 
         isPreviewActive = true;
@@ -1382,7 +1351,7 @@ public class LocalSession {
      */
     /*public void confirmPreview(Region region, Pattern pattern, EditSession editSession) throws WorldEditException {
         for (BlockVector3 position : region) {
-            editSession.setBlock(position, pattern.apply(position));
+            editSession.setBlock(position, pattern.applyBlock(position)); // Replace preview blocks with real material
         }
 
         editSession.close(); // Finalize changes to the world
@@ -1436,49 +1405,15 @@ public class LocalSession {
     /*private void clearPreviewState() {
         previewBlocks.clear();
         isPreviewActive = false;
-    }*/
-
-    // Activate preview
-    public void enablePreview() {
-        this.isPreviewActive = true;
     }
 
-    // Deactivate preview
-    public void disablePreview() {
-        this.isPreviewActive = false;
-        clearPreview(); // Clear any rendered previews
-    }
-
-    // Check if preview is active
+    /**
+     * Get the current session's preview state.
+     *
+     * @return The preview state.
+     */
     public boolean isPreviewActive() {
         return isPreviewActive;
-    }
-
-    // Clear current preview blocks
-    public void clearPreview() {
-        if (!previewBlocks.isEmpty()) {
-            EditSession editSession = WorldEdit.getInstance()
-                .getEditSessionFactory().getEditSession(this.getSelectionWorld(), -1);
-            for (BlockVector3 position : previewBlocks) {
-                try {
-                    editSession.setBlock(position, BlockTypes.AIR.getDefaultState());
-                } catch (MaxChangedBlocksException e) {
-                    e.printStackTrace();
-                }
-            }
-            previewBlocks.clear();
-        }
-    }
-
-    public void addPreviewBlocks(Set<BlockVector3> blocks, EditSession editSession) {
-        this.previewBlocks.addAll(blocks);
-        for (BlockVector3 position : blocks) {
-            try {
-                editSession.setBlock(position, BlockTypes.GLASS.getDefaultState());
-            } catch (MaxChangedBlocksException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 }

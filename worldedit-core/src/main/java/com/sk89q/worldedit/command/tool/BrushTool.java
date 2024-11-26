@@ -23,7 +23,6 @@ import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.LocalConfiguration;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.command.tool.brush.SphereBrush;
 import com.sk89q.worldedit.entity.Player;
@@ -38,11 +37,7 @@ import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
-import com.sk89q.worldedit.world.block.BaseBlock;
-import com.sk89q.worldedit.world.block.BlockTypes;
-
 import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -215,53 +210,35 @@ public class BrushTool implements TraceTool {
 
         try (EditSession editSession = session.createEditSession(player)) {
 
-            BlockVector3 center = target.toVector().toBlockPoint();
-            Region region = calculateAffectedRegion(center, size);
+            if (mask != null) {
+                Mask existingMask = editSession.getMask();
 
-            if (previewMode) {
-                BaseBlock glassBlock = BlockTypes.GLASS.getDefaultState().toBaseBlock();
+                if (existingMask == null) {
+                    editSession.setMask(mask);
+                } else if (existingMask instanceof MaskIntersection) {
+                    ((MaskIntersection) existingMask).add(mask);
+                } else {
+                    MaskIntersection newMask = new MaskIntersection(existingMask);
+                    newMask.add(mask);
+                    editSession.setMask(newMask);
+                }
 
                 try {
-                    session.showPreview(region, glassBlock, editSession); // Display preview
-                    session.setCurrentBrushPattern(material); // Track material
-                    player.print(TranslatableComponent.of("worldedit.tool.preview-shown"));
-                } catch (WorldEditException e) {
-                    player.printError(TranslatableComponent.of("worldedit.tool.preview-error"));
-                    e.printStackTrace();
-                }
-            } else {
-
-
-                if (mask != null) {
-                    Mask existingMask = editSession.getMask();
-
-                    if (existingMask == null) {
-                        editSession.setMask(mask);
-                    } else if (existingMask instanceof MaskIntersection) {
-                        ((MaskIntersection) existingMask).add(mask);
-                    } else {
-                        MaskIntersection newMask = new MaskIntersection(existingMask);
-                        newMask.add(mask);
-                        editSession.setMask(newMask);
-                    }
+                    brush.build(editSession, target.toVector().toBlockPoint(), material, size);
+                    player.print(TranslatableComponent.of("worldedit.tool.brush-success"));
+                } catch (MaxChangedBlocksException e) {
+                    player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
+                } finally {
+                    session.remember(editSession);
                 }
             }
 
-            try {
-                brush.build(editSession, target.toVector().toBlockPoint(), material, size);
-                player.print(TranslatableComponent.of("worldedit.tool.brush-success"));
-            } catch (MaxChangedBlocksException e) {
-                player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
-            } finally {
-                session.remember(editSession);
-            }
+            return true;
         } finally {
             if (bag != null) {
                 bag.flushChanges();
             }
         }
-
-        return true;
     }
 
     /**
