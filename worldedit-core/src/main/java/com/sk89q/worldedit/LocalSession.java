@@ -56,6 +56,7 @@ import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldedit.world.item.ItemType;
 import com.sk89q.worldedit.world.item.ItemTypes;
 import com.sk89q.worldedit.world.snapshot.experimental.Snapshot;
@@ -1313,10 +1314,9 @@ public class LocalSession {
      * Show a preview using glass blocks.
      *
      * @param region      The region affected by the brush.
-     * @param glassBlock  The glass block used for preview.
      * @param editSession The current edit session.
      */
-    public void showPreview(Region region, BaseBlock glassBlock, EditSession editSession) throws WorldEditException {
+    public void showPreview(Region region, EditSession editSession) throws WorldEditException {
         if (isPreviewActive) {
             cancelPreview(editSession); // Clear any existing preview
         }
@@ -1331,7 +1331,7 @@ public class LocalSession {
             previewBlocks.put(position, originalBlock);
 
             // Temporarily set glass blocks
-            editSession.setBlock(position, glassBlock);
+            editSession.setBlock(position, BlockTypes.GLASS.getDefaultState().toBaseBlock());
         }
 
         isPreviewActive = true;
@@ -1346,7 +1346,7 @@ public class LocalSession {
      */
     public void confirmPreview(Region region, Pattern pattern, EditSession editSession) throws WorldEditException {
         for (BlockVector3 position : region) {
-            editSession.setBlock(position, pattern.apply(position)); // Replace preview blocks with real material
+            editSession.setBlock(position, pattern.applyBlock(position)); // Replace preview blocks with real material
         }
 
         editSession.close(); // Finalize changes to the world
@@ -1400,6 +1400,15 @@ public class LocalSession {
     private void clearPreviewState() {
         previewBlocks.clear();
         isPreviewActive = false;
+    }
+
+    /**
+     * Get the current session's preview state.
+     *
+     * @return The preview state.
+     */
+    public boolean isPreviewActive() {
+        return isPreviewActive;
     }
 
 }
