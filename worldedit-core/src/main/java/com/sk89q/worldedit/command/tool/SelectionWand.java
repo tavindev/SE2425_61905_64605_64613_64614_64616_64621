@@ -21,6 +21,7 @@ package com.sk89q.worldedit.command.tool;
 
 import com.sk89q.worldedit.LocalConfiguration;
 import com.sk89q.worldedit.LocalSession;
+import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extension.platform.Platform;
@@ -39,9 +40,10 @@ public class SelectionWand implements DoubleActionBlockTool {
         RegionSelector selector = session.getRegionSelector(player.getWorld());
         BlockVector3 blockPoint = clicked.toVector().toBlockPoint();
 
-        if (selector.selectPrimary(blockPoint, ActorSelectorLimits.forActor(player))) {
+        if (!session.selectStructure(clicked) && selector.selectPrimary(blockPoint, ActorSelectorLimits.forActor(player))) {
             selector.explainPrimarySelection(player, session, blockPoint);
         }
+
         return true;
     }
 

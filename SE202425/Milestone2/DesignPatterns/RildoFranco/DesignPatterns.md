@@ -91,6 +91,8 @@ Tag fromNative(LinTag<?> foreign) {
     }
 ```
 
+In this sequence, the Adapter interface (Target) is the BukkitImplAdapter, the Adapter class is the PaperWeightAdapter and the Adaptee class is the PaperWeightServerLevelDelegateProxy.
+
 ![alt text](image.png)
 
 ---
@@ -117,6 +119,7 @@ public static WorldGenLevel newInstance(EditSession editSession, ServerLevel ser
 The FabricServerLevelDelegateProxy class implements the InvocationHandler interface, which allows it to intercept method calls on the proxy instance.
 
 The FabricServerLevelDelegateProxy class provides implementations for methods such as getBlockEntity, getBlockState, setBlock, removeBlock, and addEntity, which are called by the invoke method.
+
 
 ```java
 @Nullable
@@ -163,6 +166,8 @@ private boolean addEntity(Entity entity) {
     return editSession.createEntity(location, baseEntity) != null;
 }
 ```
+
+In this sequence, the Subject interface is the InvocationHandler, the Proxy is the FabricServerLevelProxy and it delegates the request to the RealSubject which is the ServerLevel and in addition the EditSession as well.
 
 ![alt text](image-1.png)
 ---
