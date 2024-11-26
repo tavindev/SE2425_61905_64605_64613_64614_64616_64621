@@ -1296,4 +1296,10 @@ public class LocalSession {
         this.hasCUISupport = false;
         this.failedCuiAttempts = 0;
     }
+
+    public void rebrush(Actor actor, double scale) {
+        for(EditSession session : history) {
+            session.deselect();
+        }
+    }
 }

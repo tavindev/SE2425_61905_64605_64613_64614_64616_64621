@@ -69,5 +69,25 @@ public class SelectableStructure {
         return true;
     }
 
+    public boolean deselect() {
+        if (!selected) {
+            return false;
+        }
+
+        for (BlockVector3 position : positions) {
+            try {
+                session.setBlock(position, pattern);
+            } catch (MaxChangedBlocksException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        session.close();
+
+        selected = false;
+
+        return true;
+    }
+
 
 }

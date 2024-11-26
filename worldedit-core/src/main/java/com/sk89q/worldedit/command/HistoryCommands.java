@@ -149,6 +149,7 @@ public class HistoryCommands {
             aliases = { "/rebrush" },
             desc = "Rebrushes the select region"
     )
-    public void rebrush(Actor actor, LocalSession session) {
+    public void rebrush(Actor actor, LocalSession session, @Arg(desc = "Scale", def = "1") double scale) {
+        session.rebrush(actor, scale);
     }
 }

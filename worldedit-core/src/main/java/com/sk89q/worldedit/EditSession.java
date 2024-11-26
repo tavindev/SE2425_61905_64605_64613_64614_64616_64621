@@ -318,6 +318,11 @@ public class EditSession implements Extent, AutoCloseable {
         return this.selectableStructure.select(clicked);
     }
 
+    public boolean deselect() {
+        return this.selectableStructure.deselect();
+    }
+
+
     private Extent traceIfNeeded(Extent input) {
         Extent output = input;
         if (tracingExtents != null) {
