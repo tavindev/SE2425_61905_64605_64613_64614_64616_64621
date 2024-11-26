@@ -21,7 +21,6 @@ package com.sk89q.worldedit.extension.platform;
 
 import com.sk89q.worldedit.LocalConfiguration;
 import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.command.tool.BlockTool;
 import com.sk89q.worldedit.command.tool.DoubleActionBlockTool;
@@ -108,8 +107,8 @@ public class PlatformManager {
         if (firstSeenVersion != null) {
             if (!firstSeenVersion.equals(platform.getVersion())) {
                 LOGGER.warn("Multiple ports of WorldEdit are installed but they report different versions ({} and {}). "
-                                + "If these two versions are truly different, then you may run into unexpected crashes and errors.",
-                        firstSeenVersion, platform.getVersion());
+                        + "If these two versions are truly different, then you may run into unexpected crashes and errors.",
+                    firstSeenVersion, platform.getVersion());
             }
         } else {
             firstSeenVersion = platform.getVersion();
@@ -169,8 +168,8 @@ public class PlatformManager {
             if (preferences.isEmpty()) {
                 // Not all platforms registered, this is being called too early!
                 throw new NoCapablePlatformException(
-                        "Not all platforms have been registered yet!"
-                                + " Please wait until WorldEdit is initialized."
+                    "Not all platforms have been registered yet!"
+                        + " Please wait until WorldEdit is initialized."
                 );
             }
             throw new NoCapablePlatformException("No platform was found supporting " + capability.name());
@@ -309,7 +308,6 @@ public class PlatformManager {
 
     /**
      * Get the initialized state of the Platform.
-     *
      * @return if the platform manager is initialized
      */
     public boolean isInitialized() {
@@ -365,7 +363,6 @@ public class PlatformManager {
             return;
         }
         LocalSession session = worldEdit.getSessionManager().get(actor);
-
 
         Request.reset();
         Request.request().setSession(session);

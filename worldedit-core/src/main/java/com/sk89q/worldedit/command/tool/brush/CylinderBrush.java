@@ -25,107 +25,20 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockTypes;
 
-public class CylinderBrush extends AbstractStructureBrush {
+public class CylinderBrush implements Brush {
 
-    protected final int height;
+    private final int height;
 
     public CylinderBrush(int height) {
         this.height = height;
     }
 
     @Override
-    public int createStructure(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException {
+    public void build(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException {
         if (pattern == null) {
             pattern = BlockTypes.COBBLESTONE.getDefaultState();
         }
-        return createStructure(editSession, position, pattern, size, size, height, true);
-    }
-
-    /**
-     * Makes a cylinder.
-     *
-     * @param pos     Center of the cylinder
-     * @param block   The block pattern to use
-     * @param radiusX The cylinder's largest north/south extent
-     * @param radiusZ The cylinder's largest east/west extent
-     * @param height  The cylinder's up/down extent. If negative, extend downward.
-     * @param filled  If false, only a shell will be generated.
-     * @return number of blocks changed
-     * @throws MaxChangedBlocksException thrown if too many blocks are changed
-     */
-    public int createStructure(EditSession editSession, BlockVector3 pos, Pattern block, double radiusX, double radiusZ, int height, boolean filled) throws MaxChangedBlocksException {
-        int affected = 0;
-
-        radiusX += 0.5;
-        radiusZ += 0.5;
-
-        if (height == 0) {
-            return 0;
-        } else if (height < 0) {
-            height = -height;
-            pos = pos.subtract(0, height, 0);
-        }
-
-        if (pos.y() < editSession.getWorld().getMinY()) {
-            pos = pos.withY(editSession.getWorld().getMinY());
-        } else if (pos.y() + height - 1 > editSession.getWorld().getMaxY()) {
-            height = editSession.getWorld().getMaxY() - pos.y() + 1;
-        }
-
-        final double invRadiusX = 1 / radiusX;
-        final double invRadiusZ = 1 / radiusZ;
-
-        final int ceilRadiusX = (int) Math.ceil(radiusX);
-        final int ceilRadiusZ = (int) Math.ceil(radiusZ);
-
-        double nextXn = 0;
-        forX:
-        for (int x = 0; x <= ceilRadiusX; ++x) {
-            final double xn = nextXn;
-            nextXn = (x + 1) * invRadiusX;
-            double nextZn = 0;
-            forZ:
-            for (int z = 0; z <= ceilRadiusZ; ++z) {
-                final double zn = nextZn;
-                nextZn = (z + 1) * invRadiusZ;
-
-                double distanceSq = lengthSq(xn, zn);
-                if (distanceSq > 1) {
-                    if (z == 0) {
-                        break forX;
-                    }
-                    break forZ;
-                }
-
-                if (!filled) {
-                    if (lengthSq(nextXn, zn) <= 1 && lengthSq(xn, nextZn) <= 1) {
-                        continue;
-                    }
-                }
-
-                for (int y = 0; y < height; ++y) {
-                    if (editSession.setBlock(pos.add(x, y, z), block)) {
-                        ++affected;
-                    }
-                    if (editSession.setBlock(pos.add(-x, y, z), block)) {
-                        ++affected;
-                    }
-                    if (editSession.setBlock(pos.add(x, y, -z), block)) {
-                        ++affected;
-                    }
-                    if (editSession.setBlock(pos.add(-x, y, -z), block)) {
-                        ++affected;
-                    }
-                }
-            }
-        }
-
-        return affected;
-    }
-
-
-    public int createStructure(EditSession editSession, BlockVector3 pos, Pattern block, double size, boolean filled) throws MaxChangedBlocksException {
-        return createStructure(editSession, pos, block, size, size, height, filled);
+        editSession.makeCylinder(position, pattern, size, size, height, true);
     }
 
 }

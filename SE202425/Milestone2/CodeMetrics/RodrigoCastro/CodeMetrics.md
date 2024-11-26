@@ -5,15 +5,13 @@
 ## Class: LocalSession
 ---
 ## RFC Calculation (Chidamber-Kemerer Metrics Set) - Class Level:
-
-- What It Means: Response For a Class (RFC) is a metric that measures the number of methods that can be potentially executed in response to a message received by an object of the class. It includes the methods of the class and any methods that it calls directly.
-
 - Value collected: 194
 - Reference values(Regular): [0..45]
 - Extreme range: [80, +∞]
-- Average RFC in project: 18.33
 
-- What It Indicates: The RFC value for this class (194) is significantly above both the project average of 18.33 and the extreme threshold of 80. This stark contrast highlights that the class is an outlier in terms of method invocations compared to the majority of the codebase. The disparity reinforces concerns about its complexity and the potential for maintainability issues.
+- What It Means: Response For a Class (RFC) is a metric that measures the number of methods that can be potentially executed in response to a message received by an object of the class. It includes the methods of the class and any methods that it calls directly.
+
+- What It Indicates: 194 is considerably above the upper reference limit of 45, suggesting that this class has a high number of methods it can invoke. This often indicates high coupling or that the class has too many responsibilities, making it harder to test, understand, and maintain.
 
 ## Observations
 
@@ -24,15 +22,13 @@
 ---
 
 ## NOM Calculation (Li-Henry Metrics Set) - Class Level:
-
-- What It Means: Number Of Methods (NOM) is a metric that counts the total number of methods defined in a class. This includes both public and private methods and provides insight into the size and potential complexity of the class.
-
 - Value collected: 94
 - Reference values (Regular): [0..7]
 - Extreme range: [25, +∞]
-- Average NOM in project: 11.89
 
-- What It Indicates: The NOM value for this class (94) is significantly higher than both the upper reference limit of 7 and the extreme threshold of 25, which already indicates that it is an outlier in terms of method count. Furthermore, it is well above the project’s average NOM of 11.89, which further emphasizes that this class is exceptionally large and potentially more complex compared to the rest of the codebase.
+- What It Means: Number Of Methods (NOM) is a metric that counts the total number of methods defined in a class. This includes both public and private methods and provides insight into the size and potential complexity of the class.
+
+- What It Indicates: A NOM value of 94 significantly exceeds the upper reference limit of 7, indicating that the class has a very high number of methods. This suggests a large, potentially overburdened class, which may be handling too many responsibilities and could be difficult to manage or test effectively.
 
 ## Observations
 
