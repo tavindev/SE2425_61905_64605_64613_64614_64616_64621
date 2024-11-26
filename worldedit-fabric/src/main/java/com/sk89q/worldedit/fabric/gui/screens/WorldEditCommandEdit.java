@@ -1,28 +1,28 @@
 package com.sk89q.worldedit.fabric.gui.screens;
 
-
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.util.FormattedCharSequence;
-
-import java.util.Objects;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 public class WorldEditCommandEdit extends Screen {
     private static final Component MODE_LABEL = Component.translatable("Create Brush Tool");
+    private static final ResourceLocation SLOT_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/crafter.png");
+    private static final int SLOT_U = 7; // U coordinate in the texture
+    private static final int SLOT_V = 83; // V coordinate in the texture
+    private static final int SLOT_WIDTH = 18;
+    private static final int SLOT_HEIGHT = 18;
+
     protected EditBox commandEdit;
-    protected Button rightButton;
-    protected Button leftButton;
     protected Button doneButton;
     protected Button cancelButton;
+    private ItemStack toolItemStack = ItemStack.EMPTY;
 
     public WorldEditCommandEdit() {
         super(GameNarrator.NO_TITLE);
@@ -30,10 +30,24 @@ public class WorldEditCommandEdit extends Screen {
 
     @Override
     protected void init() {
-        this.doneButton = this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, ($$0x) -> this.onDone()).bounds(this.width / 2 - 4 - 150, this.height / 4 + 120 + 12, 150, 20).build());
-        this.cancelButton = this.addRenderableWidget(
-                Button.builder(CommonComponents.GUI_CANCEL, p_315822_ -> this.onClose()).bounds(this.width / 2 + 4, this.height / 4 + 120 + 12, 150, 20).build()
+        Minecraft mc = Minecraft.getInstance();
+        ItemStack heldItem = mc.player.getMainHandItem();
+
+        if (heldItem.getItem() != null) {
+            toolItemStack = heldItem;
+        }
+
+        this.doneButton = this.addRenderableWidget(
+                Button.builder(CommonComponents.GUI_DONE, ($$0x) -> this.onDone())
+                        .bounds(this.width / 2 - 4 - 150, this.height / 4 + 120 + 12, 150, 20)
+                        .build()
         );
+        this.cancelButton = this.addRenderableWidget(
+                Button.builder(CommonComponents.GUI_CANCEL, p_315822_ -> this.onClose())
+                        .bounds(this.width / 2 + 4, this.height / 4 + 120 + 12, 150, 20)
+                        .build()
+        );
+
         this.commandEdit = new EditBox(this.font, this.width / 2 - 150, 50, 300, 20, Component.translatable("advMode.command"));
         this.commandEdit.setMaxLength(32500);
         this.addWidget(this.commandEdit);
@@ -51,24 +65,14 @@ public class WorldEditCommandEdit extends Screen {
         this.commandEdit.setValue(s);
     }
 
-
-
     protected void onDone() {
-        String cmd = this.commandEdit.getValue();
-        if (cmd.isEmpty()) {
-            // Mensagem de erro?
-        } else {
-            // idk
-            // commandEdit.setValue(cmd);
-            this.minecraft.setScreen(null);
-        }
+        this.minecraft.setScreen(null);
     }
 
-    private void drawCenteredStringWithWrap(GuiGraphics pGuiGraphics, Font font, FormattedText formattedText, int i, int j, int k, int l) {
-        for(FormattedCharSequence formattedCharSequence : font.split(formattedText, k)) {
-            pGuiGraphics.drawString(font, formattedCharSequence, i - font.width(formattedCharSequence) / 2, j, l, false);
-            Objects.requireNonNull(font);
-            j += 9;
+    private void drawCenteredStringWithWrap(GuiGraphics pGuiGraphics, Component text, int x, int y, int width, int color) {
+        for (var line : this.font.split(text, width)) {
+            pGuiGraphics.drawString(this.font, line, x - this.font.width(line) / 2, y, color, false);
+            y += 9;
         }
     }
 
@@ -76,13 +80,32 @@ public class WorldEditCommandEdit extends Screen {
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         pGuiGraphics.drawCenteredString(this.font, MODE_LABEL, this.width / 2, 20, 16777215);
-        pGuiGraphics.fill(this.width / 2 - 160, 40, this.width / 2 + 160, 100, 0xAA000000);
-        Component TEXT_TEST = Component.translatable("How many dragons are in the world? The magic is dead here, everyone who stands in these lands are spiritless souls. The last dragon stands in the only world who it can, The End.");
-        drawCenteredStringWithWrap(pGuiGraphics, this.font, TEXT_TEST, this.width / 2, 50, this.width / 2, 16777215);
+
+        // Display the held tool item within a scaled slot
+        if (!toolItemStack.isEmpty()) {
+            int slotX = this.width / 2;
+            int slotY = this.height / 2;
+            float scale = 3.0f;
+
+            pGuiGraphics.pose().pushPose();
+            pGuiGraphics.pose().translate(slotX, slotY, 0);
+            pGuiGraphics.pose().scale(scale, scale, 1.0f);
+            pGuiGraphics.pose().translate(-SLOT_WIDTH / 2.0f, -SLOT_HEIGHT / 2.0f, 0);
+            pGuiGraphics.blit(SLOT_TEXTURE, 0, 0, SLOT_U, SLOT_V, SLOT_WIDTH, SLOT_HEIGHT);
+            pGuiGraphics.pose().popPose();
+
+            pGuiGraphics.pose().pushPose();
+            pGuiGraphics.pose().translate(slotX, slotY, 0);
+            pGuiGraphics.pose().scale(scale, scale, 1.0f);
+            pGuiGraphics.pose().translate(-8, -8, 0);
+            pGuiGraphics.renderItem(toolItemStack, 0, 0);
+            pGuiGraphics.pose().popPose();
+        } else {
+            pGuiGraphics.drawCenteredString(this.font, Component.translatable("No tool in hand"), this.width / 2, this.height / 2, 16711680);
+        }
     }
 
     public void renderBackground(GuiGraphics $$0, int $$1, int $$2, float $$3) {
         this.renderTransparentBackground($$0);
     }
-
 }
