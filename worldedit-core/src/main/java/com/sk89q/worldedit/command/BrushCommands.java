@@ -142,6 +142,7 @@ public class BrushCommands {
         worldEdit.checkMaxBrushRadius(radius);
 
         Brush brush = hollow ? new HollowSphereBrush() : new SphereBrush();
+        session.enablePreview();
 
         BrushTool tool = session.forceBrush(
             player.getItemInHand(HandSide.MAIN_HAND).getType(),

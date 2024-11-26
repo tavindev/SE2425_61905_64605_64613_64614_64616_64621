@@ -23,6 +23,7 @@ import com.sk89q.jchronic.Chronic;
 import com.sk89q.jchronic.Options;
 import com.sk89q.jchronic.utils.Span;
 import com.sk89q.jchronic.utils.Time;
+import com.sk89q.worldedit.blocks.BaseItem;
 import com.sk89q.worldedit.command.tool.BlockTool;
 import com.sk89q.worldedit.command.tool.BrushTool;
 import com.sk89q.worldedit.command.tool.InvalidToolBindException;
@@ -51,12 +52,14 @@ import com.sk89q.worldedit.session.Placement;
 import com.sk89q.worldedit.session.PlacementType;
 import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.util.Countable;
+import com.sk89q.worldedit.util.HandSide;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.SideEffectSet;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import com.sk89q.worldedit.world.item.ItemType;
 import com.sk89q.worldedit.world.item.ItemTypes;
 import com.sk89q.worldedit.world.snapshot.experimental.Snapshot;
@@ -67,10 +70,12 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -132,7 +137,7 @@ public class LocalSession {
 
     // Preview Brush Preview
     private boolean isPreviewActive = false;
-    private Map<BlockVector3, BaseBlock> previewBlocks = new HashMap<>();
+    private Set<BlockVector3> previewBlocks = new HashSet<>();
     private Region lastPreviewRegion;
     private Pattern currentBrushPattern;
 
@@ -1338,6 +1343,8 @@ public class LocalSession {
         this.failedCuiAttempts = 0;
     }
 
+
+
     /**
      * Show a preview using glass blocks.
      *
@@ -1345,7 +1352,7 @@ public class LocalSession {
      * @param glassBlock  The glass block used for preview.
      * @param editSession The current edit session.
      */
-    public void showPreview(Region region, BaseBlock glassBlock, EditSession editSession) throws WorldEditException {
+    /*public void showPreview(Region region, BaseBlock glassBlock, EditSession editSession) throws WorldEditException {
         if (isPreviewActive) {
             cancelPreview(editSession); // Clear any existing preview
         }
@@ -1364,7 +1371,7 @@ public class LocalSession {
         }
 
         isPreviewActive = true;
-    }
+    }*/
 
     /**
      * Confirm the preview and apply real changes.
@@ -1373,62 +1380,105 @@ public class LocalSession {
      * @param pattern     The real block pattern to place.
      * @param editSession The current edit session.
      */
-    public void confirmPreview(Region region, Pattern pattern, EditSession editSession) throws WorldEditException {
+    /*public void confirmPreview(Region region, Pattern pattern, EditSession editSession) throws WorldEditException {
         for (BlockVector3 position : region) {
-            editSession.setBlock(position, pattern.apply(position)); // Replace preview blocks with real material
+            editSession.setBlock(position, pattern.apply(position));
         }
 
         editSession.close(); // Finalize changes to the world
         clearPreviewState();
-    }
+    }*/
 
     /**
      * Cancel the preview and revert original blocks.
      *
      * @param editSession The current edit session.
      */
-    public void cancelPreview(EditSession editSession) throws WorldEditException {
+    /*public void cancelPreview(EditSession editSession) throws WorldEditException {
         for (Map.Entry<BlockVector3, BaseBlock> entry : previewBlocks.entrySet()) {
             editSession.setBlock(entry.getKey(), entry.getValue()); // Restore original blocks
         }
 
         editSession.close(); // Finalize the undo operation
         clearPreviewState();
-    }
+    }*/
 
     /**
      * Get the last previewed region.
      *
      * @return The last previewed region.
      */
-    public Region getLastPreviewRegion() {
+    /*public Region getLastPreviewRegion() {
         return lastPreviewRegion;
-    }
+    }*/
 
     /**
      * Get the current brush pattern.
      *
      * @return The current brush pattern.
      */
-    public Pattern getCurrentBrushPattern() {
+    /*public Pattern getCurrentBrushPattern() {
         return currentBrushPattern;
-    }
+    }*/
 
     /**
      * Set the current brush pattern.
      *
      * @param pattern The pattern to set.
      */
-    public void setCurrentBrushPattern(Pattern pattern) {
+    /*public void setCurrentBrushPattern(Pattern pattern) {
         this.currentBrushPattern = pattern;
-    }
+    }*/
 
     /**
      * Clear the preview state.
      */
-    private void clearPreviewState() {
+    /*private void clearPreviewState() {
         previewBlocks.clear();
         isPreviewActive = false;
+    }*/
+
+    // Activate preview
+    public void enablePreview() {
+        this.isPreviewActive = true;
+    }
+
+    // Deactivate preview
+    public void disablePreview() {
+        this.isPreviewActive = false;
+        clearPreview(); // Clear any rendered previews
+    }
+
+    // Check if preview is active
+    public boolean isPreviewActive() {
+        return isPreviewActive;
+    }
+
+    // Clear current preview blocks
+    public void clearPreview() {
+        if (!previewBlocks.isEmpty()) {
+            EditSession editSession = WorldEdit.getInstance()
+                .getEditSessionFactory().getEditSession(this.getSelectionWorld(), -1);
+            for (BlockVector3 position : previewBlocks) {
+                try {
+                    editSession.setBlock(position, BlockTypes.AIR.getDefaultState());
+                } catch (MaxChangedBlocksException e) {
+                    e.printStackTrace();
+                }
+            }
+            previewBlocks.clear();
+        }
+    }
+
+    public void addPreviewBlocks(Set<BlockVector3> blocks, EditSession editSession) {
+        this.previewBlocks.addAll(blocks);
+        for (BlockVector3 position : blocks) {
+            try {
+                editSession.setBlock(position, BlockTypes.GLASS.getDefaultState());
+            } catch (MaxChangedBlocksException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
