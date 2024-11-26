@@ -51,6 +51,7 @@ import com.sk89q.worldedit.session.Placement;
 import com.sk89q.worldedit.session.PlacementType;
 import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.util.Countable;
+import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.SideEffectSet;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.world.World;
@@ -135,6 +136,16 @@ public class LocalSession {
     private Map<BlockVector3, BaseBlock> previewBlocks = new HashMap<>();
     private Region lastPreviewRegion;
     private Pattern currentBrushPattern;
+
+    public boolean selectStructure(Location clicked) {
+        for (EditSession editSession : history) {
+            if (editSession.selectStructure(clicked)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Construct the object.
@@ -611,7 +622,6 @@ public class LocalSession {
      * Sets whether placement is at POS1 or PLAYER.
      *
      * @param placeAtPos1 true=POS1, false=PLAYER
-     *
      * @deprecated Use {@link #setPlacement(Placement)}
      */
     @Deprecated
@@ -623,7 +633,6 @@ public class LocalSession {
      * Gets whether placement is at POS1 or PLAYER.
      *
      * @return true=POS1, false=PLAYER
-     *
      * @deprecated Use {@link #getPlacement()}
      */
     @Deprecated
@@ -739,9 +748,15 @@ public class LocalSession {
      * @param item the item type
      * @return the tool, or {@code null}
      * @throws InvalidToolBindException if the item can't be bound to that item
+     *                                  <<<<<<< HEAD
      * @deprecated Use {@link #getBrush(ItemType)} or
      *             {@link #forceBrush(ItemType, Brush, String)}
      *             if you need to bind a specific brush
+     *             =======
+     * @deprecated Use {@link #getBrush(ItemType)} or
+     *             {@link #forceBrush(ItemType, Brush, String)}
+     *             if you need to bind a specific brush
+     *             >>>>>>> version/7.3.x
      */
     @Deprecated
     public BrushTool getBrushTool(ItemType item) throws InvalidToolBindException {
@@ -1236,8 +1251,15 @@ public class LocalSession {
     }
 
     /**
+     * <<<<<<< HEAD
      * Get the preferred wand item for this user, or {@code null} to use the
      * default.
+     * 
+     * =======
+     * Get the preferred wand item for this user, or {@code null} to use the
+     * default.
+     *
+     * >>>>>>> version/7.3.x
      * 
      * @return item id of wand item, or {@code null}
      */
@@ -1259,8 +1281,15 @@ public class LocalSession {
     }
 
     /**
+     * <<<<<<< HEAD
      * Get the preferred navigation wand item for this user, or {@code null} to use
      * the default.
+     * 
+     * =======
+     * Get the preferred navigation wand item for this user, or {@code null} to use
+     * the default.
+     *
+     * >>>>>>> version/7.3.x
      * 
      * @return item id of nav wand item, or {@code null}
      */
