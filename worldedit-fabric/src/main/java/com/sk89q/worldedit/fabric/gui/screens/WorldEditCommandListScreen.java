@@ -4,51 +4,76 @@ import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.CommonComponents;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WorldEditCommandListScreen extends Screen {
 
     private static final Component TITLE = Component.translatable("WorldEdit Commands");
+    private static final int BUTTON_WIDTH = 90;
+    private static final int BUTTON_HEIGHT = 20;
+    private static final int BUTTON_PADDING = 5;
 
-    private List<Button> commandButtons;
+    private List<String> commands = List.of("setblock", "copy", "paste", "undo", "redo", "fill", "replace");
+    private Map<String, String> commandDescriptions = new HashMap<>();
 
     public WorldEditCommandListScreen() {
         super(GameNarrator.NO_TITLE);
+        commandDescriptions.put("setblock", "Coloca um bloco em uma posição específica.");
+        commandDescriptions.put("copy", "Copia a seleção atual.");
+        commandDescriptions.put("paste", "Cola a seleção copiada.");
+        commandDescriptions.put("undo", "Desfaz a última ação.");
+        commandDescriptions.put("redo", "Refaz a última ação desfeita.");
+        commandDescriptions.put("fill", "Preenche uma área com blocos.");
+        commandDescriptions.put("replace", "Substitui blocos em uma área.");
     }
 
     @Override
     protected void init() {
+        int columns = 4;
+        int xStart = (this.width - (columns * (BUTTON_WIDTH + BUTTON_PADDING) - BUTTON_PADDING)) / 2;
+        int yStart = 40;
 
-        commandButtons = List.of(
-                this.addRenderableWidget(Button.builder(Component.translatable("command.setblock"), ($$0) -> this.executeCommand("setblock")).bounds(this.width / 2 - 75, 50, 150, 20).build()),
-                this.addRenderableWidget(Button.builder(Component.translatable("command.copy"), ($$0) -> this.executeCommand("copy")).bounds(this.width / 2 - 75, 80, 150, 20).build()),
-                this.addRenderableWidget(Button.builder(Component.translatable("command.paste"), ($$0) -> this.executeCommand("paste")).bounds(this.width / 2 - 75, 110, 150, 20).build())
-        );
+        for (int i = 0; i < commands.size(); i++) {
+            int x = xStart + (i % columns) * (BUTTON_WIDTH + BUTTON_PADDING);
+            int y = yStart + (i / columns) * (BUTTON_HEIGHT + BUTTON_PADDING);
 
-        // Botão para sair do menu
-        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, ($$0) -> this.onClose()).bounds(this.width / 2 - 75, this.height - 50, 150, 20).build());
+            String command = commands.get(i);
+            this.addRenderableWidget(Button.builder(
+                            Component.translatable(command),
+                            btn -> executeCommand(command)
+                    ).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT)
+                    .tooltip(Tooltip.create(Component.literal(commandDescriptions.get(command)))) // Adiciona a tooltip
+                    .build());
+        }
+
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose())
+                .bounds(this.width / 2 - BUTTON_WIDTH / 2, this.height - 30, BUTTON_WIDTH, BUTTON_HEIGHT).build());
     }
 
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        pGuiGraphics.drawCenteredString(this.font, TITLE, this.width / 2, 10, 16777215);
+        this.renderToolTip(pGuiGraphics, pMouseX, pMouseY); // Renderiza o tooltip se necessário
+    }
 
-        // Título do menu
-        pGuiGraphics.drawCenteredString(this.font, TITLE, this.width / 2, 20, 16777215);
+    private void renderToolTip(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
     }
 
     private void executeCommand(String command) {
-        //Minecraft.getInstance().player.sendMessage(new TextComponent("Executing command: " + command), false);
-        // Aqui você pode implementar a lógica para executar o comando no jogo
+        //Minecraft.getInstance().player.command("worldedit " + command);
     }
 
     @Override
     public void onClose() {
         super.onClose();
-        Minecraft.getInstance().setScreen(null); // Fechar a GUI
+        Minecraft.getInstance().setScreen(null);
     }
 }
