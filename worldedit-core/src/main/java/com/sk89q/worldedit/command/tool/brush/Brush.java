@@ -23,6 +23,8 @@ import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockTypes;
 
 /**
  * A brush is a long-range build tool.
@@ -40,5 +42,25 @@ public interface Brush {
      */
     void build(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException;
 
+    /**
+     * Renders a preview of the brush effect using placeholder blocks like glass to show the result.
+     *
+     * @param editSession the {@code EditSession}
+     * @param position the position
+     * @param size the size of the brush
+     * @throws MaxChangedBlocksException if the maximum block change limit is exceeded
+     */
+    default void preview(EditSession editSession, BlockVector3 position, double size) throws MaxChangedBlocksException {
+        // Create a glass pattern to use as a preview
+        Pattern previewPattern = new Pattern() {
+            @Override
+            public BaseBlock applyBlock(BlockVector3 position) {
+                return BlockTypes.GLASS != null ? BlockTypes.GLASS.getDefaultState().toBaseBlock() : null;
+            }
+        };
+
+        // Call the existing build logic with the glass pattern
+        build(editSession, position, previewPattern, size);
+    }
 }
     

@@ -32,10 +32,15 @@ import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.mask.MaskIntersection;
 import com.sk89q.worldedit.function.pattern.Pattern;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
+import com.sk89q.worldedit.world.block.BlockTypes;
 
 import javax.annotation.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -54,6 +59,10 @@ public class BrushTool implements TraceTool {
     private double size = 1;
     private String permission;
 
+    //Preview feature
+    private final Set<BlockVector3> previewBlocks = new HashSet<>();
+
+
     /**
      * Construct the tool.
      *
@@ -67,7 +76,7 @@ public class BrushTool implements TraceTool {
     /**
      * Construct the tool.
      *
-     * @param brush the brush to bind
+     * @param brush      the brush to bind
      * @param permission the permission to check before use is allowed
      */
     public BrushTool(Brush brush, String permission) {
@@ -121,7 +130,7 @@ public class BrushTool implements TraceTool {
     /**
      * Set the brush.
      *
-     * @param brush the brush
+     * @param brush      the brush
      * @param permission the permission
      */
     public void setBrush(Brush brush, String permission) {
@@ -152,7 +161,8 @@ public class BrushTool implements TraceTool {
      *
      * @return the material
      */
-    @Nullable public Pattern getMaterial() {
+    @Nullable
+    public Pattern getMaterial() {
         return material;
     }
 
@@ -219,6 +229,7 @@ public class BrushTool implements TraceTool {
             }
 
             try {
+                clearPreview(editSession);
                 brush.build(editSession, target.toVector().toBlockPoint(), material, size);
             } catch (MaxChangedBlocksException e) {
                 player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
@@ -233,5 +244,35 @@ public class BrushTool implements TraceTool {
 
         return true;
     }
+
+    /**
+     * Renders the preview for the current brush.
+     */
+    public void renderPreview(Player player, EditSession editSession, BlockVector3 position) throws MaxChangedBlocksException {
+        // Clear existing preview
+        clearPreview(editSession);
+
+        try {
+            // Render the new preview
+            brush.preview(editSession, position, size);
+
+            // Track the preview blocks
+            previewBlocks.add(position);
+        } catch (MaxChangedBlocksException e) {
+            player.print(TranslatableComponent.of("Failed to render preview: too many blocks."));
+        }
+    }
+
+    /**
+     * Clears the existing preview.
+     */
+    private void clearPreview(EditSession editSession) throws MaxChangedBlocksException {
+        for (BlockVector3 pos : previewBlocks) {
+            //Reset the blocks to air
+            editSession.setBlock(pos, BlockTypes.AIR != null ? BlockTypes.AIR.getDefaultState() : null);
+        }
+        previewBlocks.clear();
+    }
+
 
 }
