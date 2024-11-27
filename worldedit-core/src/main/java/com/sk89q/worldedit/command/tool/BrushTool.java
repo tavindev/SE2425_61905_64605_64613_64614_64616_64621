@@ -34,8 +34,6 @@ import com.sk89q.worldedit.function.mask.MaskIntersection;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.Location;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import javax.annotation.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -55,8 +53,6 @@ public class BrushTool implements TraceTool {
     private double size = 1;
     private String permission;
 
-    // Brush Preview Mode
-    private boolean previewMode = false;
 
     /**
      * Construct the tool.
@@ -239,29 +235,5 @@ public class BrushTool implements TraceTool {
                 bag.flushChanges();
             }
         }
-    }
-
-    /**
-     * Calculate the region affected by the brush.
-     *
-     * @param center The center of the region (brush target).
-     * @param size   The size (radius) of the brush.
-     * @return A cuboid region representing the affected area.
-     */
-    public Region calculateAffectedRegion(BlockVector3 center, double size) {
-        int radius = (int) Math.ceil(size);
-
-        // Define the minimum and maximum corners of the cuboid
-        BlockVector3 min = center.subtract(radius, radius, radius);
-        BlockVector3 max = center.add(radius, radius, radius);
-
-        return new CuboidRegion(min, max);
-    }
-
-    /**
-     * Toggle preview mode for the brush tool.
-     */
-    public void togglePreviewMode() {
-        this.previewMode = !this.previewMode;
     }
 }

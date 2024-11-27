@@ -19,7 +19,6 @@
 
 package com.sk89q.worldedit.command;
 
-import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.LocalConfiguration;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
@@ -64,7 +63,6 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.internal.annotation.ClipboardMask;
 import com.sk89q.worldedit.internal.annotation.VertHeight;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.factory.CuboidRegionFactory;
 import com.sk89q.worldedit.regions.factory.CylinderRegionFactory;
 import com.sk89q.worldedit.regions.factory.FixedHeightCuboidRegionFactory;
@@ -143,8 +141,6 @@ public class BrushCommands {
         worldEdit.checkMaxBrushRadius(radius);
 
         Brush brush = hollow ? new HollowSphereBrush() : new SphereBrush();
-        session.enablePreview();
-
         BrushTool tool = session.forceBrush(
             player.getItemInHand(HandSide.MAIN_HAND).getType(),
             brush,
@@ -739,56 +735,6 @@ public class BrushCommands {
 
         player.printInfo(TranslatableComponent.of("worldedit.brush.operation.equip", TextComponent.of(factory.toString())));
         ToolCommands.sendUnbindInstruction(player, UNBIND_COMMAND_COMPONENT);
-    }
-
-    @Command(
-        name = "/brush confirm",
-        desc = "Confirm the current brush preview"
-    )
-    @CommandPermissions("worldedit.brush")
-    public void brushConfirm(Player player, LocalSession session) {
-        try (EditSession editSession = session.createEditSession(player)) {
-            Region region = session.getLastPreviewRegion();
-            Pattern pattern = session.getCurrentBrushPattern();
-
-            if (region == null || pattern == null) {
-                player.printError(TranslatableComponent.of("worldedit.tool.no-preview"));
-                return;
-            }
-
-            session.confirmPreview(region, pattern, editSession); 
-            player.print(TranslatableComponent.of("worldedit.tool.preview-confirmed"));
-        } catch (WorldEditException e) {
-            player.printError(TranslatableComponent.of("worldedit.tool.confirm-error"));
-        }
-    }
-
-    @Command(
-        name = "/brush cancel",
-        desc = "Cancel the current brush preview"
-    )
-    @CommandPermissions("worldedit.brush")
-    public void brushCancel(Player player, LocalSession session) {
-        try (EditSession editSession = session.createEditSession(player)) {
-            if (!session.isPreviewActive()) {
-                player.printError(TranslatableComponent.of("worldedit.tool.no-preview-active"));
-                return;
-            }
-
-            session.cancelPreview(editSession); // Revert preview changes
-            player.print(TranslatableComponent.of("worldedit.tool.preview-cancelled"));
-        } catch (WorldEditException e) {
-            player.printError(TranslatableComponent.of("worldedit.tool.cancel-error"));
-        }
-    }
-
-    @Command(
-    name = "/brush preview-toggle",
-    desc = "Toggle preview mode for the brush tool"
-    )
-    @CommandPermissions("worldedit.brush")
-    public void previewToggle(Player player, BrushTool brushTool) {
-        brushTool.togglePreviewMode();
     }
 
 }
