@@ -270,7 +270,7 @@ public class BrushTool implements TraceTool {
                 }
             }
         } catch (MaxChangedBlocksException e) {
-            player.printError("Failed to render preview: too many blocks.");
+            player.printError(TranslatableComponent.of("Failed to render preview: too many blocks."));
         }
     }
 
@@ -282,6 +282,7 @@ public class BrushTool implements TraceTool {
         if (!previewBlocks.isEmpty()) {
             for (BlockVector3 pos : previewBlocks) {
                 // Reset each block to air
+                assert BlockTypes.AIR != null;
                 editSession.setBlock(pos, BlockTypes.AIR.getDefaultState().toBaseBlock());
             }
             previewBlocks.clear(); // Clear tracking
