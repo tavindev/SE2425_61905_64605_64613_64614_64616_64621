@@ -248,7 +248,7 @@ public class BrushTool implements TraceTool {
     /**
      * Renders the preview for the current brush.
      */
-    public void renderPreview(Player player, EditSession editSession, BlockVector3 position) {
+    public void renderPreview(Player player, EditSession editSession, BlockVector3 position) throws MaxChangedBlocksException {
         // Clear the previous preview first
         clearPreview(editSession);
 
@@ -282,7 +282,7 @@ public class BrushTool implements TraceTool {
         if (!previewBlocks.isEmpty()) {
             for (BlockVector3 pos : previewBlocks) {
                 // Reset each block to air
-                editSession.setBlock(pos, new BaseBlock(Blocks.AIR));
+                editSession.setBlock(pos, BlockTypes.AIR.getDefaultState().toBaseBlock());
             }
             previewBlocks.clear(); // Clear tracking
         }

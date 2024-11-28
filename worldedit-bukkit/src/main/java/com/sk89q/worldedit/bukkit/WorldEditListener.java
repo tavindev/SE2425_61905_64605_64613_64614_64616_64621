@@ -170,6 +170,8 @@ public class WorldEditListener implements Listener {
 
                 // Update the preview
                 tool.renderPreview(player, editSession, target);
+            } catch (MaxChangedBlocksException e) {
+                throw new RuntimeException(e);
             }
         }
     }
