@@ -82,8 +82,6 @@ import com.sk89q.worldedit.function.visitor.NonRisingVisitor;
 import com.sk89q.worldedit.function.visitor.RecursiveVisitor;
 import com.sk89q.worldedit.function.visitor.RegionVisitor;
 import com.sk89q.worldedit.history.UndoContext;
-import com.sk89q.worldedit.history.change.BlockChange;
-import com.sk89q.worldedit.history.change.Change;
 import com.sk89q.worldedit.history.changeset.BlockOptimizedHistory;
 import com.sk89q.worldedit.history.changeset.ChangeSet;
 import com.sk89q.worldedit.internal.expression.Expression;
@@ -216,6 +214,7 @@ public class EditSession implements Extent, AutoCloseable {
     private Mask oldMask;
 
     private SelectableStructure selectableStructure;
+    private EditSession rebrushedSession;
 
 
     /**
@@ -329,8 +328,12 @@ public class EditSession implements Extent, AutoCloseable {
         }
 
         this.selectableStructure.resize(session, scale);
+        session.setRebrushedSession(this);
     }
 
+    void setRebrushedSession(EditSession session) {
+        this.rebrushedSession = session;
+    }
 
     private Extent traceIfNeeded(Extent input) {
         Extent output = input;
@@ -876,6 +879,9 @@ public class EditSession implements Extent, AutoCloseable {
         UndoContext context = new UndoContext();
         context.setExtent(editSession.bypassHistory);
         Operations.completeBlindly(ChangeSetExecutor.createUndo(changeSet, context));
+
+        if (this.rebrushedSession != null) this.rebrushedSession.redo(editSession);
+
         editSession.internalFlushSession();
     }
 
@@ -885,6 +891,8 @@ public class EditSession implements Extent, AutoCloseable {
      * @param editSession a new {@link EditSession} to perform the redo in
      */
     public void redo(EditSession editSession) {
+        if (this.rebrushedSession != null) this.rebrushedSession.undo(editSession);
+        
         UndoContext context = new UndoContext();
         context.setExtent(editSession.bypassHistory);
         Operations.completeBlindly(ChangeSetExecutor.createRedo(changeSet, context));

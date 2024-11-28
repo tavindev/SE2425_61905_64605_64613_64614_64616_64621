@@ -1299,6 +1299,8 @@ public class LocalSession {
 
     public void rebrush(Actor actor, double scale) throws MaxChangedBlocksException {
         try (EditSession newSession = createEditSession(actor)) {
+            prepareEditingExtents(newSession, actor);
+
             for (EditSession session : history.reversed()) {
                 if (session.deselect()) {
                     session.undo(newSession);
