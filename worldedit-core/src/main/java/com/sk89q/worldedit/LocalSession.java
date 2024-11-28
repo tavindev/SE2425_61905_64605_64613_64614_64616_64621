@@ -1297,9 +1297,16 @@ public class LocalSession {
         this.failedCuiAttempts = 0;
     }
 
-    public void rebrush(Actor actor, double scale) {
-        for(EditSession session : history) {
-            session.deselect();
+    public void rebrush(Actor actor, double scale) throws MaxChangedBlocksException {
+        try (EditSession newSession = createEditSession(actor)) {
+            for (EditSession session : history.reversed()) {
+                if (session.deselect()) {
+                    session.undo(newSession);
+                    session.rebrush(newSession, scale);
+                }
+            }
+
+            remember(newSession);
         }
     }
 }

@@ -20,6 +20,7 @@
 package com.sk89q.worldedit;
 
 import com.google.common.collect.ImmutableList;
+import com.sk89q.worldedit.command.tool.brush.AbstractStructureBrush;
 import com.sk89q.worldedit.command.tool.brush.SelectableStructure;
 import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.entity.Entity;
@@ -305,8 +306,8 @@ public class EditSession implements Extent, AutoCloseable {
     }
 
 
-    public void storeGeneratedStructure() {
-        this.selectableStructure = new SelectableStructure(this);
+    public void storeGeneratedStructure(AbstractStructureBrush brush, BlockVector3 position, double size) {
+        this.selectableStructure = new SelectableStructure(this, brush, position, size);
     }
 
 
@@ -320,6 +321,14 @@ public class EditSession implements Extent, AutoCloseable {
 
     public boolean deselect() {
         return this.selectableStructure.deselect();
+    }
+
+    public void rebrush(EditSession session, double scale) throws MaxChangedBlocksException {
+        if (this.selectableStructure == null) {
+            return;
+        }
+
+        this.selectableStructure.resize(session, scale);
     }
 
 
@@ -1704,7 +1713,7 @@ public class EditSession implements Extent, AutoCloseable {
 
         return visitor.getAffected();
     }
-    
+
     /**
      * Makes a cone.
      *

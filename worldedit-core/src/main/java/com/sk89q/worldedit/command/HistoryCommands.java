@@ -19,10 +19,7 @@
 
 package com.sk89q.worldedit.command;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.command.util.CommandPermissions;
 import com.sk89q.worldedit.command.util.CommandPermissionsConditionGenerator;
 import com.sk89q.worldedit.entity.Player;
@@ -55,16 +52,16 @@ public class HistoryCommands {
     }
 
     @Command(
-        name = "undo",
-        aliases = { "/undo" },
-        desc = "Undoes the last action (from history)"
+            name = "undo",
+            aliases = {"/undo"},
+            desc = "Undoes the last action (from history)"
     )
     @CommandPermissions({"worldedit.history.undo", "worldedit.history.undo.self"})
     public void undo(Actor actor, LocalSession session,
                      @Arg(desc = "Number of undoes to perform", def = "1")
-                         int times,
+                     int times,
                      @Arg(name = "player", desc = "Undo this player's operations", def = "")
-                         String playerName) throws WorldEditException {
+                     String playerName) throws WorldEditException {
         times = Math.max(1, times);
         LocalSession undoSession = session;
         if (playerName != null) {
@@ -94,16 +91,16 @@ public class HistoryCommands {
     }
 
     @Command(
-        name = "redo",
-        aliases = { "/redo" },
-        desc = "Redoes the last action (from history)"
+            name = "redo",
+            aliases = {"/redo"},
+            desc = "Redoes the last action (from history)"
     )
     @CommandPermissions({"worldedit.history.redo", "worldedit.history.redo.self"})
     public void redo(Actor actor, LocalSession session,
                      @Arg(desc = "Number of redoes to perform", def = "1")
-                         int times,
+                     int times,
                      @Arg(name = "player", desc = "Redo this player's operations", def = "")
-                         String playerName) throws WorldEditException {
+                     String playerName) throws WorldEditException {
         times = Math.max(1, times);
         LocalSession redoSession = session;
         if (playerName != null) {
@@ -133,9 +130,9 @@ public class HistoryCommands {
     }
 
     @Command(
-        name = "clearhistory",
-        aliases = { "/clearhistory" },
-        desc = "Clear your history"
+            name = "clearhistory",
+            aliases = {"/clearhistory"},
+            desc = "Clear your history"
     )
     @CommandPermissions("worldedit.history.clear")
     public void clearHistory(Actor actor, LocalSession session) {
@@ -146,10 +143,14 @@ public class HistoryCommands {
 
     @Command(
             name = "rebrush",
-            aliases = { "/rebrush" },
+            aliases = {"/rebrush"},
             desc = "Rebrushes the select region"
     )
     public void rebrush(Actor actor, LocalSession session, @Arg(desc = "Scale", def = "1") double scale) {
-        session.rebrush(actor, scale);
+        try {
+            session.rebrush(actor, scale);
+        } catch (MaxChangedBlocksException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

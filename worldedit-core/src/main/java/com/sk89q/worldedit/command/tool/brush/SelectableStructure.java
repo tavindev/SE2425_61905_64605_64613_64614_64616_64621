@@ -17,24 +17,29 @@ public class SelectableStructure {
     private boolean selected = false;
     private final EditSession session;
     private Pattern pattern;
+    private final double size;
+    private final AbstractStructureBrush brush;
+    private final BlockVector3 position;
 
     List<BlockVector3> positions = new ArrayList<>();
 
-    public SelectableStructure(EditSession session) {
+    public SelectableStructure(EditSession session, AbstractStructureBrush brush, BlockVector3 position, double size) {
         this.session = session;
+        this.size = size;
+        this.position = position;
+        this.brush = brush;
         this.pattern = BlockTypes.COBBLESTONE.getDefaultState();
 
         for (Iterator<Change> it = session.getChangeSet().forwardIterator(); it.hasNext(); ) {
             Change change = it.next();
 
             if (change instanceof BlockChange blockChange) {
-                BlockVector3 position = blockChange.position();
-                positions.add(position);
+                BlockVector3 pos = blockChange.position();
+                positions.add(pos);
 
                 pattern = blockChange.current();
             }
         }
-
     }
 
     private boolean locationIsInStructure(Location location) {
@@ -45,6 +50,10 @@ public class SelectableStructure {
         }
 
         return false;
+    }
+
+    public void resize(EditSession session, double size) throws MaxChangedBlocksException {
+        this.brush.build(session, position, pattern, size);
     }
 
     public boolean select(Location clicked) {
