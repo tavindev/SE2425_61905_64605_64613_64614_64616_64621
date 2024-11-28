@@ -248,30 +248,44 @@ public class BrushTool implements TraceTool {
     /**
      * Renders the preview for the current brush.
      */
-    public void renderPreview(Player player, EditSession editSession, BlockVector3 position) throws MaxChangedBlocksException {
-        // Clear existing preview
+    public void renderPreview(Player player, EditSession editSession, BlockVector3 position) {
+        // Clear the previous preview first
         clearPreview(editSession);
 
+        // Render the new preview
         try {
-            // Render the new preview
+            previewBlocks.clear(); // Reset tracking
             brush.preview(editSession, position, size);
 
-            // Track the preview blocks
-            previewBlocks.add(position);
+            // Track affected blocks
+            int radius = (int) size;
+            for (int x = -radius; x <= radius; x++) {
+                for (int y = -radius; y <= radius; y++) {
+                    for (int z = -radius; z <= radius; z++) {
+                        BlockVector3 offset = position.add(x, y, z);
+                        if (offset.distance(position) <= radius) {
+                            previewBlocks.add(offset);
+                        }
+                    }
+                }
+            }
         } catch (MaxChangedBlocksException e) {
-            player.print(TranslatableComponent.of("Failed to render preview: too many blocks."));
+            player.printError("Failed to render preview: too many blocks.");
         }
     }
+
 
     /**
      * Clears the existing preview.
      */
     private void clearPreview(EditSession editSession) throws MaxChangedBlocksException {
-        for (BlockVector3 pos : previewBlocks) {
-            //Reset the blocks to air
-            editSession.setBlock(pos, BlockTypes.AIR != null ? BlockTypes.AIR.getDefaultState() : null);
+        if (!previewBlocks.isEmpty()) {
+            for (BlockVector3 pos : previewBlocks) {
+                // Reset each block to air
+                editSession.setBlock(pos, new BaseBlock(Blocks.AIR));
+            }
+            previewBlocks.clear(); // Clear tracking
         }
-        previewBlocks.clear();
     }
 
 
