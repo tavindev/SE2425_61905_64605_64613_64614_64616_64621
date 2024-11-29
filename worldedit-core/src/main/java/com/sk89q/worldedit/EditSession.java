@@ -327,6 +327,8 @@ public class EditSession implements Extent, AutoCloseable {
             return;
         }
 
+        this.undo(session);
+
         this.selectableStructure.resize(session, scale);
         session.setRebrushedSession(this);
     }
@@ -892,7 +894,7 @@ public class EditSession implements Extent, AutoCloseable {
      */
     public void redo(EditSession editSession) {
         if (this.rebrushedSession != null) this.rebrushedSession.undo(editSession);
-        
+
         UndoContext context = new UndoContext();
         context.setExtent(editSession.bypassHistory);
         Operations.completeBlindly(ChangeSetExecutor.createRedo(changeSet, context));

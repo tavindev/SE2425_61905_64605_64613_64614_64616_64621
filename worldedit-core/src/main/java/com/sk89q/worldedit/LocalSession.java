@@ -1303,7 +1303,6 @@ public class LocalSession {
 
             for (EditSession session : history.reversed()) {
                 if (session.deselect()) {
-                    session.undo(newSession);
                     session.rebrush(newSession, scale);
                 }
             }
