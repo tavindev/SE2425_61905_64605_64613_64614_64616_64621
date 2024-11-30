@@ -2,6 +2,7 @@ package com.sk89q.worldedit.fabric.gui.screens;
 
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.extension.platform.PlatformCommandManager;
+import com.sk89q.worldedit.fabric.gui.components.ScrollBar;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,8 +24,8 @@ public class WorldEditCommandListScreen extends Screen {
 
     private final Map<String, String> commandDescriptions = new HashMap<>();
 
-    private int scrollOffset = 0;
-    private int totalButtonHeight;
+    private ScrollBar scrollBar;
+    private final int totalButtonHeight;
     private final int maxScrollOffset;
 
     public WorldEditCommandListScreen() {
@@ -52,11 +53,15 @@ public class WorldEditCommandListScreen extends Screen {
         int columns = 4;
         int xStart = (this.width - (columns * (BUTTON_WIDTH + BUTTON_PADDING) - BUTTON_PADDING)) / 2;
         int yStart = 40;
-        int index = 0;
 
+        scrollBar = new ScrollBar(this.width - 15, 40, this.height - 80, totalButtonHeight);
+        this.addRenderableWidget(scrollBar);
+
+        // Add buttons using scrollBar.getScrollOffset() to adjust their y position
+        int index = 0;
         for (Map.Entry<String, String> entry : commandDescriptions.entrySet()) {
             int x = xStart + (index % columns) * (BUTTON_WIDTH + BUTTON_PADDING);
-            int y = yStart + (index / columns) * (BUTTON_HEIGHT + BUTTON_PADDING) - scrollOffset;
+            int y = yStart + (index / columns) * (BUTTON_HEIGHT + BUTTON_PADDING) - scrollBar.getScrollOffset();
 
             String command = entry.getKey();
             this.addRenderableWidget(Button.builder(
@@ -79,6 +84,7 @@ public class WorldEditCommandListScreen extends Screen {
         this.renderToolTip(pGuiGraphics, pMouseX, pMouseY);
     }
 
+
     private void renderToolTip(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
     }
 
@@ -92,12 +98,7 @@ public class WorldEditCommandListScreen extends Screen {
         Minecraft.getInstance().setScreen(null);
     }
 
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        if (pDelta < 0 && scrollOffset < maxScrollOffset) {
-            scrollOffset += 10;
-        } else if (pDelta > 0 && scrollOffset > 0) {
-            scrollOffset -= 10;
-        }
-        return true;
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        return scrollBar.mouseScrolled(mouseX, mouseY, delta);
     }
 }
