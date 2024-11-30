@@ -19,10 +19,7 @@
 
 package com.sk89q.worldedit.command.tool;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalConfiguration;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.command.tool.brush.SphereBrush;
 import com.sk89q.worldedit.entity.Player;
@@ -60,7 +57,9 @@ public class BrushTool implements TraceTool {
     private String permission;
 
     //Preview feature
-    private final Set<BlockVector3> previewBlocks = new HashSet<>();
+    private EditSession previewSession;
+    private BlockVector3 lastPreviewPosition;
+    private final Pattern previewPattern = BlockTypes.GLASS.getDefaultState();
 
 
     /**
@@ -229,7 +228,7 @@ public class BrushTool implements TraceTool {
             }
 
             try {
-                clearPreview(editSession);
+                clearPreview();
                 brush.build(editSession, target.toVector().toBlockPoint(), material, size);
             } catch (MaxChangedBlocksException e) {
                 player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
@@ -245,47 +244,37 @@ public class BrushTool implements TraceTool {
         return true;
     }
 
-    /**
-     * Renders the preview for the current brush.
-     */
-    public void renderPreview(Player player, EditSession editSession, BlockVector3 position) throws MaxChangedBlocksException {
-        // Clear the previous preview first
-        clearPreview(editSession);
+    public void showPreview(Player player, Location target) {
 
-        // Render the new preview
+        if (target == null) {
+            return;
+        }
+
+        BlockVector3 targetBlock = target.toVector().toBlockPoint();
+
+        if (lastPreviewPosition != null && lastPreviewPosition.equals(targetBlock)) {
+            return;
+        }
+
         try {
-            previewBlocks.clear(); // Reset tracking
-            brush.preview(editSession, position, size);
+            clearPreview();
 
-            // Track affected blocks
-            int radius = (int) size;
-            for (int x = -radius; x <= radius; x++) {
-                for (int y = -radius; y <= radius; y++) {
-                    for (int z = -radius; z <= radius; z++) {
-                        BlockVector3 offset = position.add(x, y, z);
-                        if (offset.distance(position) <= radius) {
-                            previewBlocks.add(offset);
-                        }
-                    }
-                }
-            }
+            previewSession = WorldEdit.getInstance().newEditSession(player.getWorld());
+            brush.build(previewSession, targetBlock, previewPattern, size);
+            previewSession.close();
+
+            lastPreviewPosition = targetBlock;
         } catch (MaxChangedBlocksException e) {
-            player.printError(TranslatableComponent.of("Failed to render preview: too many blocks."));
+            player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
         }
     }
 
-
-    /**
-     * Clears the existing preview.
-     */
-    private void clearPreview(EditSession editSession) throws MaxChangedBlocksException {
-        if (!previewBlocks.isEmpty()) {
-            for (BlockVector3 pos : previewBlocks) {
-                // Reset each block to air
-                assert BlockTypes.AIR != null;
-                editSession.setBlock(pos, BlockTypes.AIR.getDefaultState().toBaseBlock());
-            }
-            previewBlocks.clear(); // Clear tracking
+    public void clearPreview() {
+        if (previewSession != null) {
+            previewSession.undo(previewSession);
+            previewSession.close();
+            previewSession = null;
+            lastPreviewPosition = null;
         }
     }
 

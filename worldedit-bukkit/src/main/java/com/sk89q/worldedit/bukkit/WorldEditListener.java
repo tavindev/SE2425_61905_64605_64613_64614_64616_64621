@@ -156,24 +156,5 @@ public class WorldEditListener implements Listener {
         plugin.getWorldEdit().getEventBus().post(new SessionIdleEvent(new BukkitPlayer.SessionKeyImpl(event.getPlayer())));
     }
 
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        Player player = (Player) event.getPlayer();
-
-        LocalSession session = WorldEdit.getInstance().getSessionManager().get(player);
-        BrushTool tool = session.getBrush(player.getItemInHand(HandSide.MAIN_HAND).getType());
-
-        if (tool != null) {
-            try (EditSession editSession = session.createEditSession(player)) {
-                // Determine the target block
-                BlockVector3 target = player.getBlockTrace(50, true).toVector().toBlockPoint();
-
-                // Update the preview
-                tool.renderPreview(player, editSession, target);
-            } catch (MaxChangedBlocksException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 
 }

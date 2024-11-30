@@ -22,6 +22,7 @@ package com.sk89q.worldedit.fabric;
 import com.mojang.brigadier.CommandDispatcher;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.command.tool.BrushTool;
 import com.sk89q.worldedit.command.util.PermissionCondition;
 import com.sk89q.worldedit.event.platform.PlatformReadyEvent;
 import com.sk89q.worldedit.event.platform.PlatformUnreadyEvent;
@@ -34,6 +35,7 @@ import com.sk89q.worldedit.fabric.net.handler.WECUIPacketHandler;
 import com.sk89q.worldedit.internal.anvil.ChunkDeleter;
 import com.sk89q.worldedit.internal.event.InteractionDebouncer;
 import com.sk89q.worldedit.internal.util.LogManagerCompat;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.lifecycle.Lifecycled;
 import com.sk89q.worldedit.util.lifecycle.SimpleLifecycled;
@@ -80,6 +82,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.apache.logging.log4j.Logger;
 import org.enginehub.piston.Command;
 
@@ -171,6 +174,52 @@ public class FabricWorldEdit implements ModInitializer {
 
         WECUIPacketHandler.init();
 
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            // Loop through all online players
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                // Adapt to WorldEdit's API if needed
+                System.out.println("Player" + player);
+                LocalSession session = WorldEdit.getInstance().getSessionManager().get(FabricAdapter.adaptPlayer(player));
+                session.updateToolPreview(FabricAdapter.adaptPlayer(player));
+            }
+        });
+
+        UseItemCallback.EVENT.register((player, world, hand) -> {
+            if (!(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResultHolder.pass(ItemStack.EMPTY);
+            }
+
+            FabricPlayer wePlayer = FabricAdapter.adaptPlayer(serverPlayer);
+            LocalSession session = WorldEdit.getInstance().getSessionManager().get(wePlayer);
+
+            ItemStack heldItem = player.getItemInHand(hand);
+            if (session.getTool(FabricAdapter.adapt(heldItem.getItem())) instanceof BrushTool brushTool) {
+                HitResult hitResult = player.pick(brushTool.getRange(), 0, false);
+                if (hitResult.getType() == HitResult.Type.BLOCK) {
+                    BlockHitResult blockHit = (BlockHitResult) hitResult;
+                    BlockVector3 pos = FabricAdapter.adapt(blockHit.getBlockPos());
+                    Location target = new Location(FabricAdapter.adapt(world), pos.toVector3());
+                    brushTool.showPreview(wePlayer, target);
+                } else {
+                    brushTool.clearPreview();
+                }
+            } else {
+                clearBrushPreview(session, wePlayer);
+            }
+
+            return InteractionResultHolder.pass(ItemStack.EMPTY);
+        });
+
+        AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+            if (player instanceof ServerPlayer serverPlayer) {
+                FabricPlayer wePlayer = FabricAdapter.adaptPlayer(serverPlayer);
+                LocalSession session = WorldEdit.getInstance().getSessionManager().get(wePlayer);
+                clearBrushPreview(session, wePlayer);
+            }
+            return InteractionResult.PASS;
+        });
+
+
         ServerTickEvents.END_SERVER_TICK.register(ThreadSafeCache.getInstance());
         CommandRegistrationCallback.EVENT.register(this::registerCommands);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onStartingServer);
@@ -181,6 +230,13 @@ public class FabricWorldEdit implements ModInitializer {
         UseBlockCallback.EVENT.register(this::onRightClickBlock);
         UseItemCallback.EVENT.register(this::onRightClickAir);
         LOGGER.info("WorldEdit for Fabric (version " + getInternalVersion() + ") is loaded");
+    }
+
+    private void clearBrushPreview(LocalSession session, FabricPlayer player) {
+        BrushTool brushTool = session.getBrushTool(player);
+        if (brushTool != null) {
+            brushTool.clearPreview();
+        }
     }
 
     private void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {

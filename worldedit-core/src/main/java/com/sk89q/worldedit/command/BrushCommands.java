@@ -147,11 +147,6 @@ public class BrushCommands {
         tool.setFill(pattern);
         tool.setSize(radius);
 
-        BlockVector3 target = player.getBlockTrace(50, true).toVector().toBlockPoint();
-        try (EditSession editSession = session.createEditSession(player)) {
-            tool.renderPreview(player, editSession, target);
-        }
-
         player.printInfo(TranslatableComponent.of("worldedit.brush.sphere.equip", TextComponent.of(String.format("%.0f", radius))));
         ToolCommands.sendUnbindInstruction(player, UNBIND_COMMAND_COMPONENT);
     }
