@@ -197,9 +197,6 @@ public class FabricWorldEdit implements ModInitializer {
                     BlockVector3 targetPoint = target != null ? target.toVector().toBlockPoint() : null;
                     BlockVector3 lastPreviewPoint = brushTool.getLastPreviewPosition();
 
-                    System.out.println("Target" + targetPoint);
-                    System.out.println("Last preview position" + lastPreviewPoint);
-
                     if (targetPoint != null && !targetPoint.equals(lastPreviewPoint)) {
                         System.out.println("Showing preview");
                         brushTool.showPreview(wePlayer, target);
