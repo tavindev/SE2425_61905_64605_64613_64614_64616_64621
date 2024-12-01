@@ -250,9 +250,9 @@ public class BrushTool implements TraceTool {
             return;
         }
 
-        BlockVector3 targetBlock = target.toVector().toBlockPoint();
+        BlockVector3 targetPoint = target.toVector().toBlockPoint();
 
-        if (lastPreviewPosition != null && lastPreviewPosition.equals(targetBlock)) {
+        if (lastPreviewPosition != null && lastPreviewPosition.equals(targetPoint)) {
             return;
         }
 
@@ -260,10 +260,10 @@ public class BrushTool implements TraceTool {
             clearPreview();
 
             previewSession = WorldEdit.getInstance().newEditSession(player.getWorld());
-            brush.build(previewSession, targetBlock, previewPattern, size);
+            brush.build(previewSession, targetPoint, previewPattern, size);
+            lastPreviewPosition = targetPoint;
             previewSession.close();
-
-            lastPreviewPosition = targetBlock;
+            previewSession = null;
         } catch (MaxChangedBlocksException e) {
             player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
         }
@@ -271,12 +271,25 @@ public class BrushTool implements TraceTool {
 
     public void clearPreview() {
         if (previewSession != null) {
-            previewSession.undo(previewSession);
-            previewSession.close();
-            previewSession = null;
-            lastPreviewPosition = null;
+            try {
+                EditSession tempSession = previewSession;
+                tempSession.undo(previewSession);
+            } catch (Exception e) {
+                System.err.println("Error during preview clear: " + e.getMessage());
+            } finally {
+                previewSession.close();
+                previewSession = null;
+            }
         }
+        lastPreviewPosition = null; // Reset last preview position
     }
 
 
+    public void clearLastPreviewPosition() {
+        lastPreviewPosition = null;
+    }
+
+    public BlockVector3 getLastPreviewPosition() {
+        return lastPreviewPosition;
+    }
 }

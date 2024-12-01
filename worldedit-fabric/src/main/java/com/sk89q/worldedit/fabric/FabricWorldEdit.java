@@ -23,6 +23,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.command.tool.BrushTool;
+import com.sk89q.worldedit.command.tool.Tool;
 import com.sk89q.worldedit.command.util.PermissionCondition;
 import com.sk89q.worldedit.event.platform.PlatformReadyEvent;
 import com.sk89q.worldedit.event.platform.PlatformUnreadyEvent;
@@ -142,6 +143,7 @@ public class FabricWorldEdit implements ModInitializer {
     private FabricPlatform platform;
     private FabricConfiguration config;
     private Path workingDir;
+    private long lastTickUpdate = 0;
 
     private ModContainer container;
 
@@ -174,13 +176,39 @@ public class FabricWorldEdit implements ModInitializer {
 
         WECUIPacketHandler.init();
 
+
         ServerTickEvents.END_SERVER_TICK.register(server -> {
+            long currentTime = System.currentTimeMillis();
+
+            if (currentTime - lastTickUpdate < 200) {
+                return;
+            }
+            lastTickUpdate = currentTime;
+
             // Loop through all online players
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                // Adapt to WorldEdit's API if needed
-                System.out.println("Player" + player);
+                FabricPlayer wePlayer = FabricAdapter.adaptPlayer(player);
                 LocalSession session = WorldEdit.getInstance().getSessionManager().get(FabricAdapter.adaptPlayer(player));
-                session.updateToolPreview(FabricAdapter.adaptPlayer(player));
+
+                ItemStack heldItem = player.getMainHandItem();
+                Tool tool = session.getTool(FabricAdapter.adapt(heldItem.getItem()));
+                if (tool instanceof BrushTool brushTool) {
+                    Location target = getTargetBlock(player, brushTool.getRange());
+                    BlockVector3 targetPoint = target != null ? target.toVector().toBlockPoint() : null;
+                    BlockVector3 lastPreviewPoint = brushTool.getLastPreviewPosition();
+
+                    System.out.println("Target" + targetPoint);
+                    System.out.println("Last preview position" + lastPreviewPoint);
+
+                    if (targetPoint != null && !targetPoint.equals(lastPreviewPoint)) {
+                        System.out.println("Showing preview");
+                        brushTool.showPreview(wePlayer, target);
+                    }
+
+                    System.out.println("Passed");
+                } else {
+                    clearBrushPreview(session, wePlayer);
+                }
             }
         });
 
@@ -199,6 +227,7 @@ public class FabricWorldEdit implements ModInitializer {
                     BlockHitResult blockHit = (BlockHitResult) hitResult;
                     BlockVector3 pos = FabricAdapter.adapt(blockHit.getBlockPos());
                     Location target = new Location(FabricAdapter.adapt(world), pos.toVector3());
+
                     brushTool.showPreview(wePlayer, target);
                 } else {
                     brushTool.clearPreview();
@@ -232,10 +261,25 @@ public class FabricWorldEdit implements ModInitializer {
         LOGGER.info("WorldEdit for Fabric (version " + getInternalVersion() + ") is loaded");
     }
 
+    private Location getTargetBlock(ServerPlayer player, double range) {
+        HitResult hitResult = player.pick(range, 1.0F, false);
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult blockHit = (BlockHitResult) hitResult;
+            BlockVector3 pos = BlockVector3.at(
+                    blockHit.getBlockPos().getX(),
+                    blockHit.getBlockPos().getY(),
+                    blockHit.getBlockPos().getZ()
+            );
+            return new Location(FabricAdapter.adapt(player.level()), pos.toVector3());
+        }
+        return null;
+    }
+
     private void clearBrushPreview(LocalSession session, FabricPlayer player) {
         BrushTool brushTool = session.getBrushTool(player);
         if (brushTool != null) {
             brushTool.clearPreview();
+            brushTool.clearLastPreviewPosition();
         }
     }
 

@@ -131,6 +131,10 @@ public class LocalSession {
     private String navWandItem;
     private Boolean navWandItemDefault;
 
+    private long lastToolPreviewUpdate = 0;
+    private static final long TOOL_PREVIEW_UPDATE_INTERVAL = 100; // milliseconds
+    private BrushTool lastBrushTool;
+    private Location lastToolPosition;
 
     public boolean selectStructure(Location clicked) {
         for (EditSession editSession : history) {
@@ -1300,10 +1304,25 @@ public class LocalSession {
 
     public void updateToolPreview(Player player) {
 
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastToolPreviewUpdate < TOOL_PREVIEW_UPDATE_INTERVAL) {
+            return;
+        }
+
         Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
         if (tool instanceof BrushTool brushTool) {
             Location target = player.getBlockTrace(brushTool.getRange(), true, brushTool.getTraceMask());
-            brushTool.showPreview(player, target);
+
+            if (target == null || !target.equals(lastToolPosition) || brushTool != lastBrushTool) {
+                brushTool.showPreview(player, target);
+                lastToolPosition = target;
+                lastBrushTool = brushTool;
+                lastToolPreviewUpdate = currentTime;
+            }
+        } else if (lastBrushTool != null) {
+            lastBrushTool.clearPreview();
+            lastBrushTool = null;
+            lastToolPosition = null;
         }
     }
 
