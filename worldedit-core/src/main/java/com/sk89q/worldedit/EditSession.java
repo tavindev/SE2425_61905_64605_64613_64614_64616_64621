@@ -20,8 +20,6 @@
 package com.sk89q.worldedit;
 
 import com.google.common.collect.ImmutableList;
-import com.sk89q.worldedit.command.tool.brush.AbstractStructureBrush;
-import com.sk89q.worldedit.command.tool.brush.SelectableStructure;
 import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.event.extent.EditSessionEvent;
@@ -212,9 +210,6 @@ public class EditSession implements Extent, AutoCloseable {
     private ReorderMode reorderMode = ReorderMode.FAST;
 
     private Mask oldMask;
-
-    private SelectableStructure selectableStructure;
-    private EditSession rebrushedSession;
 
 
     /**
@@ -848,9 +843,6 @@ public class EditSession implements Extent, AutoCloseable {
         UndoContext context = new UndoContext();
         context.setExtent(editSession.bypassHistory);
         Operations.completeBlindly(ChangeSetExecutor.createUndo(changeSet, context));
-
-        if (this.rebrushedSession != null) this.rebrushedSession.redo(editSession);
-
         editSession.internalFlushSession();
     }
 
@@ -860,8 +852,6 @@ public class EditSession implements Extent, AutoCloseable {
      * @param editSession a new {@link EditSession} to perform the redo in
      */
     public void redo(EditSession editSession) {
-        if (this.rebrushedSession != null) this.rebrushedSession.undo(editSession);
-
         UndoContext context = new UndoContext();
         context.setExtent(editSession.bypassHistory);
         Operations.completeBlindly(ChangeSetExecutor.createRedo(changeSet, context));
