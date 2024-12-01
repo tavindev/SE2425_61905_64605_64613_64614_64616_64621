@@ -30,6 +30,7 @@ import com.sk89q.worldedit.command.tool.NavigationWand;
 import com.sk89q.worldedit.command.tool.SelectionWand;
 import com.sk89q.worldedit.command.tool.SinglePickaxe;
 import com.sk89q.worldedit.command.tool.Tool;
+import com.sk89q.worldedit.command.tool.brush.AbstractStructureBrush;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.extension.platform.Actor;
@@ -129,17 +130,6 @@ public class LocalSession {
     private Boolean wandItemDefault;
     private String navWandItem;
     private Boolean navWandItemDefault;
-
-
-    public boolean selectStructure(Location clicked) {
-        for (EditSession editSession : history) {
-            if (editSession.selectStructure(clicked)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     /**
      * Construct the object.
@@ -1106,13 +1096,8 @@ public class LocalSession {
         }
     }
 
-    /**
-     * Construct a new edit session.
-     *
-     * @param actor the actor
-     * @return an edit session
-     */
-    public EditSession createEditSession(Actor actor) {
+
+    private EditSessionBuilder createEditSessionBuilder(Actor actor) {
         checkNotNull(actor);
 
         World world = null;
@@ -1131,6 +1116,18 @@ public class LocalSession {
         if (actor.isPlayer() && actor instanceof Player) {
             builder.blockBag(getBlockBag((Player) actor));
         }
+
+        return builder;
+    }
+
+    /**
+     * Construct a new edit session.
+     *
+     * @param actor the actor
+     * @return an edit session
+     */
+    public EditSession createEditSession(Actor actor) {
+        EditSessionBuilder builder = createEditSessionBuilder(actor);
         EditSession editSession = builder.build();
         Request.request().setEditSession(editSession);
 
@@ -1139,6 +1136,30 @@ public class LocalSession {
 
         return editSession;
     }
+
+    // TODO: REFACTOR DUPLICATE CODE
+    public RebrushSession createRebrushSession(Actor actor) {
+        EditSessionBuilder builder = createEditSessionBuilder(actor);
+        RebrushSession editSession = builder.buildRebrush();
+        Request.request().setEditSession(editSession);
+
+        editSession.setMask(mask);
+        prepareEditingExtents(editSession, actor);
+
+        return editSession;
+    }
+
+    public SelectableStructureSession createSelectableStructureSession(Actor actor, AbstractStructureBrush brush) {
+        EditSessionBuilder builder = createEditSessionBuilder(actor);
+        SelectableStructureSession editSession = builder.buildSelectableStructure(brush);
+        Request.request().setEditSession(editSession);
+
+        editSession.setMask(mask);
+        prepareEditingExtents(editSession, actor);
+
+        return editSession;
+    }
+
 
     @SuppressWarnings("deprecation")
     private void prepareEditingExtents(EditSession editSession, Actor actor) {
@@ -1297,17 +1318,29 @@ public class LocalSession {
         this.failedCuiAttempts = 0;
     }
 
-    public void rebrush(Actor actor, double scale) throws MaxChangedBlocksException {
-        try (EditSession newSession = createEditSession(actor)) {
-            prepareEditingExtents(newSession, actor);
-
+    public void rebrush(Actor actor, double scale) throws WorldEditException {
+        try (RebrushSession rebrushSession = createRebrushSession(actor)) {
             for (EditSession session : history.reversed()) {
-                if (session.deselect()) {
-                    session.rebrush(newSession, scale);
+                if (session instanceof SelectableStructureSession selectableSession && selectableSession.deselect()) {
+                    rebrushSession.rebrush(selectableSession, scale);
                 }
             }
 
-            remember(newSession);
+            remember(rebrushSession);
         }
+    }
+
+    public boolean toggleSelectStructure(Location clicked) {
+        for (EditSession editSession : history) {
+            try {
+                if (editSession instanceof SelectableStructureSession session && session.toggleSelect(clicked)) {
+                    return true;
+                }
+            } catch (WorldEditException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return false;
     }
 }

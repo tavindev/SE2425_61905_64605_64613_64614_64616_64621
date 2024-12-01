@@ -67,7 +67,7 @@ public class BrushTool implements TraceTool {
     /**
      * Construct the tool.
      *
-     * @param brush the brush to bind
+     * @param brush      the brush to bind
      * @param permission the permission to check before use is allowed
      */
     public BrushTool(Brush brush, String permission) {
@@ -121,7 +121,7 @@ public class BrushTool implements TraceTool {
     /**
      * Set the brush.
      *
-     * @param brush the brush
+     * @param brush      the brush
      * @param permission the permission
      */
     public void setBrush(Brush brush, String permission) {
@@ -152,7 +152,8 @@ public class BrushTool implements TraceTool {
      *
      * @return the material
      */
-    @Nullable public Pattern getMaterial() {
+    @Nullable
+    public Pattern getMaterial() {
         return material;
     }
 
@@ -203,7 +204,7 @@ public class BrushTool implements TraceTool {
 
         BlockBag bag = session.getBlockBag(player);
 
-        try (EditSession editSession = session.createEditSession(player)) {
+        try (EditSession editSession = brush.createEditSession(session, player)) {
             if (mask != null) {
                 Mask existingMask = editSession.getMask();
 

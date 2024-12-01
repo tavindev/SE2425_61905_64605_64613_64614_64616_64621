@@ -304,39 +304,6 @@ public class EditSession implements Extent, AutoCloseable {
         setReorderMode(this.reorderMode);
     }
 
-
-    public void storeGeneratedStructure(AbstractStructureBrush brush, BlockVector3 position, double size) {
-        this.selectableStructure = new SelectableStructure(this, brush, position, size);
-    }
-
-
-    boolean selectStructure(Location clicked) {
-        if (this.selectableStructure == null) {
-            return false;
-        }
-
-        return this.selectableStructure.select(clicked);
-    }
-
-    public boolean deselect() {
-        return this.selectableStructure.deselect();
-    }
-
-    public void rebrush(EditSession session, double scale) throws MaxChangedBlocksException {
-        if (this.selectableStructure == null) {
-            return;
-        }
-
-        this.undo(session);
-
-        this.selectableStructure.resize(session, scale);
-        session.setRebrushedSession(this);
-    }
-
-    void setRebrushedSession(EditSession session) {
-        this.rebrushedSession = session;
-    }
-
     private Extent traceIfNeeded(Extent input) {
         Extent output = input;
         if (tracingExtents != null) {

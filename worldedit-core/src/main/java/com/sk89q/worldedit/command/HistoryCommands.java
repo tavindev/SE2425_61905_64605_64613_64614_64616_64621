@@ -149,7 +149,7 @@ public class HistoryCommands {
     public void rebrush(Actor actor, LocalSession session, @Arg(desc = "Scale", def = "1") double scale) {
         try {
             session.rebrush(actor, scale);
-        } catch (MaxChangedBlocksException e) {
+        } catch (WorldEditException e) {
             throw new RuntimeException(e);
         }
     }
