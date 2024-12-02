@@ -1,5 +1,6 @@
 package com.sk89q.worldedit.fabric;
 
+import com.sk89q.worldedit.fabric.gui.screens.WorldEditCommandScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -30,7 +31,7 @@ public class FabricKeyHandler implements ClientModInitializer {
     private void openCommandListScreen(Minecraft client) {
         try {
             if (client.player != null) {
-                client.setScreen(new WorldEditCommandListScreen());
+                client.setScreen(new WorldEditCommandScreen());
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());

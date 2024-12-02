@@ -94,13 +94,13 @@ public class WorldEditCommandListScreen extends Screen {
         }
     }
 
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (scrollBar.mouseScrolled(mouseX, mouseY, delta)) {
-            updateButtonPositions();
-            return true;
-        }
-        return scrollBar.mouseScrolled(mouseX, mouseY, delta);
-    }
+//    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+//        if (scrollBar.mouseScrolled(mouseX, mouseY, delta)) {
+//            updateButtonPositions();
+//            return true;
+//        }
+//        return scrollBar.mouseScrolled(mouseX, mouseY, delta);
+//    }
 
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
