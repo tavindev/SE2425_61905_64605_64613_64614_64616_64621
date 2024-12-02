@@ -185,29 +185,37 @@ public class FabricWorldEdit implements ModInitializer {
             }
             lastTickUpdate = currentTime;
 
-            // Loop through all online players
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 FabricPlayer wePlayer = FabricAdapter.adaptPlayer(player);
                 LocalSession session = WorldEdit.getInstance().getSessionManager().get(FabricAdapter.adaptPlayer(player));
 
                 ItemStack heldItem = player.getMainHandItem();
                 Tool tool = session.getTool(FabricAdapter.adapt(heldItem.getItem()));
+
                 if (tool instanceof BrushTool brushTool) {
                     Location target = getTargetBlock(player, brushTool.getRange());
-                    BlockVector3 targetPoint = target != null ? target.toVector().toBlockPoint() : null;
-                    BlockVector3 lastPreviewPoint = brushTool.getLastPreviewPosition();
 
-                    if (targetPoint != null && !targetPoint.equals(lastPreviewPoint)) {
-                        System.out.println("Showing preview");
-                        brushTool.showPreview(wePlayer, target);
+                    if (target == null) {
+                        clearBrushPreview(session, wePlayer);
+                        continue;
                     }
 
-                    System.out.println("Passed");
+                    BlockVector3 currentTarget = target.toVector().toBlockPoint();
+                    BlockVector3 lastTarget = brushTool.getLastPreviewPosition();
+
+                    if (lastTarget != null && lastTarget.equals(currentTarget)) {
+                        // No change in target; skip rendering a new preview
+                        continue;
+                    }
+
+                    // Render new preview
+                    brushTool.showPreview(wePlayer, target);
                 } else {
                     clearBrushPreview(session, wePlayer);
                 }
             }
         });
+
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
             if (!(player instanceof ServerPlayer serverPlayer)) {

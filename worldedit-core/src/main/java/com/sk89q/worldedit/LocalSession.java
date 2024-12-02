@@ -1303,7 +1303,6 @@ public class LocalSession {
     }
 
     public void updateToolPreview(Player player) {
-
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastToolPreviewUpdate < TOOL_PREVIEW_UPDATE_INTERVAL) {
             return;
@@ -1313,7 +1312,8 @@ public class LocalSession {
         if (tool instanceof BrushTool brushTool) {
             Location target = player.getBlockTrace(brushTool.getRange(), true, brushTool.getTraceMask());
 
-            if (target == null || !target.equals(lastToolPosition) || brushTool != lastBrushTool) {
+            BlockVector3 currentTarget = (target != null) ? target.toVector().toBlockPoint() : null;
+            if (currentTarget == null || !currentTarget.equals(lastToolPosition) || brushTool != lastBrushTool) {
                 brushTool.showPreview(player, target);
                 lastToolPosition = target;
                 lastBrushTool = brushTool;
@@ -1325,6 +1325,7 @@ public class LocalSession {
             lastToolPosition = null;
         }
     }
+
 
     public BrushTool getBrushTool(Player player) {
         Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
