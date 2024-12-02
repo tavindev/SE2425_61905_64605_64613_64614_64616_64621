@@ -1303,28 +1303,24 @@ public class LocalSession {
     }
 
     public void updateToolPreview(Player player) {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastToolPreviewUpdate < TOOL_PREVIEW_UPDATE_INTERVAL) {
-            return;
-        }
-
         Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
         if (tool instanceof BrushTool brushTool) {
             Location target = player.getBlockTrace(brushTool.getRange(), true, brushTool.getTraceMask());
+            BlockVector3 currentTarget = target != null ? target.toVector().toBlockPoint() : null;
 
-            BlockVector3 currentTarget = (target != null) ? target.toVector().toBlockPoint() : null;
-            if (currentTarget == null || !currentTarget.equals(lastToolPosition) || brushTool != lastBrushTool) {
+            if (currentTarget == null || (lastToolPosition != null && !currentTarget.equals(lastToolPosition.toVector().toBlockPoint())) || brushTool != lastBrushTool) {
                 brushTool.showPreview(player, target);
                 lastToolPosition = target;
                 lastBrushTool = brushTool;
-                lastToolPreviewUpdate = currentTime;
             }
         } else if (lastBrushTool != null) {
             lastBrushTool.clearPreview();
             lastBrushTool = null;
             lastToolPosition = null;
+            System.out.println("Cleared tool preview.");
         }
     }
+
 
 
     public BrushTool getBrushTool(Player player) {

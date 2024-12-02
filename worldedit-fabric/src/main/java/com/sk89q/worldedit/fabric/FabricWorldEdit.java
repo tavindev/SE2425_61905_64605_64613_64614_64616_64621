@@ -33,16 +33,19 @@ import com.sk89q.worldedit.extension.platform.Capability;
 import com.sk89q.worldedit.extension.platform.Platform;
 import com.sk89q.worldedit.extension.platform.PlatformManager;
 import com.sk89q.worldedit.fabric.net.handler.WECUIPacketHandler;
+import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.internal.anvil.ChunkDeleter;
 import com.sk89q.worldedit.internal.event.InteractionDebouncer;
 import com.sk89q.worldedit.internal.util.LogManagerCompat;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.Location;
+import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.util.lifecycle.Lifecycled;
 import com.sk89q.worldedit.util.lifecycle.SimpleLifecycled;
 import com.sk89q.worldedit.world.biome.BiomeCategory;
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.block.BlockCategory;
+import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.entity.EntityType;
 import com.sk89q.worldedit.world.generation.ConfiguredFeatureType;
@@ -80,10 +83,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.Logger;
 import org.enginehub.piston.Command;
 
@@ -91,10 +96,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -147,6 +150,8 @@ public class FabricWorldEdit implements ModInitializer {
 
     private ModContainer container;
 
+    private final Map<UUID, Vec3> playerLookDirections = new HashMap<>();
+
     public FabricWorldEdit() {
         inst = this;
     }
@@ -180,7 +185,7 @@ public class FabricWorldEdit implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             long currentTime = System.currentTimeMillis();
 
-            if (currentTime - lastTickUpdate < 200) {
+            if (currentTime - lastTickUpdate < 200) { // Throttle updates to 200ms
                 return;
             }
             lastTickUpdate = currentTime;
@@ -192,24 +197,19 @@ public class FabricWorldEdit implements ModInitializer {
                 ItemStack heldItem = player.getMainHandItem();
                 Tool tool = session.getTool(FabricAdapter.adapt(heldItem.getItem()));
 
-                if (tool instanceof BrushTool brushTool) {
-                    Location target = getTargetBlock(player, brushTool.getRange());
+                if (tool instanceof BrushTool) {
+                    Vec3 currentLookDirection = getPlayerLook(player);
 
-                    if (target == null) {
-                        clearBrushPreview(session, wePlayer);
+                    UUID playerUUID = player.getUUID();
+                    Vec3 lastLookDirection = playerLookDirections.get(playerUUID);
+
+                    if (currentLookDirection.equals(lastLookDirection)) {
                         continue;
                     }
 
-                    BlockVector3 currentTarget = target.toVector().toBlockPoint();
-                    BlockVector3 lastTarget = brushTool.getLastPreviewPosition();
+                    playerLookDirections.put(playerUUID, currentLookDirection);
 
-                    if (lastTarget != null && lastTarget.equals(currentTarget)) {
-                        // No change in target; skip rendering a new preview
-                        continue;
-                    }
-
-                    // Render new preview
-                    brushTool.showPreview(wePlayer, target);
+                    session.updateToolPreview(wePlayer);
                 } else {
                     clearBrushPreview(session, wePlayer);
                 }
@@ -217,7 +217,9 @@ public class FabricWorldEdit implements ModInitializer {
         });
 
 
-        UseItemCallback.EVENT.register((player, world, hand) -> {
+
+
+        /*UseItemCallback.EVENT.register((player, world, hand) -> {
             if (!(player instanceof ServerPlayer serverPlayer)) {
                 return InteractionResultHolder.pass(ItemStack.EMPTY);
             }
@@ -251,7 +253,7 @@ public class FabricWorldEdit implements ModInitializer {
                 clearBrushPreview(session, wePlayer);
             }
             return InteractionResult.PASS;
-        });
+        });*/
 
 
         ServerTickEvents.END_SERVER_TICK.register(ThreadSafeCache.getInstance());
@@ -266,19 +268,48 @@ public class FabricWorldEdit implements ModInitializer {
         LOGGER.info("WorldEdit for Fabric (version " + getInternalVersion() + ") is loaded");
     }
 
-    private Location getTargetBlock(ServerPlayer player, double range) {
-        HitResult hitResult = player.pick(range, 1.0F, false);
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
-            BlockHitResult blockHit = (BlockHitResult) hitResult;
-            BlockVector3 pos = BlockVector3.at(
-                    blockHit.getBlockPos().getX(),
-                    blockHit.getBlockPos().getY(),
-                    blockHit.getBlockPos().getZ()
-            );
-            return new Location(FabricAdapter.adapt(player.level()), pos.toVector3());
-        }
-        return null;
+    public static Vec3 getPlayerLook(Player player) {
+        // Convert pitch and yaw to radians
+        double pitch = Math.toRadians(player.getXRot()); // Vertical rotation
+        double yaw = Math.toRadians(-player.getYRot());  // Horizontal rotation
+
+        // Calculate direction vector
+        double x = Math.cos(pitch) * Math.sin(yaw);
+        double y = Math.sin(pitch);
+        double z = Math.cos(pitch) * Math.cos(yaw);
+
+        return new Vec3(x, y, z);
     }
+
+    private Location getTargetBlock(ServerPlayer player, double range) {
+        // Get the player's eye position as the start of the ray
+        Vec3 start = player.getEyePosition(1.0F);
+
+        // Use the look angle to determine the direction and calculate the end point
+        Vec3 direction = player.getLookAngle();
+        Vec3 end = start.add(direction.scale(range)); // Extend the direction by the range
+
+        // Perform the ray trace
+        ClipContext context = new ClipContext(
+                start,
+                end,
+                ClipContext.Block.OUTLINE,
+                ClipContext.Fluid.NONE,
+                player
+        );
+
+        // Perform the ray trace and return the result if a block is hit
+        BlockHitResult hitResult = player.level().clip(context);
+
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockPos hitPos = hitResult.getBlockPos();
+            BlockVector3 blockVector = BlockVector3.at(hitPos.getX(), hitPos.getY(), hitPos.getZ());
+            return new Location(FabricAdapter.adapt(player.level()), blockVector.toVector3());
+        }
+
+        return null; // Return null if no valid block was hit
+    }
+
 
     private void clearBrushPreview(LocalSession session, FabricPlayer player) {
         BrushTool brushTool = session.getBrushTool(player);

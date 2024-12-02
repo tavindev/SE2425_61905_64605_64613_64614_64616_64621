@@ -245,14 +245,13 @@ public class BrushTool implements TraceTool {
     }
 
     public void showPreview(Player player, Location target) {
-
         if (target == null) {
             return;
         }
 
-        BlockVector3 targetPoint = target.toVector().toBlockPoint();
+        BlockVector3 targetBlock = target.toVector().toBlockPoint();
 
-        if (lastPreviewPosition != null && lastPreviewPosition.equals(targetPoint)) {
+        if (lastPreviewPosition != null && lastPreviewPosition.equals(targetBlock)) {
             return;
         }
 
@@ -260,14 +259,17 @@ public class BrushTool implements TraceTool {
             clearPreview();
 
             previewSession = WorldEdit.getInstance().newEditSession(player.getWorld());
-            brush.build(previewSession, targetPoint, previewPattern, size);
-            lastPreviewPosition = targetPoint;
-            previewSession.close();
-            previewSession = null;
+            brush.build(previewSession, targetBlock, previewPattern, size);
+            lastPreviewPosition = targetBlock;
         } catch (MaxChangedBlocksException e) {
             player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
+        } finally {
+            if (previewSession != null) {
+                previewSession.close();
+            }
         }
     }
+
 
     public void clearPreview() {
         if (previewSession != null) {
