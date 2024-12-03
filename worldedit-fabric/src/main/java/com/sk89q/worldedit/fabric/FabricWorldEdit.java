@@ -181,7 +181,7 @@ public class FabricWorldEdit implements ModInitializer {
 
         WECUIPacketHandler.init();
 
-
+        // Register the CUI plugin channel
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             long currentTime = System.currentTimeMillis();
 
@@ -230,12 +230,17 @@ public class FabricWorldEdit implements ModInitializer {
         LOGGER.info("WorldEdit for Fabric (version " + getInternalVersion() + ") is loaded");
     }
 
+    /**
+     * Get the direction the player is looking in.
+     *
+     * @param player the player
+     *
+     * @return the direction the player is looking in
+     */
     public static Vec3 getPlayerLook(Player player) {
-        // Convert pitch and yaw to radians
-        double pitch = Math.toRadians(player.getXRot()); // Vertical rotation
-        double yaw = Math.toRadians(-player.getYRot());  // Horizontal rotation
+        double pitch = Math.toRadians(player.getXRot());
+        double yaw = Math.toRadians(-player.getYRot());
 
-        // Calculate direction vector
         double x = Math.cos(pitch) * Math.sin(yaw);
         double y = Math.sin(pitch);
         double z = Math.cos(pitch) * Math.cos(yaw);
@@ -243,7 +248,11 @@ public class FabricWorldEdit implements ModInitializer {
         return new Vec3(x, y, z);
     }
 
-
+    /**
+     * Clear the brush preview for a player.
+     *
+     * @param player the player
+     */
     private void clearBrushPreview(LocalSession session, FabricPlayer player) {
         BrushTool brushTool = session.getBrushTool(player);
         if (brushTool != null) {

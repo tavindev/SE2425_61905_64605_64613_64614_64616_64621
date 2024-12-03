@@ -131,10 +131,8 @@ public class LocalSession {
     private String navWandItem;
     private Boolean navWandItemDefault;
 
-    private long lastToolPreviewUpdate = 0;
-    private static final long TOOL_PREVIEW_UPDATE_INTERVAL = 100; // milliseconds
+    // Preview features functionality
     private BrushTool lastBrushTool;
-    private Location lastToolPosition;
 
     public boolean selectStructure(Location clicked) {
         for (EditSession editSession : history) {
@@ -1302,12 +1300,18 @@ public class LocalSession {
         this.failedCuiAttempts = 0;
     }
 
+    /**
+     * Render the preview of the tool in the player's hand if it is a brush tool.
+     *
+     * @param player the player
+     */
     public void updateToolPreview(Player player) {
         Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
         if (tool instanceof BrushTool brushTool) {
             Location target = player.getBlockTrace(brushTool.getRange(), true, brushTool.getTraceMask());
 
             brushTool.showPreview(player, target);
+            lastBrushTool = brushTool;
         } else if (lastBrushTool != null) {
             lastBrushTool.clearPreview();
         }

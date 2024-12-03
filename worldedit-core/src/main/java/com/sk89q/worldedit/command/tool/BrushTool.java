@@ -56,10 +56,8 @@ public class BrushTool implements TraceTool {
     private double size = 1;
     private String permission;
 
-    //Preview feature
-    private EditSession previewSession;
-    private BlockVector3 lastPreviewPosition;
-    private final Pattern previewPattern = BlockTypes.GLASS.getDefaultState();
+    private EditSession previewSession; // The preview session to handle the preview of the brush tool
+    private final Pattern previewPattern = BlockTypes.GLASS.getDefaultState(); // The default preview pattern to use
 
 
     /**
@@ -244,6 +242,12 @@ public class BrushTool implements TraceTool {
         return true;
     }
 
+    /**
+     * Manage the preview feature of the brush tool in order to show the user what the brush will do
+     *
+     * @param player the player to show the preview to
+     * @param target the target location of the preview
+     */
     public void showPreview(Player player, Location target) {
         if (target == null) {
             return;
@@ -264,7 +268,9 @@ public class BrushTool implements TraceTool {
         }
     }
 
-
+    /**
+     * Clear the preview of the brush tool
+     */
     public void clearPreview() {
         if (previewSession != null) {
             try {
@@ -277,14 +283,5 @@ public class BrushTool implements TraceTool {
                 previewSession = null;
             }
         }
-    }
-
-
-    public void clearLastPreviewPosition() {
-        lastPreviewPosition = null;
-    }
-
-    public BlockVector3 getLastPreviewPosition() {
-        return lastPreviewPosition;
     }
 }
