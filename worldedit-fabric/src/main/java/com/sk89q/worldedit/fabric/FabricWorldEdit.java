@@ -209,6 +209,7 @@ public class FabricWorldEdit implements ModInitializer {
 
                     playerLookDirections.put(playerUUID, currentLookDirection);
 
+                    clearBrushPreview(session, wePlayer);
                     session.updateToolPreview(wePlayer);
                 } else {
                     clearBrushPreview(session, wePlayer);
@@ -247,7 +248,6 @@ public class FabricWorldEdit implements ModInitializer {
         BrushTool brushTool = session.getBrushTool(player);
         if (brushTool != null) {
             brushTool.clearPreview();
-            brushTool.clearLastPreviewPosition();
         }
     }
 

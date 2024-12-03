@@ -251,16 +251,10 @@ public class BrushTool implements TraceTool {
 
         BlockVector3 targetBlock = target.toVector().toBlockPoint();
 
-        if (lastPreviewPosition != null && lastPreviewPosition.equals(targetBlock)) {
-            return;
-        }
-
         try {
-            clearPreview();
 
             previewSession = WorldEdit.getInstance().newEditSession(player.getWorld());
             brush.build(previewSession, targetBlock, previewPattern, size);
-            lastPreviewPosition = targetBlock;
         } catch (MaxChangedBlocksException e) {
             player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
         } finally {
@@ -283,7 +277,6 @@ public class BrushTool implements TraceTool {
                 previewSession = null;
             }
         }
-        lastPreviewPosition = null; // Reset last preview position
     }
 
 

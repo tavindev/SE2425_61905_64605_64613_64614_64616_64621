@@ -1306,18 +1306,10 @@ public class LocalSession {
         Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
         if (tool instanceof BrushTool brushTool) {
             Location target = player.getBlockTrace(brushTool.getRange(), true, brushTool.getTraceMask());
-            BlockVector3 currentTarget = target != null ? target.toVector().toBlockPoint() : null;
 
-            if (currentTarget == null || (lastToolPosition != null && !currentTarget.equals(lastToolPosition.toVector().toBlockPoint())) || brushTool != lastBrushTool) {
-                brushTool.showPreview(player, target);
-                lastToolPosition = target;
-                lastBrushTool = brushTool;
-            }
+            brushTool.showPreview(player, target);
         } else if (lastBrushTool != null) {
             lastBrushTool.clearPreview();
-            lastBrushTool = null;
-            lastToolPosition = null;
-            System.out.println("Cleared tool preview.");
         }
     }
 
