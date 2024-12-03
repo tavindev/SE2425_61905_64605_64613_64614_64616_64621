@@ -232,7 +232,7 @@ public class LocalSession {
         checkNotNull(editSession);
 
         // Don't store anything if no changes were made
-        if (editSession.size() == 0) {
+        if (!(editSession instanceof RebrushSession) && editSession.size() == 0) {
             return;
         }
 
@@ -1322,7 +1322,19 @@ public class LocalSession {
         try (RebrushSession rebrushSession = createRebrushSession(actor)) {
             for (EditSession session : history.reversed()) {
                 if (session instanceof SelectableStructureSession selectableSession && selectableSession.deselect()) {
-                    rebrushSession.rebrush(selectableSession, scale);
+                    try (SelectableStructureSession newSession = createSelectableStructureSession(actor, selectableSession.getBrush())) {
+                        rebrushSession.rebrush(newSession, selectableSession, scale);
+                    }
+                }
+
+                if (session instanceof RebrushSession rebrush) {
+                    for (SelectableStructureSession selectableSession : rebrush.getNewSessions()) {
+                        if (selectableSession.deselect()) {
+                            try (SelectableStructureSession newSession = createSelectableStructureSession(actor, selectableSession.getBrush())) {
+                                rebrushSession.rebrush(newSession, selectableSession, scale);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1331,8 +1343,12 @@ public class LocalSession {
     }
 
     public boolean toggleSelectStructure(Location clicked) {
-        for (EditSession editSession : history) {
+        for (EditSession editSession : history.reversed()) {
             try {
+                if (editSession instanceof RebrushSession rebrushSession && rebrushSession.toggleSelect(clicked)) {
+                    return true;
+                }
+
                 if (editSession instanceof SelectableStructureSession session && session.toggleSelect(clicked)) {
                     return true;
                 }

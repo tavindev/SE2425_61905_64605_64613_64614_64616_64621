@@ -39,7 +39,11 @@ public class SelectableStructureSession extends EditSession {
         this.brush = brush;
     }
 
-    private boolean locationIsInStructure(Location location) {
+    public AbstractStructureBrush getBrush() {
+        return brush;
+    }
+
+    public boolean locationIsInStructure(Location location) {
         for (BlockVector3 position : positions) {
             if (position.equals(location.toVector().toBlockPoint())) {
                 return true;
