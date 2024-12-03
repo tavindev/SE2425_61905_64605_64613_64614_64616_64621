@@ -22,17 +22,17 @@ public class ScrollBar extends AbstractWidget {
     }
 
     public void handleMouseScroll(double delta) {
-        int scrollAmount = (int) -(delta * 10);
+        int scrollAmount = (int) -(delta * 5);
         scrollOffset = Math.max(0, Math.min(scrollOffset + scrollAmount, contentHeight - trackHeight));
+        setFocused(true);
     }
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int scrollbarHeight = Math.max((int) ((float) trackHeight / contentHeight * trackHeight), 10);
         int scrollbarY = this.getY() + (int) ((float) scrollOffset / contentHeight * (trackHeight - scrollbarHeight));
-
-        guiGraphics.fill(this.getX(), scrollbarY, this.getX() + this.width, scrollbarY + scrollbarHeight, 0xFF888888); // Scrollbar body
-        guiGraphics.fill(this.getX() + 1, scrollbarY + 1, this.getX() + this.width - 1, scrollbarY + scrollbarHeight - 1, 0xFFCCCCCC); // Inner
+        guiGraphics.fill(this.getX(), scrollbarY, this.getX() + this.width, scrollbarY + scrollbarHeight, 0xFF555555); // Tom mais escuro para melhorar a visibilidade
+        guiGraphics.fill(this.getX() + 1, scrollbarY + 1, this.getX() + this.width - 1, scrollbarY + scrollbarHeight - 1, 0xFFBBBBBB);
     }
 
     @Override

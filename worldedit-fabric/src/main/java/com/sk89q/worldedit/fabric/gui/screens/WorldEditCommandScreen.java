@@ -16,7 +16,7 @@ import net.minecraft.network.chat.CommonComponents;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WorldEditCommandListScreen extends Screen {
+public class WorldEditCommandScreen extends Screen implements GuiEventListener {
 
     private static final Component TITLE = Component.translatable("WorldEdit Commands");
     private static final int BUTTON_WIDTH = 90;
@@ -29,26 +29,18 @@ public class WorldEditCommandListScreen extends Screen {
     private int totalButtonHeight;
     private int maxScrollOffset;
 
-    public WorldEditCommandListScreen() {
+    public WorldEditCommandScreen() {
         super(GameNarrator.NO_TITLE);
         loadCommands();
-        calculateTotalHeight();
     }
 
     private void loadCommands() {
         PlatformCommandManager commandManager = WorldEdit.getInstance().getPlatformManager().getPlatformCommandManager();
         commandManager.getCommandManager().getAllCommands().forEach(cmd -> {
             String commandName = cmd.getName();
-            String description = String.valueOf(cmd.getDescription()).split("=")[1].split(",")[0];
+            String description = String.valueOf(cmd.getDescription()).split("=")[1].split(",")[0];;
             commandDescriptions.put(commandName, description);
         });
-    }
-
-    private void calculateTotalHeight() {
-        int totalButtons = commandDescriptions.size();
-        int rows = (totalButtons / 4) + (totalButtons % 4 == 0 ? 0 : 1);
-        totalButtonHeight = rows * (BUTTON_HEIGHT + BUTTON_PADDING);
-        maxScrollOffset = Math.max(0, totalButtonHeight - this.height + 60);
     }
 
     @Override
@@ -56,6 +48,10 @@ public class WorldEditCommandListScreen extends Screen {
         int columns = 4;
         int xStart = (this.width - (columns * (BUTTON_WIDTH + BUTTON_PADDING) + SCROLLBAR_WIDTH)) / 2;
         int yStart = 40;
+
+        int rows = (int) Math.ceil((double) commandDescriptions.size() / columns);
+        totalButtonHeight = rows * (BUTTON_HEIGHT + BUTTON_PADDING);
+        maxScrollOffset = Math.max(0, totalButtonHeight - (this.height - 80));
 
         scrollBar = new ScrollBar(this.width - SCROLLBAR_WIDTH - 5, 40, this.height - 80, totalButtonHeight);
         this.addRenderableWidget(scrollBar);
@@ -65,57 +61,68 @@ public class WorldEditCommandListScreen extends Screen {
             int x = xStart + (index % columns) * (BUTTON_WIDTH + BUTTON_PADDING);
             int y = yStart + (index / columns) * (BUTTON_HEIGHT + BUTTON_PADDING);
             String command = entry.getKey();
-            this.addRenderableWidget(Button.builder(
-                            Component.literal(command),
-                            btn -> executeCommand(command)
-                    ).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT)
+            this.addRenderableWidget(Button.builder(Component.literal(command),
+                            btn -> executeCommand(command))
+                    .bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT)
                     .tooltip(Tooltip.create(Component.literal(entry.getValue())))
                     .build());
             index++;
         }
 
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose())
-                .bounds(this.width / 2 - BUTTON_WIDTH / 2, this.height - 30, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+                .bounds(this.width / 2 - BUTTON_WIDTH / 2, this.height - 30, BUTTON_WIDTH, BUTTON_HEIGHT)
+                .build());
         updateButtonPositions();
     }
+
+
 
     private void updateButtonPositions() {
         int yStart = 40;
         int columns = 4;
-        int xStart = (this.width - (columns * (BUTTON_WIDTH + BUTTON_PADDING) + SCROLLBAR_WIDTH)) / 2;
         int index = 0;
-
-        for (GuiEventListener listener : this.children()) {
-            if (listener instanceof Button button && !button.getMessage().equals(CommonComponents.GUI_DONE)) {
+        for (var widget : this.children()) {
+            if (widget instanceof Button button && !button.getMessage().equals(CommonComponents.GUI_DONE)) {
                 int y = yStart + (index / columns) * (BUTTON_HEIGHT + BUTTON_PADDING) - scrollBar.getScrollOffset();
                 button.setY(y);
+                button.visible = y + BUTTON_HEIGHT > 40 && y < this.height - 80;
                 index++;
             }
         }
     }
 
-//    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-//        if (scrollBar.mouseScrolled(mouseX, mouseY, delta)) {
-//            updateButtonPositions();
-//            return true;
-//        }
-//        return scrollBar.mouseScrolled(mouseX, mouseY, delta);
-//    }
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (scrollBar.isMouseOver(mouseX, mouseY)) {
+            if (Math.abs(deltaY) > 0) {
+                scrollBar.handleMouseScroll(deltaY > 0 ? -1 : 1);
+                updateButtonPositions();
+                return true;
+            }
+        }
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public void afterMouseMove() {
+        super.afterMouseMove();
+//        this.getUsageNarration(750L, false);
+//        // Outras ações que envolvam movimentação podem ser colocadas aqui
+    }
+
 
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-        scrollBar.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         pGuiGraphics.drawCenteredString(this.font, TITLE, this.width / 2, 10, 0xFFFFFF);
     }
 
     private void executeCommand(String command) {
-        // Implementar a execução do comando aqui.
+        //Minecraft.getInstance().player.sendChatMessage("/" + command);
     }
 
     @Override
     public void onClose() {
-        super.onClose();
         Minecraft.getInstance().setScreen(null);
     }
 }
