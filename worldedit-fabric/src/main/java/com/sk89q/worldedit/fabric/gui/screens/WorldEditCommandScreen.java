@@ -26,8 +26,6 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
 
     private final Map<String, String> commandDescriptions = new HashMap<>();
     private ScrollBar scrollBar;
-    private int totalButtonHeight;
-    private int maxScrollOffset;
 
     public WorldEditCommandScreen() {
         super(GameNarrator.NO_TITLE);
@@ -50,8 +48,7 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
         int yStart = 40;
 
         int rows = (int) Math.ceil((double) commandDescriptions.size() / columns);
-        totalButtonHeight = rows * (BUTTON_HEIGHT + BUTTON_PADDING);
-        maxScrollOffset = Math.max(0, totalButtonHeight - (this.height - 80));
+        int totalButtonHeight = rows * (BUTTON_HEIGHT + BUTTON_PADDING);
 
         scrollBar = new ScrollBar(this.width - SCROLLBAR_WIDTH - 5, 40, this.height - 80, totalButtonHeight);
         this.addRenderableWidget(scrollBar);
@@ -91,6 +88,8 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
         }
     }
 
+
+
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         if (scrollBar.isMouseOver(mouseX, mouseY)) {
@@ -118,9 +117,12 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
     }
 
     private void executeCommand(String command) {
-        //Minecraft.getInstance().player.sendChatMessage("/" + command);
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && mc.getConnection() != null) {
+            mc.player.connection.sendCommand(command);
+            onClose();
+        }
     }
-
     @Override
     public void onClose() {
         Minecraft.getInstance().setScreen(null);
