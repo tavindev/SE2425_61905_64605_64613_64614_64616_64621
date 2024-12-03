@@ -217,45 +217,6 @@ public class FabricWorldEdit implements ModInitializer {
         });
 
 
-
-
-        /*UseItemCallback.EVENT.register((player, world, hand) -> {
-            if (!(player instanceof ServerPlayer serverPlayer)) {
-                return InteractionResultHolder.pass(ItemStack.EMPTY);
-            }
-
-            FabricPlayer wePlayer = FabricAdapter.adaptPlayer(serverPlayer);
-            LocalSession session = WorldEdit.getInstance().getSessionManager().get(wePlayer);
-
-            ItemStack heldItem = player.getItemInHand(hand);
-            if (session.getTool(FabricAdapter.adapt(heldItem.getItem())) instanceof BrushTool brushTool) {
-                HitResult hitResult = player.pick(brushTool.getRange(), 0, false);
-                if (hitResult.getType() == HitResult.Type.BLOCK) {
-                    BlockHitResult blockHit = (BlockHitResult) hitResult;
-                    BlockVector3 pos = FabricAdapter.adapt(blockHit.getBlockPos());
-                    Location target = new Location(FabricAdapter.adapt(world), pos.toVector3());
-
-                    brushTool.showPreview(wePlayer, target);
-                } else {
-                    brushTool.clearPreview();
-                }
-            } else {
-                clearBrushPreview(session, wePlayer);
-            }
-
-            return InteractionResultHolder.pass(ItemStack.EMPTY);
-        });
-
-        AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
-            if (player instanceof ServerPlayer serverPlayer) {
-                FabricPlayer wePlayer = FabricAdapter.adaptPlayer(serverPlayer);
-                LocalSession session = WorldEdit.getInstance().getSessionManager().get(wePlayer);
-                clearBrushPreview(session, wePlayer);
-            }
-            return InteractionResult.PASS;
-        });*/
-
-
         ServerTickEvents.END_SERVER_TICK.register(ThreadSafeCache.getInstance());
         CommandRegistrationCallback.EVENT.register(this::registerCommands);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onStartingServer);
@@ -279,35 +240,6 @@ public class FabricWorldEdit implements ModInitializer {
         double z = Math.cos(pitch) * Math.cos(yaw);
 
         return new Vec3(x, y, z);
-    }
-
-    private Location getTargetBlock(ServerPlayer player, double range) {
-        // Get the player's eye position as the start of the ray
-        Vec3 start = player.getEyePosition(1.0F);
-
-        // Use the look angle to determine the direction and calculate the end point
-        Vec3 direction = player.getLookAngle();
-        Vec3 end = start.add(direction.scale(range)); // Extend the direction by the range
-
-        // Perform the ray trace
-        ClipContext context = new ClipContext(
-                start,
-                end,
-                ClipContext.Block.OUTLINE,
-                ClipContext.Fluid.NONE,
-                player
-        );
-
-        // Perform the ray trace and return the result if a block is hit
-        BlockHitResult hitResult = player.level().clip(context);
-
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
-            BlockPos hitPos = hitResult.getBlockPos();
-            BlockVector3 blockVector = BlockVector3.at(hitPos.getX(), hitPos.getY(), hitPos.getZ());
-            return new Location(FabricAdapter.adapt(player.level()), blockVector.toVector3());
-        }
-
-        return null; // Return null if no valid block was hit
     }
 
 
