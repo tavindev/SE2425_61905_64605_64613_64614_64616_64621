@@ -201,6 +201,7 @@ public class BrushTool implements TraceTool {
 
     @Override
     public boolean actPrimary(Platform server, LocalConfiguration config, Player player, LocalSession session) {
+        clearPreview();
         Location target = player.getBlockTrace(getRange(), true, traceMask);
 
         if (target == null) {
@@ -226,7 +227,6 @@ public class BrushTool implements TraceTool {
             }
 
             try {
-                clearPreview();
                 brush.build(editSession, target.toVector().toBlockPoint(), material, size);
             } catch (MaxChangedBlocksException e) {
                 player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
