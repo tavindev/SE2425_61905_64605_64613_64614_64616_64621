@@ -2,6 +2,7 @@ package com.sk89q.worldedit.fabric.gui.screens;
 
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.extension.platform.PlatformCommandManager;
+import com.sk89q.worldedit.fabric.data.WorldEditData;
 import com.sk89q.worldedit.fabric.gui.components.ScrollBar;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
@@ -179,6 +180,7 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
     }
 
     private void addRecentButtons() {
+        List<String> recentCommands = WorldEditData.getRecentCommands();
         int recentY = this.height - 60;
         int xStart = (BUTTON_WIDTH + BUTTON_PADDING) + (this.width - (4 * (BUTTON_WIDTH + BUTTON_PADDING) + SCROLLBAR_WIDTH)) / 2;
 
@@ -193,9 +195,10 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
         }
     }
 
+
+
     private void executeCommand(String command) {
-        recentCommands.remove(command);
-        recentCommands.add(0, command);
+        WorldEditData.addRecentCommand(command);
         Minecraft mc = Minecraft.getInstance();
         if (command.equals("brush")) {
             mc.setScreen(new WorldEditBrushCommandScreen());
