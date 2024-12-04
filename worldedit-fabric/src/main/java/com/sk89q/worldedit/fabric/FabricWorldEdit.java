@@ -201,11 +201,6 @@ public class FabricWorldEdit implements ModInitializer {
                     Vec3 currentLookDirection = getPlayerLook(player);
 
                     UUID playerUUID = player.getUUID();
-                    Vec3 lastLookDirection = playerLookDirections.get(playerUUID);
-
-                    if (currentLookDirection.equals(lastLookDirection)) {
-                        continue;
-                    }
 
                     playerLookDirections.put(playerUUID, currentLookDirection);
 
