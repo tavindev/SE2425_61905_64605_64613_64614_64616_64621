@@ -2,6 +2,7 @@ package com.sk89q.worldedit.fabric;
 
 import com.sk89q.worldedit.fabric.gui.screens.WorldEditBrushCommandScreen;
 import com.sk89q.worldedit.fabric.gui.screens.WorldEditCommandScreen;
+import com.sk89q.worldedit.fabric.gui.screens.WorldEditQuickMenu;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -37,37 +38,43 @@ public class FabricKeyHandler implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (openCommandListKey.isDown()) {
-                openCommandListScreen(client);
+                toggleScreen(client, WorldEditCommandScreen.class, () -> openCommandListScreen(client));
             }
             if (openQuickMenuKey.isDown()) {
-
+                toggleScreen(client, WorldEditQuickMenu.class, () -> openQuickMenuScreen(client));
             }
-
             if (openBrushToolKey.isDown()) {
-                openBrushToolScreen(client);
+                toggleScreen(client, WorldEditBrushCommandScreen.class, () -> openBrushToolScreen(client));
             }
-
         });
     }
 
+    /**
+     * Toggles a screen: opens it if it's not open, closes it if it's the current screen.
+     */
+    private void toggleScreen(Minecraft client, Class<?> screenClass, Runnable openScreen) {
+        if (screenClass.isInstance(client.screen)) {
+            client.setScreen(null);
+        } else {
+            openScreen.run();
+        }
+    }
+
     private void openCommandListScreen(Minecraft client) {
-        try {
-            if (client.player != null) {
-                client.setScreen(new WorldEditCommandScreen());
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        if (client.player != null) {
+            client.setScreen(new WorldEditCommandScreen());
+        }
+    }
+
+    private void openQuickMenuScreen(Minecraft client) {
+        if (client.player != null) {
+            client.setScreen(new WorldEditQuickMenu());
         }
     }
 
     private void openBrushToolScreen(Minecraft client) {
-        try {
-            if (client.player != null) {
-                client.setScreen(new WorldEditBrushCommandScreen());
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        if (client.player != null) {
+            client.setScreen(new WorldEditBrushCommandScreen());
         }
     }
-
 }
