@@ -29,4 +29,10 @@ public class WorldEditData {
             shortcutCommands[index] = command;
         }
     }
+
+    public static void clearShortcutCommands() {
+        for (String command : shortcutCommands) {
+            recentCommands.remove(command);
+        }
+    }
 }

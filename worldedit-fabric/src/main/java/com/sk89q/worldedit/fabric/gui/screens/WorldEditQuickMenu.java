@@ -27,7 +27,7 @@ public class WorldEditQuickMenu extends Screen {
         int y = PADDING + 10;
 
         this.addRenderableWidget(Button.builder(Component.literal("Edit Shortcuts"), btn -> {
-            Minecraft.getInstance().setScreen(new WorldEditShortcutSelectionScreen());
+            Minecraft.getInstance().setScreen(new WorldEditBindShortcutScreen());
         }).bounds(centerX + PADDING + 60, y, 80, BUTTON_HEIGHT).build());
 
         y += BUTTON_HEIGHT + PADDING;
@@ -35,10 +35,10 @@ public class WorldEditQuickMenu extends Screen {
         String[] shortcutCommands = WorldEditData.getShortcutCommands();
         for (int i = 0; i < shortcutCommands.length; i++) {
             String shortcut = shortcutCommands[i];
-            String label = (shortcut != null) ? shortcut : "Shortcut " + (i + 1);
+            String label = (shortcut != null) ? shortcut : "Bind Shortcut " + (i + 1);
             this.addRenderableWidget(Button.builder(Component.literal(label), btn -> {
                 if (shortcut == null) {
-                    Minecraft.getInstance().setScreen(new WorldEditShortcutSelectionScreen());
+                    Minecraft.getInstance().setScreen(new WorldEditBindShortcutScreen());
                 } else {
                     executeCommand(shortcut);
                 }
@@ -71,26 +71,28 @@ public class WorldEditQuickMenu extends Screen {
 
     private void executeCommand(String command) {
         Minecraft mc = Minecraft.getInstance();
-        if ("brush".equals(command)) {
+        if (command.equals("brush")) {
             mc.setScreen(new WorldEditBrushCommandScreen());
         } else if (mc.player != null && mc.getConnection() != null) {
             mc.player.connection.sendCommand(command);
+            onClose();
         }
-        this.onClose();
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         int centerX = this.width - MENU_WIDTH - PADDING;
-        int titleY = PADDING;
 
-        guiGraphics.fill(centerX, 0, centerX + MENU_WIDTH, this.height, 0xC0000000);
+        //guiGraphics.fill(centerX, 0, centerX + MENU_WIDTH, this.height, 0x60000000);
 
-        guiGraphics.drawCenteredString(this.font, TITLE.getString(), centerX + MENU_WIDTH / 2, titleY, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, TITLE.getString(), (centerX + MENU_WIDTH / 2) - 5, PADDING, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, TITLE.getString(), (centerX + MENU_WIDTH / 2) - 5, PADDING + 1, 0x000000);
 
         guiGraphics.drawString(this.font, "Shortcuts", centerX + PADDING, PADDING + 15, 0xFFFFFF);
+        guiGraphics.drawString(this.font, "Shortcuts", centerX + PADDING + 1, PADDING + 16, 0x000000);
 
         guiGraphics.drawString(this.font, "Recently Used", centerX + PADDING, (5 * PADDING) + (5 * BUTTON_HEIGHT), 0xFFFFFF);
+        guiGraphics.drawString(this.font, "Recently Used", centerX + PADDING + 1, (5 * PADDING) + (5 * BUTTON_HEIGHT) + 1, 0x000000);
 
         super.render(guiGraphics, mouseX, mouseY, delta);
     }
