@@ -142,9 +142,12 @@ public class FabricWorldEdit implements ModInitializer {
 
     private ModContainer container;
 
+    private KeyHandler keyHandler;
+
     public FabricWorldEdit() {
         inst = this;
     }
+
 
     @Override
     public void onInitialize() {
@@ -165,6 +168,9 @@ public class FabricWorldEdit implements ModInitializer {
         debouncer = new InteractionDebouncer(platform);
 
         WorldEdit.getInstance().getPlatformManager().register(platform);
+
+        keyHandler = new KeyHandler();
+        keyHandler.onInitializeClient();
 
         config = new FabricConfiguration(this);
         this.provider = getInitialPermissionsProvider();
