@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorldEditBrushEdit extends Screen {
+public class WorldEditBrushCommandScreen extends Screen {
     private static final Component MODE_LABEL = Component.translatable("Create Brush Tool");
     private static final Component DEFAULT_OPTION = Component.translatable("Select Brush");
     private static final Component DEFAULT_ITEM_OPTION = Component.translatable("Select Item");
@@ -56,7 +56,7 @@ public class WorldEditBrushEdit extends Screen {
 
     private String brushTypeSelected = "cuboid";
 
-    public WorldEditBrushEdit() {
+    public WorldEditBrushCommandScreen() {
         super(GameNarrator.NO_TITLE);
     }
 
