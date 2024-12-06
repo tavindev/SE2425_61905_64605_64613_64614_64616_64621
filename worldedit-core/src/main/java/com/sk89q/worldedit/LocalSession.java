@@ -1337,9 +1337,10 @@ public class LocalSession {
         }
     }
 
-    public void clearToolPreview(Player player) {
+    public void clearToolPreview() {
         if (lastBrushTool != null) {
             lastBrushTool.clearPreview();
+            lastBrushTool = null;
         }
     }
 

@@ -202,7 +202,7 @@ public class FabricWorldEdit implements ModInitializer {
                 ItemStack heldItem = player.getMainHandItem();
                 Tool tool = session.getTool(FabricAdapter.adapt(heldItem.getItem()));
 
-                session.clearToolPreview(wePlayer);
+                session.clearToolPreview();
 
                 if (tool instanceof BrushTool) {
                     Vec3 currentLookDirection = getPlayerLook(player);
