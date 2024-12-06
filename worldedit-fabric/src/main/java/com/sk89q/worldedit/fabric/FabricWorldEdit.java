@@ -151,18 +151,6 @@ public class FabricWorldEdit implements ModInitializer {
         inst = this;
     }
 
-//    public static final Item THUNDERBOLT_BLADE = new ThunderboltBlade(
-//            new Item.Properties()
-//                    .stacksTo(1)
-//                    .fireResistant()
-//                    .durability(2032)
-//    );
-
-//    public void registerItems() {
-//        ResourceLocation itemID = new ResourceLocation(MOD_ID, "thunderbolt_blade");
-//        Registry.register(Registry.ITEM, itemID, THUNDERBOLT_BLADE);
-//    }
-
     @Override
     public void onInitialize() {
         this.container = FabricLoader.getInstance().getModContainer("worldedit").orElseThrow(
@@ -172,15 +160,6 @@ public class FabricWorldEdit implements ModInitializer {
         FabricKeyHandler keyHandler = new FabricKeyHandler();
         keyHandler.onInitializeClient();
 
-//        ResourceLocation itemID = ResourceLocation.tryBuild(MOD_ID, "thunderbolt_blade");
-
-//        Registry.register(
-//                Registry.ITEM,  // Use this if `Registries.ITEM` is undefined or incompatible
-//                itemID,
-//                THUNDERBOLT_BLADE
-//        );
-
-        // Setup working directory
         workingDir = FabricLoader.getInstance().getConfigDir().resolve("worldedit");
         if (!Files.exists(workingDir)) {
             try {

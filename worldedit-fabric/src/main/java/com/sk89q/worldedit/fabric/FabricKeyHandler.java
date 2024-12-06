@@ -1,12 +1,15 @@
 package com.sk89q.worldedit.fabric;
 
+import com.sk89q.worldedit.entity.Player;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import com.sk89q.worldedit.fabric.gui.screens.WorldEditCommandEdit;
+import com.sk89q.worldedit.fabric.gui.screens.WorldEditBrushEdit;
+import net.minecraft.client.player.LocalPlayer;
 import org.lwjgl.glfw.GLFW;
+
 
 public class FabricKeyHandler implements ClientModInitializer {
 
@@ -31,7 +34,7 @@ public class FabricKeyHandler implements ClientModInitializer {
     private void openCommandBlockScreen(Minecraft client) {
         try {
             if (client.player != null) {
-                client.setScreen(new WorldEditCommandEdit());
+                client.setScreen(new WorldEditBrushEdit());
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
