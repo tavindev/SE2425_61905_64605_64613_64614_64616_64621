@@ -392,10 +392,7 @@ public class PlatformManager {
                             getConfiguration(), player, session, location, event.getFace())) {
                         event.setCancelled(true);
                     }
-                } else if(session.toggleSelectStructure(location)){
-                    event.setCancelled(true);
                 }
-
             } else if (event.getType() == Interaction.OPEN) {
                 Tool tool = session.getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
                 if (tool instanceof BlockTool && tool.canUse(player)) {

@@ -1361,7 +1361,7 @@ public class LocalSession {
                 }
 
                 if (session instanceof RebrushSession rebrush) {
-                    for (SelectableStructureSession selectableSession : rebrush.getNewSessions()) {
+                    for (SelectableStructureSession selectableSession : rebrush.getNewSessions().reversed()) {
                         if (selectableSession.deselect()) {
                             try (SelectableStructureSession newSession = createSelectableStructureSession(actor, selectableSession.getBrush())) {
                                 rebrushSession.rebrush(newSession, selectableSession, scale);

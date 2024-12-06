@@ -39,7 +39,7 @@ public class SelectionWand implements DoubleActionBlockTool {
         RegionSelector selector = session.getRegionSelector(player.getWorld());
         BlockVector3 blockPoint = clicked.toVector().toBlockPoint();
 
-        if (selector.selectPrimary(blockPoint, ActorSelectorLimits.forActor(player))) {
+        if (session.toggleSelectStructure(clicked) || selector.selectPrimary(blockPoint, ActorSelectorLimits.forActor(player))) {
             selector.explainPrimarySelection(player, session, blockPoint);
         }
 
