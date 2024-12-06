@@ -142,8 +142,6 @@ public class FabricWorldEdit implements ModInitializer {
 
     private ModContainer container;
 
-    private KeyHandler keyHandler;
-
     public FabricWorldEdit() {
         inst = this;
     }
@@ -169,8 +167,6 @@ public class FabricWorldEdit implements ModInitializer {
 
         WorldEdit.getInstance().getPlatformManager().register(platform);
 
-        keyHandler = new KeyHandler();
-        keyHandler.onInitializeClient();
 
         config = new FabricConfiguration(this);
         this.provider = getInitialPermissionsProvider();
