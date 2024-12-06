@@ -1318,12 +1318,15 @@ public class LocalSession {
         this.failedCuiAttempts = 0;
     }
 
-    public void rebrush(Actor actor, double scale) throws WorldEditException {
+    public boolean rebrush(Actor actor, double scale) throws WorldEditException {
+        boolean rebrushed = false;
+
         try (RebrushSession rebrushSession = createRebrushSession(actor)) {
             for (EditSession session : history.reversed()) {
                 if (session instanceof SelectableStructureSession selectableSession && selectableSession.deselect()) {
                     try (SelectableStructureSession newSession = createSelectableStructureSession(actor, selectableSession.getBrush())) {
                         rebrushSession.rebrush(newSession, selectableSession, scale);
+                        rebrushed = true;
                     }
                 }
 
@@ -1332,14 +1335,18 @@ public class LocalSession {
                         if (selectableSession.deselect()) {
                             try (SelectableStructureSession newSession = createSelectableStructureSession(actor, selectableSession.getBrush())) {
                                 rebrushSession.rebrush(newSession, selectableSession, scale);
+                                rebrushed = true;
                             }
                         }
                     }
                 }
             }
 
-            remember(rebrushSession);
+            if (rebrushed)
+                remember(rebrushSession);
         }
+
+        return rebrushed;
     }
 
     public boolean toggleSelectStructure(Location clicked) {

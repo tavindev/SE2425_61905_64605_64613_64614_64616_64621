@@ -148,9 +148,12 @@ public class HistoryCommands {
     )
     public void rebrush(Actor actor, LocalSession session, @Arg(desc = "Scale", def = "1") double scale) {
         try {
-            session.rebrush(actor, scale);
+            if (!session.rebrush(actor, scale))
+                actor.printError(TranslatableComponent.of("worldedit.tool.error.no-selectableStructure"));
+            //worldedit.tool.error.no-selectableStructure
         } catch (WorldEditException e) {
             throw new RuntimeException(e);
         }
     }
 }
+
