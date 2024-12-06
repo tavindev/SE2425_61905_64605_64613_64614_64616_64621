@@ -21,7 +21,7 @@ public class FabricKeyHandler implements ClientModInitializer {
         registerScreen(new WorldEditRebrushCommandScreen(), "key.fabricworldedit.open_rebrush_tool", GLFW.GLFW_KEY_R, "category.fabricworldedit.general");
     }
 
-    public void registerScreen(Screen screen, String string1, int i, String string2) {
+    private void registerScreen(Screen screen, String string1, int i, String string2) {
         KeyMapping keyMapping = new KeyMapping(string1, i, string2);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
