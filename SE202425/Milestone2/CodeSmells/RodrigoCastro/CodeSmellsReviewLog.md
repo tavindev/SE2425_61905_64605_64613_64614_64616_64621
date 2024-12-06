@@ -2,7 +2,7 @@
 
 ## Reviewer: [Rodrigo Castro]
 
-## 1. Primitive Type Obssession
+## 1. Primitive Type Obsession
 ## Author: [Gustavo Chevrand]
 
 - It's indeed a Primitive Type Obsession because it uses separate int values to represent coordinates instead of encapsulating them in a single, meaningful object (BlockVector3).
