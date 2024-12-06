@@ -135,16 +135,6 @@ public class LocalSession {
     // Preview features functionality
     private BrushTool lastBrushTool;
 
-    public boolean selectStructure(Location clicked) {
-        for (EditSession editSession : history) {
-            if (editSession.selectStructure(clicked)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * Construct the object.
      *
@@ -1350,7 +1340,6 @@ public class LocalSession {
     }
 
 
-
     public BrushTool getBrushTool(Player player) {
         Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
         if (tool instanceof BrushTool) {
@@ -1358,7 +1347,7 @@ public class LocalSession {
         }
         return null;
     }
-  
+
     public boolean rebrush(Actor actor, double scale) throws WorldEditException {
         boolean rebrushed = false;
 
