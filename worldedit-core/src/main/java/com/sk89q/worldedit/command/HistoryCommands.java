@@ -150,7 +150,6 @@ public class HistoryCommands {
         try {
             if (!session.rebrush(actor, scale))
                 actor.printError(TranslatableComponent.of("worldedit.tool.error.no-selectableStructure"));
-            //worldedit.tool.error.no-selectableStructure
         } catch (WorldEditException e) {
             throw new RuntimeException(e);
         }
