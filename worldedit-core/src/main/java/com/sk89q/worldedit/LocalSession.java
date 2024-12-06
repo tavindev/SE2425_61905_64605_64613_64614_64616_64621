@@ -1334,18 +1334,13 @@ public class LocalSession {
 
             brushTool.showPreview(player, target);
             lastBrushTool = brushTool;
-        } else if (lastBrushTool != null) {
-            lastBrushTool.clearPreview();
         }
     }
 
-
-    public BrushTool getBrushTool(Player player) {
-        Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
-        if (tool instanceof BrushTool) {
-            return (BrushTool) tool;
+    public void clearToolPreview(Player player) {
+        if (lastBrushTool != null) {
+            lastBrushTool.clearPreview();
         }
-        return null;
     }
 
     public boolean rebrush(Actor actor, double scale) throws WorldEditException {

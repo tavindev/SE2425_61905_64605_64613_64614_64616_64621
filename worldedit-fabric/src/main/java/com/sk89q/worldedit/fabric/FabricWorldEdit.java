@@ -160,7 +160,7 @@ public class FabricWorldEdit implements ModInitializer {
     @Override
     public void onInitialize() {
         this.container = FabricLoader.getInstance().getModContainer("worldedit").orElseThrow(
-            () -> new IllegalStateException("WorldEdit mod missing in Fabric")
+                () -> new IllegalStateException("WorldEdit mod missing in Fabric")
         );
 
         FabricKeyHandler keyHandler = new FabricKeyHandler();
@@ -202,6 +202,8 @@ public class FabricWorldEdit implements ModInitializer {
                 ItemStack heldItem = player.getMainHandItem();
                 Tool tool = session.getTool(FabricAdapter.adapt(heldItem.getItem()));
 
+                session.clearToolPreview(wePlayer);
+
                 if (tool instanceof BrushTool) {
                     Vec3 currentLookDirection = getPlayerLook(player);
 
@@ -209,10 +211,7 @@ public class FabricWorldEdit implements ModInitializer {
 
                     playerLookDirections.put(playerUUID, currentLookDirection);
 
-                    clearBrushPreview(session, wePlayer);
                     session.updateToolPreview(wePlayer);
-                } else {
-                    clearBrushPreview(session, wePlayer);
                 }
             }
         });
@@ -234,7 +233,6 @@ public class FabricWorldEdit implements ModInitializer {
      * Get the direction the player is looking in.
      *
      * @param player the player
-     *
      * @return the direction the player is looking in
      */
     public static Vec3 getPlayerLook(Player player) {
@@ -248,18 +246,6 @@ public class FabricWorldEdit implements ModInitializer {
         return new Vec3(x, y, z);
     }
 
-    /**
-     * Clear the brush preview for a player.
-     *
-     * @param player the player
-     */
-    private void clearBrushPreview(LocalSession session, FabricPlayer player) {
-        BrushTool brushTool = session.getBrushTool(player);
-        if (brushTool != null) {
-            brushTool.clearPreview();
-        }
-    }
-
     private void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
         WorldEdit.getInstance().getEventBus().post(new PlatformsRegisteredEvent());
         PlatformManager manager = WorldEdit.getInstance().getPlatformManager();
@@ -270,12 +256,12 @@ public class FabricWorldEdit implements ModInitializer {
         }
 
         List<Command> commands = manager.getPlatformCommandManager().getCommandManager()
-            .getAllCommands().toList();
+                .getAllCommands().toList();
         for (Command command : commands) {
             CommandWrapper.register(dispatcher, command);
             Set<String> perms = command.getCondition().as(PermissionCondition.class)
-                .map(PermissionCondition::getPermissions)
-                .orElseGet(Collections::emptySet);
+                    .map(PermissionCondition::getPermissions)
+                    .orElseGet(Collections::emptySet);
             if (!perms.isEmpty()) {
                 perms.forEach(getPermissionsProvider()::registerPermission);
             }
@@ -298,7 +284,7 @@ public class FabricWorldEdit implements ModInitializer {
             String key = name.toString();
             if (BlockType.REGISTRY.get(key) == null) {
                 BlockType.REGISTRY.register(key, new BlockType(key,
-                    input -> FabricAdapter.adapt(FabricAdapter.adapt(input.getBlockType()).defaultBlockState())));
+                        input -> FabricAdapter.adapt(FabricAdapter.adapt(input.getBlockType()).defaultBlockState())));
             }
         }
         // Items
@@ -340,13 +326,13 @@ public class FabricWorldEdit implements ModInitializer {
             String key = tagKey.location().toString();
             if (BiomeCategory.REGISTRY.get(key) == null) {
                 BiomeCategory.REGISTRY.register(key, new BiomeCategory(
-                    key,
-                    () -> biomeRegistry.getTag(tagKey)
-                        .stream()
-                        .flatMap(HolderSet.Named::stream)
-                        .map(Holder::value)
-                        .map(FabricAdapter::adapt)
-                        .collect(Collectors.toSet()))
+                        key,
+                        () -> biomeRegistry.getTag(tagKey)
+                                .stream()
+                                .flatMap(HolderSet.Named::stream)
+                                .map(Holder::value)
+                                .map(FabricAdapter::adapt)
+                                .collect(Collectors.toSet()))
                 );
             }
         });
@@ -403,9 +389,9 @@ public class FabricWorldEdit implements ModInitializer {
         FabricPlayer player = adaptPlayer((ServerPlayer) playerEntity);
         FabricWorld localWorld = getWorld(world);
         Location pos = new Location(localWorld,
-            blockPos.getX(),
-            blockPos.getY(),
-            blockPos.getZ()
+                blockPos.getX(),
+                blockPos.getY(),
+                blockPos.getZ()
         );
         com.sk89q.worldedit.util.Direction weDirection = FabricAdapter.adaptEnumFacing(direction);
 
@@ -424,9 +410,9 @@ public class FabricWorldEdit implements ModInitializer {
         FabricPlayer player = adaptPlayer((ServerPlayer) playerEntity);
         FabricWorld localWorld = getWorld(world);
         Location pos = new Location(localWorld,
-            blockHitResult.getBlockPos().getX(),
-            blockHitResult.getBlockPos().getY(),
-            blockHitResult.getBlockPos().getZ()
+                blockHitResult.getBlockPos().getX(),
+                blockHitResult.getBlockPos().getY(),
+                blockHitResult.getBlockPos().getZ()
         );
         com.sk89q.worldedit.util.Direction direction = FabricAdapter.adaptEnumFacing(blockHitResult.getDirection());
 
@@ -477,7 +463,7 @@ public class FabricWorldEdit implements ModInitializer {
         debouncer.clearInteraction(adaptPlayer(handler.player));
 
         WorldEdit.getInstance().getEventBus()
-            .post(new SessionIdleEvent(new FabricPlayer.SessionKeyImpl(handler.player)));
+                .post(new SessionIdleEvent(new FabricPlayer.SessionKeyImpl(handler.player)));
     }
 
     /**
