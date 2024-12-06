@@ -370,5 +370,82 @@ Line 660
 - Preconditions: Including a precondition specifying if the player needs edit permissions for the area would be helpful.
 - Alternative Flows: An alternative flow for what happens if the area is obstructed (e.g., by other structures) could add depth.
 
+----
+
+
+  ## Code Smells Review Log
+# Reviewer: [Rodrigo Castro]
+## 1. Primitive Type Obsession
+## Author: [Gustavo Chevrand]
+- It's indeed a Primitive Type Obsession because it uses separate int values to represent coordinates instead of encapsulating them in a single, meaningful object (BlockVector3).
+---
+## 2. Long Parameter List
+## Author: [Lucas Tobias]
+- The Long Parameter List smell is apparent in the setBlockStateHook method, which has five parameters. This indicates the method could be simplified by encapsulating these parameters into a single object, reducing complexity and improving readability.
+---
+## 3. Large Class
+## Author: [Lucas Tobias]
+- The FabricDataFixer class is a Large Class code smell, containing 2764 lines. This excessive length suggests it may be overloaded with multiple responsibilities, which increases its complexity and reduces maintainability. With a high Response For a Class (RFC) value of 118—well above the recommended limit of 45—the class likely has numerous method calls, further indicating high coupling and complexity.
+
+## Design Patterns Review Log
+## Reviewer: [Rodrigo Castro]
+## Author: [Gustavo Chevrand]
+## 1. Builder
+EditSessionBuilder is a well-implemented Builder pattern class. It demonstrates the Builder pattern by allowing step-by-step configuration of an EditSession object through chained setter methods, with the final build() method handling object creation. This pattern enables flexible and readable construction of complex objects.
+---
+## Reviewer: [Rodrigo Castro]
+## Author: [Lucas Tobias]
+## 2. Factory Method
+The factory method in PluginPermissionsResolver is a true Factory Method because it encapsulates the decision-making logic required to create and return a PermissionsResolver instance based on specific conditions.
+---
+## Reviewer: [Rodrigo Castro]
+## Author: [Rildo Franco]
+## 3. Observer
+The design aligns with the Observer Pattern as it uses an event-driven model where PlatformManager subscribes to events (i.e., listens for updates) through EventBus. It reacts to these events by taking specific actions, such as updating platform preferences and notifying other components.
+# Use Case Diagram Review Log
+## Reviewer: [Rodrigo Castro]
+## Use Case: Rotate Region
+### Author: Gustavo Chevrand 64616
+- The Player is the primary actor, as they initiate the command to rotate the selected region, while Minecraft acts as the secondary actor, executing the rotation of the region within the game world.
+- Evaluation: The use case correctly outlines the roles of both the Player and Minecraft, and the description accurately captures the conditions and expected results for this command.
+- Status: The use case is correct.
+---
+### Use Case: Apply Heightmap
+### Author: Pedro Amorim 64614
+- The Player is the primary actor since they initiate the heightmap command, while the Server acts as the secondary actor, handling the processing required to apply the heightmap to the terrain. The pre-conditions are well-defined, ensuring that the player has the necessary permissions, the heightmap image is accessible, and the area size is within system limits. Post-conditions confirm the terrain is modified according to the image and that the player receives confirmation.
+- Evaluation: This use case is well-documented, capturing the interaction accurately between Player and Server. All steps and conditions are appropriate.
+- Status: The use case is correct.
+### Use Case: Modify Biome
+### Author: Pedro Amorim 64614
+- The Player is the primary actor, as they issue the command to alter the biome, and the Server is the secondary actor, applying the changes to environmental factors in the specified region. Pre-conditions ensure permissions and compatibility with area and biome type, while post-conditions confirm that the biome has been updated and the player receives notification.
+- Evaluation: The use case accurately reflects the actions taken by both the Player and Server, and the conditions effectively cover access control and compatibility checks.
+- Status: The use case is correct.
+### Use Case: Paste Clipboard Structure
+### Author: Pedro Amorim 64614
+- The Player is the primary actor, initiating the paste action, and the Server is the secondary actor, executing the structure paste in the game world. Pre-conditions ensure that the player has paste permissions, a structure is available in the clipboard, and the area size is within system constraints. Post-conditions confirm that the structure is successfully pasted, with confirmation provided to the player.
+- Evaluation: This use case is clearly outlined, with pre- and post-conditions that provide necessary constraints and completion feedback to the player. The roles of the Player and Server are well-defined.
+- Status: The use case is correct.
+### Use Case: Manage Mobs
+### Author: Pedro Amorim 64614
+- The Player is the primary actor, initiating mob management, while the Server acts as the secondary actor, handling mob removal within the specified area. Pre-conditions verify permissions and specify that the area is valid. Post-conditions ensure that the targeted mobs are removed and that the player receives confirmation.
+- Evaluation: This use case is properly defined, with clear pre- and post-conditions to ensure the action completes as intended. The Player and Server roles are accurately represented.
+- Status: The use case is correct.
+
+# Code Metrics Review Log
+## Reviewer: [Rodrigo Castro]
+## Author: [Nicolas Nascimento]
+## RFC Review:
+- The RFC for BlockState is 152, well above the recommended range, indicating strong coupling and high complexity. This makes the class harder to test and maintain. Refactoring could reduce dependencies and improve modularity.
+---
+## Author: [Nicolas Nascimento]
+## NOM Review:
+- With a NOM of 87, the BlockState class is overloaded with methods, suggesting excessive responsibilities. Reducing method count by splitting the class into smaller, focused components would enhance readability and maintainability.
+---
+## Author: [Rildo Franco]
+## Cognitive Complexity Review:
+- The Cognitive Complexity of 98 is well above the recommended range, indicating that the code is likely too intricate and hard to follow. Simplifying the logic and breaking down complex methods would improve readability and maintainability, making the code more approachable and easier to work with.
+
+---
+
 ### Conclusion
 - **Final Thoughts:** This use case is well-documented, and a few additional conditions would make it even more comprehensive.
