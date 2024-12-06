@@ -24,6 +24,10 @@ public class ScrollBar extends AbstractWidget {
         return scrollOffset;
     }
 
+    public void setScrollOffset(int offset) {
+        this.scrollOffset = Math.max(0, Math.min(offset, contentHeight - trackHeight));
+    }
+
     public void handleMouseScroll(double delta) {
         int scrollAmount = (int) -(delta * 10);
         scrollOffset = Math.max(0, Math.min(scrollOffset + scrollAmount, contentHeight - trackHeight));

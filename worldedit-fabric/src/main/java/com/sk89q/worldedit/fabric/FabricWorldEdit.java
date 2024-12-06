@@ -32,6 +32,7 @@ import com.sk89q.worldedit.event.platform.SessionIdleEvent;
 import com.sk89q.worldedit.extension.platform.Capability;
 import com.sk89q.worldedit.extension.platform.Platform;
 import com.sk89q.worldedit.extension.platform.PlatformManager;
+import com.sk89q.worldedit.fabric.items.ThunderboltBlade;
 import com.sk89q.worldedit.fabric.net.handler.WECUIPacketHandler;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.internal.anvil.ChunkDeleter;
@@ -52,6 +53,7 @@ import com.sk89q.worldedit.world.generation.ConfiguredFeatureType;
 import com.sk89q.worldedit.world.generation.StructureType;
 import com.sk89q.worldedit.world.item.ItemCategory;
 import com.sk89q.worldedit.world.item.ItemType;
+import com.sk89q.worldedit.world.registry.ItemRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -59,9 +61,11 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.item.v1.CustomDamageHandler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -69,9 +73,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -82,6 +84,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -91,6 +94,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.Logger;
 import org.enginehub.piston.Command;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -166,7 +171,6 @@ public class FabricWorldEdit implements ModInitializer {
         FabricKeyHandler keyHandler = new FabricKeyHandler();
         keyHandler.onInitializeClient();
 
-        // Setup working directory
         workingDir = FabricLoader.getInstance().getConfigDir().resolve("worldedit");
         if (!Files.exists(workingDir)) {
             try {
@@ -294,6 +298,7 @@ public class FabricWorldEdit implements ModInitializer {
                 ItemType.REGISTRY.register(key, new ItemType(key));
             }
         }
+
         // Entities
         for (ResourceLocation name : server.registryAccess().registryOrThrow(Registries.ENTITY_TYPE).keySet()) {
             String key = name.toString();
