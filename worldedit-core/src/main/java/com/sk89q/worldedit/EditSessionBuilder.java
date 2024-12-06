@@ -20,6 +20,7 @@
 package com.sk89q.worldedit;
 
 import com.google.common.base.Preconditions;
+import com.sk89q.worldedit.command.tool.brush.AbstractStructureBrush;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extension.platform.Locatable;
 import com.sk89q.worldedit.extent.Extent;
@@ -141,5 +142,13 @@ public final class EditSessionBuilder {
             return new TracedEditSession(eventBus, world, maxBlocks, blockBag, actor, tracing);
         }
         return new EditSession(eventBus, world, maxBlocks, blockBag, actor, tracing);
+    }
+
+    public RebrushSession buildRebrush() {
+        return new RebrushSession(eventBus, world, maxBlocks, blockBag, actor, tracing);
+    }
+
+    public SelectableStructureSession buildSelectableStructure(AbstractStructureBrush brush) {
+        return new SelectableStructureSession(brush, eventBus, world, maxBlocks, blockBag, actor, tracing);
     }
 }

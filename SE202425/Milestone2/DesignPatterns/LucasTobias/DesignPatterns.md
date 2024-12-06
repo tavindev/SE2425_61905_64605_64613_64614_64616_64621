@@ -28,6 +28,8 @@
 }
 ```
 
+![alt text](image_2.png)
+
 ---
 
 ### 2. Command
@@ -82,6 +84,8 @@
 
 
 ```
+
+![alt text](image_1.png)
 ---
 
 ### 3. Strategy
@@ -104,4 +108,6 @@ RANDOM_REDWOOD("Random spruce tree", "randspruce", "randredwood", "randomredwood
 },
 
 ```
+
+![alt text](image_3.png)
 

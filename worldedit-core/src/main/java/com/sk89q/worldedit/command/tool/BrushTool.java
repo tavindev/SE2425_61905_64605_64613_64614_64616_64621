@@ -19,10 +19,7 @@
 
 package com.sk89q.worldedit.command.tool;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalConfiguration;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.command.tool.brush.SphereBrush;
 import com.sk89q.worldedit.entity.Player;
@@ -32,10 +29,15 @@ import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.mask.MaskIntersection;
 import com.sk89q.worldedit.function.pattern.Pattern;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
+import com.sk89q.worldedit.world.block.BlockTypes;
 
 import javax.annotation.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -54,6 +56,10 @@ public class BrushTool implements TraceTool {
     private double size = 1;
     private String permission;
 
+    private EditSession previewSession; // The preview session to handle the preview of the brush tool
+    private final Pattern previewPattern = BlockTypes.GLASS.getDefaultState(); // The default preview pattern to use
+
+
     /**
      * Construct the tool.
      *
@@ -67,7 +73,7 @@ public class BrushTool implements TraceTool {
     /**
      * Construct the tool.
      *
-     * @param brush the brush to bind
+     * @param brush      the brush to bind
      * @param permission the permission to check before use is allowed
      */
     public BrushTool(Brush brush, String permission) {
@@ -121,7 +127,7 @@ public class BrushTool implements TraceTool {
     /**
      * Set the brush.
      *
-     * @param brush the brush
+     * @param brush      the brush
      * @param permission the permission
      */
     public void setBrush(Brush brush, String permission) {
@@ -152,7 +158,8 @@ public class BrushTool implements TraceTool {
      *
      * @return the material
      */
-    @Nullable public Pattern getMaterial() {
+    @Nullable
+    public Pattern getMaterial() {
         return material;
     }
 
@@ -194,6 +201,7 @@ public class BrushTool implements TraceTool {
 
     @Override
     public boolean actPrimary(Platform server, LocalConfiguration config, Player player, LocalSession session) {
+        clearPreview();
         Location target = player.getBlockTrace(getRange(), true, traceMask);
 
         if (target == null) {
@@ -203,7 +211,7 @@ public class BrushTool implements TraceTool {
 
         BlockBag bag = session.getBlockBag(player);
 
-        try (EditSession editSession = session.createEditSession(player)) {
+        try (EditSession editSession = brush.createEditSession(session, player)) {
             if (mask != null) {
                 Mask existingMask = editSession.getMask();
 
@@ -234,4 +242,46 @@ public class BrushTool implements TraceTool {
         return true;
     }
 
+    /**
+     * Manage the preview feature of the brush tool in order to show the user what the brush will do
+     *
+     * @param player the player to show the preview to
+     * @param target the target location of the preview
+     */
+    public void showPreview(Player player, Location target) {
+        if (target == null) {
+            return;
+        }
+
+        BlockVector3 targetBlock = target.toVector().toBlockPoint();
+
+        try {
+
+            previewSession = WorldEdit.getInstance().newEditSession(player.getWorld());
+            brush.build(previewSession, targetBlock, previewPattern, size);
+        } catch (MaxChangedBlocksException e) {
+            player.printError(TranslatableComponent.of("worldedit.tool.max-block-changes"));
+        } finally {
+            if (previewSession != null) {
+                previewSession.close();
+            }
+        }
+    }
+
+    /**
+     * Clear the preview of the brush tool
+     */
+    public void clearPreview() {
+        if (previewSession != null) {
+            try {
+                EditSession tempSession = previewSession;
+                tempSession.undo(previewSession);
+            } catch (Exception e) {
+                System.err.println("Error during preview clear: " + e.getMessage());
+            } finally {
+                previewSession.close();
+                previewSession = null;
+            }
+        }
+    }
 }

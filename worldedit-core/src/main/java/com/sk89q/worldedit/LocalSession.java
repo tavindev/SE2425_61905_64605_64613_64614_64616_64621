@@ -30,6 +30,7 @@ import com.sk89q.worldedit.command.tool.NavigationWand;
 import com.sk89q.worldedit.command.tool.SelectionWand;
 import com.sk89q.worldedit.command.tool.SinglePickaxe;
 import com.sk89q.worldedit.command.tool.Tool;
+import com.sk89q.worldedit.command.tool.brush.AbstractStructureBrush;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.extension.platform.Actor;
@@ -50,6 +51,8 @@ import com.sk89q.worldedit.session.Placement;
 import com.sk89q.worldedit.session.PlacementType;
 import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.util.Countable;
+import com.sk89q.worldedit.util.HandSide;
+import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.SideEffectSet;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.world.World;
@@ -119,6 +122,7 @@ public class LocalSession {
     private transient boolean hasBeenToldVersion;
     private transient boolean tracingActions;
 
+
     // Saved properties
     private String lastScript;
     private RegionSelectorType defaultSelector;
@@ -127,6 +131,9 @@ public class LocalSession {
     private Boolean wandItemDefault;
     private String navWandItem;
     private Boolean navWandItemDefault;
+
+    // Preview features functionality
+    private BrushTool lastBrushTool;
 
     /**
      * Construct the object.
@@ -229,7 +236,7 @@ public class LocalSession {
         checkNotNull(editSession);
 
         // Don't store anything if no changes were made
-        if (editSession.size() == 0) {
+        if (!(editSession instanceof RebrushSession) && editSession.size() == 0) {
             return;
         }
 
@@ -248,7 +255,7 @@ public class LocalSession {
      * Performs an undo.
      *
      * @param newBlockBag a new block bag
-     * @param actor the actor
+     * @param actor       the actor
      * @return whether anything was undone
      */
     public EditSession undo(@Nullable BlockBag newBlockBag, Actor actor) {
@@ -257,9 +264,9 @@ public class LocalSession {
         if (historyPointer >= 0) {
             EditSession editSession = history.get(historyPointer);
             try (EditSession newEditSession =
-                     WorldEdit.getInstance().newEditSessionBuilder()
-                         .world(editSession.getWorld()).blockBag(newBlockBag).actor(actor)
-                         .build()) {
+                         WorldEdit.getInstance().newEditSessionBuilder()
+                                 .world(editSession.getWorld()).blockBag(newBlockBag).actor(actor)
+                                 .build()) {
                 prepareEditingExtents(newEditSession, actor);
                 editSession.undo(newEditSession);
             }
@@ -274,7 +281,7 @@ public class LocalSession {
      * Performs a redo.
      *
      * @param newBlockBag a new block bag
-     * @param actor the actor
+     * @param actor       the actor
      * @return whether anything was redone
      */
     public EditSession redo(@Nullable BlockBag newBlockBag, Actor actor) {
@@ -282,9 +289,9 @@ public class LocalSession {
         if (historyPointer < history.size()) {
             EditSession editSession = history.get(historyPointer);
             try (EditSession newEditSession =
-                     WorldEdit.getInstance().newEditSessionBuilder()
-                         .world(editSession.getWorld()).blockBag(newBlockBag).actor(actor)
-                         .build()) {
+                         WorldEdit.getInstance().newEditSessionBuilder()
+                                 .world(editSession.getWorld()).blockBag(newBlockBag).actor(actor)
+                                 .build()) {
                 prepareEditingExtents(newEditSession, actor);
                 editSession.redo(newEditSession);
             }
@@ -366,7 +373,7 @@ public class LocalSession {
     /**
      * Set the region selector.
      *
-     * @param world the world
+     * @param world    the world
      * @param selector the selector
      */
     public void setRegionSelector(World world, RegionSelector selector) {
@@ -422,7 +429,7 @@ public class LocalSession {
      */
     public Region getSelection(@Nullable World world) throws IncompleteRegionException {
         if (world == null || selector.getIncompleteRegion().getWorld() == null
-            || !selector.getIncompleteRegion().getWorld().equals(world)) {
+                || !selector.getIncompleteRegion().getWorld().equals(world)) {
             throw new IncompleteRegionException();
         }
         return selector.getRegion();
@@ -593,7 +600,6 @@ public class LocalSession {
      * Sets whether placement is at POS1 or PLAYER.
      *
      * @param placeAtPos1 true=POS1, false=PLAYER
-     *
      * @deprecated Use {@link #setPlacement(Placement)}
      */
     @Deprecated
@@ -605,7 +611,6 @@ public class LocalSession {
      * Gets whether placement is at POS1 or PLAYER.
      *
      * @return true=POS1, false=PLAYER
-     *
      * @deprecated Use {@link #getPlacement()}
      */
     @Deprecated
@@ -722,7 +727,7 @@ public class LocalSession {
      * @return the tool, or {@code null}
      * @throws InvalidToolBindException if the item can't be bound to that item
      * @deprecated Use {@link #getBrush(ItemType)} or {@link #forceBrush(ItemType, Brush, String)}
-     *     if you need to bind a specific brush
+     * if you need to bind a specific brush
      */
     @Deprecated
     public BrushTool getBrushTool(ItemType item) throws InvalidToolBindException {
@@ -750,8 +755,8 @@ public class LocalSession {
     /**
      * Force the tool to become a brush tool with the specified brush and permission.
      *
-     * @param item the item type
-     * @param brush the brush to bind
+     * @param item       the item type
+     * @param brush      the brush to bind
      * @param permission the permission to check before use is allowed
      * @return the brush tool assigned to the item type
      */
@@ -900,12 +905,12 @@ public class LocalSession {
         BaseBlock block = ServerCUIHandler.createStructureBlock(player);
         if (block != null) {
             LinCompoundTag tags = Objects.requireNonNull(
-                block.getNbt(), "createStructureBlock should return nbt"
+                    block.getNbt(), "createStructureBlock should return nbt"
             );
             BlockVector3 tempCuiTemporaryBlock = BlockVector3.at(
-                tags.getTag("x", LinTagType.intTag()).valueAsInt(),
-                tags.getTag("y", LinTagType.intTag()).valueAsInt(),
-                tags.getTag("z", LinTagType.intTag()).valueAsInt()
+                    tags.getTag("x", LinTagType.intTag()).valueAsInt(),
+                    tags.getTag("y", LinTagType.intTag()).valueAsInt(),
+                    tags.getTag("z", LinTagType.intTag()).valueAsInt()
             );
             // If it's null, we don't need to do anything. The old was already removed.
             if (cuiTemporaryBlock != null && !tempCuiTemporaryBlock.equals(cuiTemporaryBlock)) {
@@ -1095,13 +1100,8 @@ public class LocalSession {
         }
     }
 
-    /**
-     * Construct a new edit session.
-     *
-     * @param actor the actor
-     * @return an edit session
-     */
-    public EditSession createEditSession(Actor actor) {
+
+    private EditSessionBuilder createEditSessionBuilder(Actor actor) {
         checkNotNull(actor);
 
         World world = null;
@@ -1113,13 +1113,25 @@ public class LocalSession {
 
         // Create an edit session
         EditSessionBuilder builder = WorldEdit.getInstance().newEditSessionBuilder()
-            .world(world)
-            .actor(actor)
-            .maxBlocks(getBlockChangeLimit())
-            .tracing(isTracingActions());
+                .world(world)
+                .actor(actor)
+                .maxBlocks(getBlockChangeLimit())
+                .tracing(isTracingActions());
         if (actor.isPlayer() && actor instanceof Player) {
             builder.blockBag(getBlockBag((Player) actor));
         }
+
+        return builder;
+    }
+
+    /**
+     * Construct a new edit session.
+     *
+     * @param actor the actor
+     * @return an edit session
+     */
+    public EditSession createEditSession(Actor actor) {
+        EditSessionBuilder builder = createEditSessionBuilder(actor);
         EditSession editSession = builder.build();
         Request.request().setEditSession(editSession);
 
@@ -1128,6 +1140,30 @@ public class LocalSession {
 
         return editSession;
     }
+
+    // TODO: REFACTOR DUPLICATE CODE
+    public RebrushSession createRebrushSession(Actor actor) {
+        EditSessionBuilder builder = createEditSessionBuilder(actor);
+        RebrushSession editSession = builder.buildRebrush();
+        Request.request().setEditSession(editSession);
+
+        editSession.setMask(mask);
+        prepareEditingExtents(editSession, actor);
+
+        return editSession;
+    }
+
+    public SelectableStructureSession createSelectableStructureSession(Actor actor, AbstractStructureBrush brush) {
+        EditSessionBuilder builder = createEditSessionBuilder(actor);
+        SelectableStructureSession editSession = builder.buildSelectableStructure(brush);
+        Request.request().setEditSession(editSession);
+
+        editSession.setMask(mask);
+        prepareEditingExtents(editSession, actor);
+
+        return editSession;
+    }
+
 
     @SuppressWarnings("deprecation")
     private void prepareEditingExtents(EditSession editSession, Actor actor) {
@@ -1217,6 +1253,7 @@ public class LocalSession {
 
     /**
      * Get the preferred wand item for this user, or {@code null} to use the default.
+     *
      * @return item id of wand item, or {@code null}
      */
     public String getWandItem() {
@@ -1238,6 +1275,7 @@ public class LocalSession {
 
     /**
      * Get the preferred navigation wand item for this user, or {@code null} to use the default.
+     *
      * @return item id of nav wand item, or {@code null}
      */
     public String getNavWandItem() {
@@ -1282,5 +1320,76 @@ public class LocalSession {
         this.cuiVersion = CUI_VERSION_UNINITIALIZED;
         this.hasCUISupport = false;
         this.failedCuiAttempts = 0;
+    }
+
+    /**
+     * Render the preview of the tool in the player's hand if it is a brush tool.
+     *
+     * @param player the player
+     */
+    public void updateToolPreview(Player player) {
+        Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+        if (tool instanceof BrushTool brushTool) {
+            Location target = player.getBlockTrace(brushTool.getRange(), true, brushTool.getTraceMask());
+
+            brushTool.showPreview(player, target);
+            lastBrushTool = brushTool;
+        }
+    }
+
+    public void clearToolPreview() {
+        if (lastBrushTool != null) {
+            lastBrushTool.clearPreview();
+            lastBrushTool = null;
+        }
+    }
+
+    public boolean rebrush(Actor actor, double scale) throws WorldEditException {
+        boolean rebrushed = false;
+
+        try (RebrushSession rebrushSession = createRebrushSession(actor)) {
+            for (EditSession session : history.reversed()) {
+                if (session instanceof SelectableStructureSession selectableSession && selectableSession.deselect()) {
+                    try (SelectableStructureSession newSession = createSelectableStructureSession(actor, selectableSession.getBrush())) {
+                        rebrushSession.rebrush(newSession, selectableSession, scale);
+                        rebrushed = true;
+                    }
+                }
+
+                if (session instanceof RebrushSession rebrush) {
+                    for (SelectableStructureSession selectableSession : rebrush.getNewSessions().reversed()) {
+                        if (selectableSession.deselect()) {
+                            try (SelectableStructureSession newSession = createSelectableStructureSession(actor, selectableSession.getBrush())) {
+                                rebrushSession.rebrush(newSession, selectableSession, scale);
+                                rebrushed = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (rebrushed)
+                remember(rebrushSession);
+        }
+
+        return rebrushed;
+    }
+
+    public boolean toggleSelectStructure(Location clicked) {
+        for (EditSession editSession : history.reversed()) {
+            try {
+                if (editSession instanceof RebrushSession rebrushSession && rebrushSession.toggleSelect(clicked)) {
+                    return true;
+                }
+
+                if (editSession instanceof SelectableStructureSession session && session.toggleSelect(clicked)) {
+                    return true;
+                }
+            } catch (WorldEditException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return false;
     }
 }

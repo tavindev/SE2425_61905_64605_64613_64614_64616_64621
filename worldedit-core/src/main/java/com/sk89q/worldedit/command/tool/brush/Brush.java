@@ -20,9 +20,13 @@
 package com.sk89q.worldedit.command.tool.brush;
 
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockTypes;
 
 /**
  * A brush is a long-range build tool.
@@ -33,12 +37,15 @@ public interface Brush {
      * Build the object.
      *
      * @param editSession the {@code EditSession}
-     * @param position the position
-     * @param pattern the pattern
-     * @param size the size of the brush
+     * @param position    the position
+     * @param pattern     the pattern
+     * @param size        the size of the brush
      * @throws MaxChangedBlocksException if the maximum block change limit is exceeded
      */
     void build(EditSession editSession, BlockVector3 position, Pattern pattern, double size) throws MaxChangedBlocksException;
 
+    default EditSession createEditSession(LocalSession session, Actor actor) {
+        return session.createEditSession(actor);
+    }
 }
     

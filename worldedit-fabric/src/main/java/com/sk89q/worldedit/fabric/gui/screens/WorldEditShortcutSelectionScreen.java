@@ -15,28 +15,29 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.CommonComponents;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorldEditCommandScreen extends Screen implements GuiEventListener {
+public class WorldEditShortcutSelectionScreen extends Screen implements GuiEventListener {
 
-    private static final Component TITLE = Component.translatable("WorldEdit Commands");
+    private static final Component TITLE = Component.translatable("Select Command to bind");
     private static final int BUTTON_WIDTH = 90;
     private static final int BUTTON_HEIGHT = 20;
     private static final int BUTTON_PADDING = 5;
     private static final int SCROLLBAR_WIDTH = 12;
 
-    private static final List<String> recentCommands = new ArrayList<>();
     private final Map<String, String> commandDescriptions = new HashMap<>();
 
     private EditBox searchField;
     private List<Map.Entry<String, String>> filteredCommands;
     private ScrollBar scrollBar;
 
-    public WorldEditCommandScreen() {
+    private int shortcutIndex;
+
+    public WorldEditShortcutSelectionScreen(int i) {
         super(GameNarrator.NO_TITLE);
+        this.shortcutIndex = i;
         loadCommands();
     }
 
@@ -45,7 +46,6 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
         initializeSearchField();
         initializeScrollBar();
         initializeCommandButtons();
-        addDoneButton();
         updateButtonPositions();
     }
 
@@ -53,7 +53,6 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         renderTitleAndLabels(pGuiGraphics);
-        addRecentButtons();
     }
 
     @Override
@@ -108,18 +107,12 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
             int y = yStart + (index / 4) * (BUTTON_HEIGHT + BUTTON_PADDING);
             String command = entry.getKey();
             this.addRenderableWidget(Button.builder(Component.literal(command),
-                            btn -> executeCommand(command))
+                            btn -> setShortcut(command))
                     .bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT)
                     .tooltip(Tooltip.create(Component.literal(entry.getValue())))
                     .build());
             index++;
         }
-    }
-
-    private void addDoneButton() {
-        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose())
-                .bounds(this.width / 2 - BUTTON_WIDTH / 2, this.height - 30, BUTTON_WIDTH, BUTTON_HEIGHT)
-                .build());
     }
 
     private void updateButtonPositions() {
@@ -161,7 +154,7 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
             int y = yStart + (index / 4) * (BUTTON_HEIGHT + BUTTON_PADDING);
             String command = entry.getKey();
             this.addRenderableWidget(Button.builder(Component.literal(command),
-                            btn -> executeCommand(command))
+                            btn -> setShortcut(command))
                     .bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT)
                     .tooltip(Tooltip.create(Component.literal(entry.getValue())))
                     .build());
@@ -169,42 +162,17 @@ public class WorldEditCommandScreen extends Screen implements GuiEventListener {
         }
 
         this.addRenderableWidget(scrollBar);
-        addDoneButton();
     }
 
     private void renderTitleAndLabels(GuiGraphics pGuiGraphics) {
         pGuiGraphics.drawCenteredString(this.font, TITLE, this.width / 2, 6, 0xFFFFFF);
         int labelX = (this.width - (4 * (BUTTON_WIDTH + BUTTON_PADDING) + SCROLLBAR_WIDTH)) / 2;
         pGuiGraphics.drawString(this.font, "Search:", labelX + 5, 25, 0xFFFFFF);
-        pGuiGraphics.drawString(this.font, "Recent Commands:", labelX, this.height - 55, 0xFFFFFF);
-    }
-
-    private void addRecentButtons() {
-        List<String> recentCommands = WorldEditData.getRecentCommands();
-        int recentY = this.height - 60;
-        int xStart = (BUTTON_WIDTH + BUTTON_PADDING) + (this.width - (4 * (BUTTON_WIDTH + BUTTON_PADDING) + SCROLLBAR_WIDTH)) / 2;
-
-        for (int i = 0; i < Math.min(recentCommands.size(), 3); i++) {
-            String command = recentCommands.get(i);
-            int x = xStart + (i % 3) * (BUTTON_WIDTH + BUTTON_PADDING);
-            this.addRenderableWidget(Button.builder(Component.literal(command),
-                            btn -> executeCommand(command))
-                    .bounds(x, recentY, BUTTON_WIDTH, BUTTON_HEIGHT)
-                    .tooltip(Tooltip.create(Component.literal(commandDescriptions.get(command))))
-                    .build());
-        }
     }
 
 
-
-    private void executeCommand(String command) {
-        WorldEditData.addRecentCommand(command);
-        Minecraft mc = Minecraft.getInstance();
-        if (command.equals("brush")) {
-            mc.setScreen(new WorldEditBrushCommandScreen());
-        } else if (mc.player != null && mc.getConnection() != null) {
-            mc.player.connection.sendCommand(command);
-            onClose();
-        }
+    private void setShortcut(String command) {
+        WorldEditData.setShortcutCommand(shortcutIndex, command);
+        onClose();
     }
 }

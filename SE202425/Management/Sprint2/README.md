@@ -6,7 +6,12 @@
 Rildo Franco
 
 ## Management info
-Burndown chart
-Scrum board
+- Scrum board
 
-![alt text](image-1.png)
+![image](https://github.com/user-attachments/assets/4adb562f-0719-41c9-bef2-2b9fb527433a)
+
+
+- Burndown chart
+
+![image](https://github.com/user-attachments/assets/f9e0d0db-a3a9-434a-84de-fab9086a4658)
+

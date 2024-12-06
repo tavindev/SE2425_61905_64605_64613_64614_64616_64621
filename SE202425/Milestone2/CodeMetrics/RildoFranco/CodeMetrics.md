@@ -1,7 +1,7 @@
 # Code Metrics Analysis
 
 ## Author: [Rildo Franco]
-## Date: [11/12/2024]
+## Date: [12/03/2024]
 
 ---
 
@@ -11,67 +11,76 @@ Class: PaperWeightAdapter.java
 
 Class Level
 
-### 1. Cognitive Complexity Calculation (G. Ann Metrics Set):
-Value collected: 98, Reference values: [0..32[
+### 1. Number of Overridden Methods (Lorenz-Kidd Metric Set):
 
 - **What It Means:**
-Cognitive complexity is a measure of how difficult a piece of code is to understand. It takes into account various factors such as the number of nested loops, conditionals, and other control flow structures. A higher value indicates more complex code.
+  The Number of Overridden Methods metric refers to the count of methods in a class that override methods from a superclass or interface.
+
+- Value collected: 13 
+
+- Reference values (Regular): [0..3[
+
+- Extreme range: [5, +∞]
+
+- Average NOOM in project: 0.9730
 
 - **What It Indicates:**
-Value 98: This value is significantly higher than the upper reference value of 32. This indicates that the code is highly complex and likely difficult to understand and maintain.
+  The Number of Overridden Methods (NOOM) value for this class is 13, which is significantly above both the project average of 0.9730 and the extreme range threshold of [5, ∞). This highlights the class as an outlier in terms of overridden methods compared to the rest of the codebase.
 
 ---
 
 ### Observations
-- **Code Quality Issues:** The high cognitive complexity value suggests that the code may have several nested loops, conditionals, or other control flow structures that make it difficult to read and understand and maintain.
+- **Code Quality Issues:** The high **NOOM** value suggests that the class might be over-reliant on inheritance, potentially violating design principles like the Liskov Substitution Principle. It may also indicate that the class is part of a complex or deeply nested inheritance hierarchy.
+- **Maintainability Concerns:** A high number of overridden methods can increase the likelihood of errors and make the codebase harder to understand, test, and extend.
 
-- **Improvement Suggestions:** Refactor to reduce nesting, simplify control flow, break down large functions, and use descriptive variable and function names to improve readability.
+## Improvement Suggestions
+- **Simplify Inheritance:** Review the class hierarchy to ensure it is necessary and does not excessively rely on overriding methods.
+- **Use Composition:** Replace inheritance with composition where appropriate to reduce dependency on parent classes.
+- **Abstract Classes or Interfaces:** Reevaluate if the parent class or interface design can be simplified to reduce the need for overriding.
 
 ---
 
-### Summary
-- **Overall Assessment:** The code's cognitive complexity value of 98 is significantly higher than the acceptable range of 0 to 32. This suggests the code is overly complex and requires refactoring to improve readability and maintainability.
-
-
-### 2. Response For A Class (Chidamber-Kemerer Metrics Set):
-Value collected: 361, Reference: [0, 45[
+### 2. Number of Attributes (Lorenz-Kidd Metric Set)
 
 - **What It Means:**
-Response For A Class (RFC) measures the number of methods that can be executed in response to a message received by an object of that class. It includes all methods that can be invoked directly or indirectly as a result of a message.
+  The Number of Attributes (NOA) metric represents the count of attributes (fields or member variables) declared in a class.
+
+- Value collected: 11
+
+- Reference values (Regular): [0..4[
+
+- Extreme range: [15, +∞]
+
+- Average NOA in project: 16.8119
 
 - **What It Indicates:**
-Value 361: This value is significantly higher than the upper reference value of 45. This indicates that the class has a large number of methods that can be called, suggesting it is highly coupled and complex.
+  The **NOA** value of 11 for this class is below the project average and well within acceptable limits, indicating that this class is not overly attribute-heavy compared to others in the codebase. This suggests that it is likely more maintainable and adheres to good design principles.
 
 ---
 
 ### Observations
-- **Code Quality Issues:** The high RFC value suggests that the class may have too many responsibilities, making it difficult to understand and maintain.
+- **Code Quality Issues:**  A moderate **NOA** value suggests the class is reasonably well-structured and avoids excessive complexity.
+- **Maintainability:** The class is less likely to face issues like being overly complex, hard to test, or tightly coupled to specific functionalities.
 
-- **Improvement Suggestions:** Apply the Single Responsibility Principle to ensure each class has one responsibility, break down the class into smaller, more focused classes.
-
----
-
-### Summary
-- **Overall Assessment:** The Response For A Class value of 361 is significantly higher than the acceptable range of 0 to 45. This indicates the class is overly complex and highly coupled, making it difficult to maintain. Refactoring the class to reduce the number of methods and applying design principles can improve code quality.
-
+## Improvement Suggestions
+- **Monitor Growth:** Ensure that the attribute count does not increase significantly, as this could indicate a violation of the Single Responsibility Principle or lead to poor maintainability.
+- **Encapsulation:** Keep attributes private and provide access through methods to maintain abstraction and control over changes.
 
 Method Level 
 
-### 3. Condition Nesting Depth 
-Value: 1, Reference Value: [0, 2[
+### 3. Condition Nesting Depth
 
-- **What It Means:** Condition Nesting Depth measures the maximum depth of nested conditional statements (e.g., if-else, switch-case) in the code. It indicates how deeply nested the control flow is within the code.
+- **What It Means:** The Condition Nested Depth metric measures how many levels of nested conditional or loop statements exist in code. Higher depth indicates increased complexity, making the code harder to read, test, and maintain.
 
-- **What It Indicates:**  This value is within the acceptable range of 0 to 2. It indicates that the code has a shallow nesting depth, which is generally good for readability and maintainability.
+- **What It Indicates:** The Condition Nested Depth value of 1 for this section of code falls comfortably within the acceptable range of [0, 2[. This indicates that the nesting of conditional or loop statements is minimal, suggesting the code is simple and easy to follow.
+
+- Value collected: 1
+
+- Reference values (Regular): [0..2[
 
 ---
 
 ### Observations
-- **Code Quality Issues:** No significant issues related to condition nesting depth.
+- **Code Quality Issues:** The low Condition Nested Depth reflects well on the code’s maintainability and readability, minimizing risks associated with deep nesting, such as reduced clarity and increased debugging complexity.
 
-- **Improvement Suggestions:** Maintain the current level of nesting depth to ensure the code remains readable and maintainable.
-
----
-
-### Summary
-- **Overall Assessment:** The Condition Nesting Depth value of 1 falls within the acceptable range of 0 to 2. This suggests that the code has minimal nesting, which enhances readability and maintainability. No immediate changes are necessary.
+- **Improvement Suggestions:** While the current nesting depth is optimal, it’s important to maintain this simplicity as the code evolves. Monitor future changes to ensure new logic does not introduce excessive nesting.
