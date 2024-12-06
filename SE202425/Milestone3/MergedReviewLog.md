@@ -152,3 +152,223 @@ Author: Nicolas Nascimento 61905
 The generateStateMap() method has a Cyclomatic Complexity (CC) value of 12, which significantly exceeds both the regular acceptable range of 0 to 3 and the extreme threshold of 7. This high CC indicates that the method contains numerous decision points—such as conditional statements, loops, and switch cases—resulting in a large number of possible execution paths. Such complexity can make the method difficult to understand, test, and maintain, as it increases the effort required to cover all paths during testing and raises the likelihood of bugs. To enhance code quality, it is advisable to refactor generateStateMap() by breaking it down into smaller, more focused methods, each adhering to the Single Responsibility Principle. This will reduce cyclomatic complexity, improve readability, and simplify testing and maintenance efforts.
 
 ---------------
+
+
+# Review Doc Log
+## Author: Nicolas Nascimento
+
+---
+
+## Code Metrics Review Log
+
+### Date: 11/13/2024
+
+
+### Code Metrics analyzed: Cognitive Complexity
+### Author: Gustavo Chevrand
+
+- **Analysis Summary**: The updateServerCUI method in LocalSession.java has a Cognitive Complexity of 9, slightly exceeding the regular threshold of [0..8[ for methods. While the method is not as complex as others like makeSphere in EditSession.java (with a value of 68), it still requires readers to track nested conditions and logic blocks. This moderate complexity may lead to challenges in understanding and maintaining the method as the codebase grows.
+
+- **Suggestions**: The current complexity of updateServerCUI is manageable but could benefit from minor refactoring to enhance readability and maintainability. Consider: Simplifying logic by extracting parts of the conditional checks into smaller helper methods.
+  Adding comments to clarify the intent behind each condition block.
+  Reducing nesting by utilizing early returns where applicable to streamline the flow of the method.
+
+
+### Code Metrics analyzed: Condition Nesting Depth (CND)
+### Author: Lucas Tobias
+
+- **Analysis Summary**: The method factorial(double) in CompilingVisitor.java has a Condition Nesting Depth (CND) of 1, well within the acceptable range of [0..2]. This indicates that the method has minimal nesting, making it straightforward to understand and maintain. The low complexity of the method ensures that its logic is easy to follow, contributing to better readability and testability.
+
+- **Suggestions**: The method’s low CND reflects good design practices. No immediate changes are needed. However, it is recommended to maintain this simplicity as the method evolves, avoiding deep nesting or unnecessary complexity to ensure continued maintainability.
+
+### Code Metrics analyzed: NOM Calculation (Li-Henry Metrics Set) - Class Level
+### Author: Rodrigo Castro
+
+- **Analysis Summary**: The class analyzed has a NOM of 94, far exceeding the regular threshold of 7 and the extreme range of 25. This indicates that the class likely has too many responsibilities, leading to decreased readability and higher maintenance demands.
+
+- **Suggestions**: Refactor by distributing functionality across smaller, more cohesive classes. Applying the Single Responsibility Principle would reduce method count, simplify maintenance, and improve code modularity.
+
+---
+
+## Code Smells Review Log
+
+### Date: 11/10/2024
+
+### 1. Dead Code
+
+**Location:** Class AbstractPattern in the file
+worldedit-core/src/main/java/com/sk89q/worldedit/function/pattern/AbstractPattern.java, empty class
+
+**Identified by:** Pedro Amorim
+
+**Review:** Clearly the class AbstractPattern is a Dead Code. In this case, the code smell is about a whole class that's empty. Dead code is a code smell where portions of code are written but never used or executed in the program. Dead code makes the codebase harder to maintain, increases complexity, and may cause confusion for future developers. It’s best removed to improve clarity and performance.
+
+### 2. Code Duplication
+
+**Location:** worldedit-core/src/main/java/com/sk89q/worldedit/command/BrushCommands.java
+Line 660
+
+**Identified by:** Gustavo Chevrand
+
+**Review:** The identified portion of code is indeed a code duplication issue between the erode, dilate, and morph methods. Since erode and dilate only differ from morph in the parameters they pass to the MorphBrush class, duplicating their code leads to redundancy without additional functionality. The proposed solution to rewrite erode and dilate as calls to morph is effective. It reduces repetition, aligns with DRY principles, and makes the code easier to maintain. This approach maintains the unique behavior of each command while consolidating the core logic in one place, morph, which is cleaner and more sustainable in the long term
+
+### 3. Primitive Type Obsession
+
+
+**Identified by:** Rildo Franco
+
+**Review:** The observation of Primitive Type Obsession in the DynamicPluginCommand constructor and setPermissions method is spot-on. The use of String[] for permissions limits the expressiveness and flexibility of the code, making it harder to maintain and interpret. Replacing these primitive arrays with more descriptive collections, such as List<String>, or creating custom types specifically for permissions and aliases would encapsulate these elements more effectively. This change would improve readability, support future enhancements, and enable the addition of methods that can directly manage permissions or aliases without relying on separate utility functions like StringUtil.joinString(). Overall, adopting more expressive types would lead to a cleaner and more adaptable codebase in this context.
+
+---
+
+## Design Patterns Review Log
+
+
+## 1. Adapter
+
+## Author: Rildo Franco
+## Date: 11/07/2024
+
+
+
+### General Comments
+- The use of the Adapter pattern in PaperWeightServerLevelDelegateProxy and PaperWeightAdapter is appropriate, as it enables compatibility between WorldEdit and Minecraft’s internal structures by adapting types and data.
+
+
+
+### Specific Comments
+- **Adapter Implementation**: PaperWeightServerLevelDelegateProxy effectively serves as an Adapter, transforming EditSession calls into Minecraft-compatible methods. Its methods, like getBlockEntity, getBlockState, and setBlock, use PaperWeightAdapter to convert WorldEdit data into Minecraft-native structures.
+- **Complex Data Adaptation**: In fromNative within PaperWeightAdapter, complex Minecraft data types (e.g., CompoundTag, ByteTag) are efficiently adapted, which exemplifies the Adapter pattern’s role in handling diverse data types for compatibility.
+- **Error handling in setBlock**: Exception handling in setBlock is suitable but could improve with additional context. Alternatively, using a custom exception type could make adapter errors clearer.
+- **Coupling**: Though effective, a possible improvement could involve introducing an interface for PaperWeightAdapter to reduce coupling and facilitate future adaptations.
+
+### Conclusion
+- **Final Thoughts:** This review correctly identifies the Adapter pattern and its effective use in facilitating compatibility. Small adjustments to error handling and decoupling could enhance flexibility, but the implementation solidly demonstrates the Adapter pattern’s intended purpose.
+
+
+## 2. Prototype
+
+## Author: Pedro Amorim
+## Date: 11/07/2024
+
+
+
+### General Comments
+- The use of the Prototype pattern in EditSessionEvent is appropriate, especially in cases where similar event instances with minor variations are frequently required. The pattern is implemented clearly, with the clone method allowing for efficient duplication with customizable properties.
+
+
+
+### Specific Comments
+- **Efficient Cloning**: The clone(Stage stage) method enables the creation of a new EditSessionEvent instance while reusing existing properties, which can improve performance and reduce redundant object construction when only a slight variation (i.e., Stage) is needed.
+- **Simplification of Object Creation**: By allowing EditSessionEvent instances to be cloned with a modified Stage, the Prototype pattern simplifies the process of creating similar events without duplicating code, making the event handling more adaptable.
+- **Customizability**: The stage parameter in the clone method is a smart choice for flexibility, allowing variations in event stages without affecting other properties, which makes the EditSessionEvent class more modular and adaptable.
+
+### Conclusion
+- **Final Thoughts:** The Prototype pattern is effectively applied here, with the clone method providing a straightforward approach to creating event variations. This design is a good fit for scenarios needing frequent but minor adjustments, enhancing reusability and maintainability.
+
+## 3. Composite
+
+## Author: Rodrigo Castro
+## Date: 11/07/2024
+
+
+### General Comments
+- The Composite pattern is well-suited for MaskIntersection2D, as it allows multiple Mask2D objects to be grouped and managed as a single, cohesive entity. This design supports flexibility and simplifies complex mask operations by treating each mask uniformly.
+
+
+
+### Specific Comments
+- **Effective Composition**: The masks set efficiently holds multiple Mask2D instances, enabling MaskIntersection2D to iterate over each mask and apply the same test operation. This approach showcases the Composite pattern’s strength in unifying and simplifying the use of multiple objects.
+- **Clear Implementation of Composite Logic**: The test method correctly applies intersection logic by returning false if any mask’s test method fails. This implementation is clear and efficient, following Composite principles to aggregate results from individual Mask2D components.
+- **Potential for Extendability**: With the masks collection, additional Mask2D elements can be added easily, allowing for further customization and scalability of mask combinations, making the Composite design highly adaptable.
+
+### Conclusion
+- **Final Thoughts**: The Composite pattern is applied effectively in MaskIntersection2D, enabling a structured, cohesive way to handle multiple masks. This design approach promotes code simplicity and flexibility, aligning well with the requirements for complex 2D mask operations.
+
+---
+
+
+# Use Case Diagram Review Log
+## Date: 11/13/2024
+
+
+### Use Case: Ascend Levels
+### Author: Lucas Tobias
+
+### General Comments
+- **Clarity**: The use case is straightforward, and the description is concise. However, specifying more detail about the platform’s function or how it is defined could make the purpose of ascending more explicit for players and developers.
+- **Completeness**: The primary and secondary actors are appropriately listed, and the description aligns with the expected functionality.
+
+### Specific Comments
+- **Preconditions:** Adding a precondition about floor availability would clarify what happens when the player is on the highest level.
+- **Postconditions:** It would be beneficial to state that the player’s position is updated and saved at the new level.
+- **Alternative Flows:** Consider an alternative flow for when the target level is obstructed or inaccessible.
+
+
+### Conclusion
+- **Final Thoughts:** This use case is clear but could benefit from additional details in the preconditions and alternative flows to cover boundary scenarios.
+
+
+### Use Case: Descend Levels
+### Author: Lucas Tobias
+
+### General Comments
+- Clarity: The purpose of this use case is clear, though a brief explanation about how floors are structured in the environment would be useful.
+- Consistency: The flow aligns well with the corresponding “Ascend Levels” use case, maintaining consistent structure.
+
+### Specific Comments
+- Preconditions: Similar to “Ascend Levels,” a precondition about floor availability (i.e., not being on the lowest level) would add clarity.
+- Alternative Flows: Mentioning what happens if there is an obstacle on the destination floor could enhance the understanding of potential limitations.
+### Conclusion
+- **Final Thoughts:** This use case is easy to understand but could be improved by addressing scenarios for when the target floor is unavailable or obstructed.
+
+
+### Use Case: Copy region
+### Author: Gustavo Chevrand
+
+### General Comments
+
+- Clarity: The description is very clear, and the actions taken by the player and system are well-defined.
+-	Accuracy: The steps align with expected clipboard functionalities in similar applications, making it intuitive.
+
+### Specific Comments
+
+- 	Alternative Flows: Adding an alternative flow for what happens if there is already content in the clipboard could clarify clipboard overwrite behavior.
+-    Postconditions: Mentioning whether or not the copied content is retained after the player logs out might be helpful for long-term storage implications.
+
+### Conclusion
+- **Final Thoughts:** This use case is strong and comprehensive. Small clarifications on clipboard management could enhance it even further.
+
+
+### Use Case: Restore Snapshot
+### Author: Rildo Franco
+
+### General Comments
+
+- Clarity: The description provides a solid understanding of the restore process, making it clear what the expected outcome is.
+- Completeness: The use case is complete, covering both actors and actions in sufficient detail.
+
+### Specific Comments
+
+- 	Alternative Flows: Including an alternative flow in case of an unsuccessful restore (e.g., corrupted snapshot) would account for potential issues.
+-    Preconditions: A note on permissions required to access snapshots could be helpful for understanding restrictions.
+
+### Conclusion
+- **Final Thoughts:** This is a well-documented use case that could be even more robust with scenarios for errors during the restoration process.
+
+
+### Use Case: Create Hollow Cylinder (hcyl)
+### Author: Rodrigo Castro
+
+### General Comments
+
+- Clarity: The purpose and functionality of this use case are clear, especially for players familiar with similar construction tools.
+-    Precision: The parameters of radius and height are specified, making it straightforward for implementation.
+
+### Specific Comments
+
+- Preconditions: Including a precondition specifying if the player needs edit permissions for the area would be helpful.
+- Alternative Flows: An alternative flow for what happens if the area is obstructed (e.g., by other structures) could add depth.
+
+### Conclusion
+- **Final Thoughts:** This use case is well-documented, and a few additional conditions would make it even more comprehensive.
