@@ -2,53 +2,56 @@
 
 ## Author: Nicolas Nascimento
 
-## Class: BlockState
+## Class: Local Session
 
 ---
 
-## RFC Calculation (Chidamber-Kemerer Metrics Set) - Class Level:
-- Value collected: 152
-- Reference values (Regular): [0..45]
-- Extreme range: [80, +∞]
+## ATFD (Access To Foreign Data) - Class Level:
+- Value collected: 9
+- Reference values (Regular): The project median is 1, with the highest value being 36.
 
-- **What It Means:** Response For a Class (RFC) is a metric that measures the number of methods that can be executed in response to a message received by an object of this class. It accounts for methods within the class itself as well as any methods directly invoked.
 
-- **What It Indicates:** The RFC value of 152 is significantly above the upper reference limit of 45, which indicates high coupling and an extensive number of method interactions. This high RFC may point to multiple responsibilities within the class, making it more challenging to understand, test, and maintain.
+- **What It Means:** ATFD measures the number of times a class accesses data from other classes directly. A high ATFD value suggests strong coupling between classes and potential violations of encapsulation, as the class depends heavily on external data.
+
+
+
+- **What It Indicates:** An ATFD value of 9 is significantly above the median but not near the maximum for the project. This indicates that LocalSession relies more on accessing foreign data compared to the majority of classes. However, it's not in the range of extreme outliers. This might point to a role as a coordinator or a bridge in the system, but excessive reliance on foreign data could lead to maintenance challenges.
 
 ## Observations
 
-- **Code Quality Issues:** The high RFC value suggests this class may be overly complex, with excessive dependencies on other methods and classes, which can complicate testing and maintenance.
+- **Improvement Suggestions:** Consider refactoring the class to reduce its dependency on foreign data. This could include:
+  Encapsulating frequently accessed data into its own methods or classes.
+  Identifying opportunities to introduce interfaces or abstractions to decouple LocalSession from external dependencies.
+  Reviewing if some of the accessed data can be passed as parameters instead of being fetched directly.
 
-- **Improvement Suggestions:** Consider refactoring by delegating responsibilities to smaller, more focused classes. Applying the Single Responsibility Principle can help to reduce dependencies and improve code modularity.
 
 ---
 
-## NOM Calculation (Li-Henry Metrics Set) - Class Level:
-- Value collected: 87
-- Reference values (Regular): [0..7]
-- Extreme range: [25, +∞]
+## CBO (Coupling Between Object classes) - Class Level:
+- Value collected: 122
+- Reference values (Regular): The project median is 8.9, with the highest value being 267.
 
-- **What It Means:** Number of Methods (NOM) measures the total number of methods within a class, providing an overview of the class's functional size and potential complexity.
+- **What It Means:** CBO measures the degree to which a class is coupled to other classes. A high CBO indicates that the class has many dependencies, which can make it harder to modify and more prone to errors when its dependencies change.
 
-- **What It Indicates:** With a NOM of 87, `BlockState` surpasses the standard upper limit of 7 and even the extreme threshold of 25, suggesting it is overloaded with functionality. This large method count can indicate that the class is handling many responsibilities, leading to decreased readability and maintainability.
+- **What It Indicates:** A CBO value of 122 is significantly higher than the project median, showing that LocalSession is strongly coupled with many other classes. This likely stems from its role as a central point of coordination or management in the project, interacting with multiple subsystems. While such coupling is sometimes necessary for core classes, it raises concerns about maintainability and scalability.
 
 ## Observations
 
-- **Code Quality Issues:** A high number of methods implies that the class may be performing too many tasks, which can reduce clarity and increase the likelihood of errors during modification.
-
-- **Improvement Suggestions:** Consider breaking down the class into smaller, more cohesive components. Using modular design principles, such as the Single Responsibility Principle, can improve readability and maintainability by distributing functionality across smaller classes.
+- **Improvement Suggestions:** Investigate the dependencies to determine if they are all necessary or if some can be removed or consolidated.
+  Look for patterns such as God Class tendencies, which could indicate that LocalSession is taking on too many responsibilities.
+  Refactor parts of the class to delegate responsibilities to helper classes or modules, reducing direct coupling.
+  Introduce dependency injection or interfaces to manage dependencies in a more modular and testable way.
 
 ---
 
-## CC Calculation (McCabe Cyclomatic Complexity) - Method Level:
-Method: generateStateMap()
-- Value collected: 12
-- Reference values (Regular): [0..3]
-- Extreme range: [7, +∞]
+## Cyclomatic Complexity (CC) (McCabe Cyclomatic Complexity) - Method Level:
+Method: undo()
+- Value collected: 6
+- Reference values (Regular): Typical values range from 1 to 10. Values above 10 indicate potentially complex methods.
 
-- **What It Means:** Cyclomatic Complexity (CC) counts the decision points in a method, such as `if` statements, loops, and `switch` cases. Higher values indicate more paths through the code, which can increase difficulty in understanding, testing, and maintaining.
+- **What It Means:** Cyclomatic Complexity (CC) measures the number of independent paths through a method’s control flow. Each conditional structure (e.g., if, while, for, switch) contributes to the complexity. A higher CC suggests the method has more decision points, making it harder to read, understand, and test.
 
-- **What It Indicates:** The CC of 12 in the `generateStateMap` method exceeds both regular and extreme thresholds, showing that it contains numerous conditional branches, making it a highly complex method. This high complexity can make testing challenging as multiple paths must be accounted for.
+- **What It Indicates:** A CC value of 6 for the undo method is within acceptable limits but indicates moderate complexity. This means the method has several decision points, likely due to its logic for undoing edits, managing history pointers, and interacting with other components like EditSession and Actor. While manageable, this level of complexity could still pose challenges for new developers or when modifying the method.
 
 ## Observations
 
@@ -59,4 +62,4 @@ Method: generateStateMap()
 ---
 
 ### Summary
-- **Overall Assessment:** The `BlockState` class, with its high RFC, NOM, and individual method complexities, reflects a structure that could benefit greatly from refactoring. Dividing responsibilities among smaller, cohesive classes would improve maintainability, and simplifying control flow within complex methods would enhance readability and testability.
+- **Overall Assessment:** The metrics suggest that LocalSession plays a critical role in the project but at the cost of high coupling and reliance on foreign data. While these characteristics might be expected in a management or coordination class, they also present risks for long-term maintainability and flexibility. Addressing these issues through thoughtful refactoring and better encapsulation can help improve the class's robustness and adaptability.

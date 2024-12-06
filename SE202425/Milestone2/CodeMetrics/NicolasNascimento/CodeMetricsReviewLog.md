@@ -5,21 +5,23 @@
 
 ---
 
-### Code Metrics analyzed: Number of Parameters in Method
+### Code Metrics analyzed: Cognitive Complexity
 ### Author: Gustavo Chevrand
 
-- **Analysis Summary**: The method `fillXZ` has 5 parameters, which exceeds the typical range of [0..3) for maintainable design. This indicates a high level of complexity and increases the cognitive load for developers, as they must remember each parameter’s purpose and order. The numerous parameters could lead to potential usability issues and testing challenges.
+- **Analysis Summary**: The updateServerCUI method in LocalSession.java has a Cognitive Complexity of 9, slightly exceeding the regular threshold of [0..8[ for methods. While the method is not as complex as others like makeSphere in EditSession.java (with a value of 68), it still requires readers to track nested conditions and logic blocks. This moderate complexity may lead to challenges in understanding and maintaining the method as the codebase grows.
 
-- **Suggestions**: To improve maintainability, consider refactoring by grouping related parameters into objects or reducing the number of parameters where feasible. This would enhance readability and reduce the risk of parameter-related errors.
+- **Suggestions**: The current complexity of updateServerCUI is manageable but could benefit from minor refactoring to enhance readability and maintainability. Consider: Simplifying logic by extracting parts of the conditional checks into smaller helper methods.
+Adding comments to clarify the intent behind each condition block.
+Reducing nesting by utilizing early returns where applicable to streamline the flow of the method.
 
 ---
 
-### Code Metrics analyzed: Cognitive Complexity Calculation
+### Code Metrics analyzed: Condition Nesting Depth (CND)
 ### Author: Lucas Tobias
 
-- **Analysis Summary**: The method `createEntity` has a cognitive complexity of 4, well within the acceptable range of [0..8), indicating straightforward logic. The low complexity suggests the method is simple to understand and maintain, with minimal control flow intricacies.
+- **Analysis Summary**: The method factorial(double) in CompilingVisitor.java has a Condition Nesting Depth (CND) of 1, well within the acceptable range of [0..2]. This indicates that the method has minimal nesting, making it straightforward to understand and maintain. The low complexity of the method ensures that its logic is easy to follow, contributing to better readability and testability.
 
-- **Suggestions**: The method’s simplicity aligns well with its function. No immediate refactoring is necessary; however, maintaining this level of simplicity is advisable to ensure readability as the method evolves.
+- **Suggestions**: The method’s low CND reflects good design practices. No immediate changes are needed. However, it is recommended to maintain this simplicity as the method evolves, avoiding deep nesting or unnecessary complexity to ensure continued maintainability.
 
 ---
 
