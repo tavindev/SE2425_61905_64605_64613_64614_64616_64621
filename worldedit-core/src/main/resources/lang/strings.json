@@ -100,7 +100,7 @@
   "worldedit.restore.loaded": "Snapshot '{0}' loaded; now restoring...",
   "worldedit.restore.restored": "Restored; {0} missing chunks and {1} other errors.",
   "worldedit.restore.none-for-specific-world": "No snapshots were found for world '{0}'.",
-  "worldedit.restore.none-for-world": "No snapshots were found for this world.",tobias
+  "worldedit.restore.none-for-world": "No snapshots were found for this world.",
   "worldedit.restore.none-found": "No snapshots were found.",
   "worldedit.restore.none-found-console": "No snapshots were found. See console for details.",
   "worldedit.restore.chunk-not-present": "Chunks were not present in snapshot.",
