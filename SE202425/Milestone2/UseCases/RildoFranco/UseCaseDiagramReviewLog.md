@@ -74,21 +74,20 @@ Create Hollow Sphere (hsphere)
 ## Date: [11/13/2024]
 
 ---
-Save Region to Clipboard
+Resize Region
 
 ### General Comments
-- This use case outlines the "Save Region to Clipboard" functionality, where the player can save a selected region into an in-memory clipboard for later use or modification. The primary actor is the user (player), and there are no secondary actors.
+- This use case outlines the "Resize Region" functionality, where the player can change the size of a selected region into. The primary actor is the user (player), and there are no secondary actors.
 
 
 ---
 
 ### Specific Comments
-- **Clarity:** The description is clear and effectively conveys the purpose of saving a region to the clipboard.
+- **Clarity:** The description is clear and effectively conveys the purpose of resizing a region.
 - **Actors:** The primary actor is appropriately identified as the user (player). The lack of secondary actors is suitable for this scenario.
-- **Functionality:** The use case centers on the action of saving a selected region to an in-memory clipboard, which is well-defined.
 
 
 ---
 
 ### Conclusion
-- **Final Thoughts:**  The use case for "Save Region to Clipboard" is well-explained and clear. It accurately identifies the primary actor and succinctly describes the functionality. No additional feedback is needed at this time.
+- **Final Thoughts:**  The use case for "Resize Region" is well-explained and clear. It accurately identifies the primary actor and succinctly describes the functionality. No additional feedback is needed at this time.
