@@ -35,7 +35,6 @@ repositories {
 
 dependencies {
     "api"(project(":worldedit-core"))
-
     "implementation"(libs.neoforge)
 }
 

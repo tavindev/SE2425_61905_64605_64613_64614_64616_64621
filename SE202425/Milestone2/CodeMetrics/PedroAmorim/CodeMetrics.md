@@ -25,48 +25,48 @@
 
 ---
 
-### NOM Calculation (Li-Henry Metrics Set) - Class Level
+### WMC Calculation (Weighted Methods per Class)
 
-- **Value Collected:** 24
+- **Value Collected:** 41
     
-- **Reference Values (Regular):** [0..7]
+- **Reference Values (Regular):** [0..12]
     
 - **Extreme Range:** [25, +∞]
     
-- **Explanation:** Number of Methods (NOM) counts the total number of methods defined in a class, including both public and private methods. This provides insight into the class’s size and potential complexity.
+- **Explanation:** Weighted Methods per Class (WMC) measures the complexity of a class by summing the cyclomatic complexity of all its methods. Higher values indicate higher overall complexity within the class, which may suggest a higher likelihood of faults and maintenance difficulties.
     
-- **Interpretation:** A NOM value of 24 exceeds the typical upper limit of 7, indicating that the class has a high number of methods. This suggests that the class may be handling multiple responsibilities, which could make it harder to test and maintain.
+- **Interpretation:** A WMC value of 41 significantly exceeds the regular threshold of 12, suggesting that the class may be complex and potentially overloaded with functionality. High WMC values often imply that the class contains numerous branches and decision points, making it harder to understand, test, and maintain.
     
 
 #### Observations
 
-- **Code Quality Issues:** The high NOM value indicates that the class may be overloaded with functionality, reducing readability and increasing maintenance complexity.
-- **Improvement Suggestions:** Refactor the class to break down functionality into smaller, more focused classes. Following the Single Responsibility Principle and modular design practices can help distribute responsibilities and reduce method count.
+- **Code Quality Issues:** The high WMC value indicates that the class has complex functionality, which can reduce readability, complicate testing, and increase maintenance requirements.
+- **Improvement Suggestions:** Refactoring the class to break down complex methods and distribute functionality across smaller, cohesive classes can reduce the WMC value. Applying the Single Responsibility Principle and modular design can further help manage complexity.
 
 ---
 
-### CC Calculation (McCabe Cyclomatic Complexity) - Method Level
+### LOC Calculation (Lines of Code) - Method Level
 
 **Method:** `butcherBrush(Player player, LocalSession session)`
 
-- **Value Collected:** 3
+- **Value Collected:** 57
     
-- **Reference Values (Regular):** [0..3]
+- **Reference Values (Regular):** [0..11]
     
-- **Extreme Range:** [7, +∞]
+- **Extreme Range:** [25, +∞]
     
-- **Explanation:** Cyclomatic Complexity (CC) quantifies the complexity of a method by counting its decision points, such as conditional statements and loops. Higher values indicate a more complex control flow.
+- **Explanation:** Lines of Code (LOC) measures the length of a method, which is often correlated with complexity. Longer methods are typically harder to read, understand, and maintain. Excessive LOC may indicate that the method is handling too much logic.
     
-- **Interpretation:** With a CC value of 3, this method is within the typical range, suggesting that its logic is straightforward and manageable.
+- **Interpretation:** With a LOC value of 57, this method exceeds the typical threshold of 11 and is even beyond the extreme limit of 25. This indicates that the method may be too lengthy, potentially including several branches or responsibilities within a single function.
     
 
 #### Observations
 
-- **Code Quality Observations:** The method's complexity appears to be manageable, with minimal branching logic.
-- **Improvement Suggestions:** No immediate action required, but regularly reviewing for added complexity can help maintain readability.
+- **Code Quality Issues:** The high LOC value suggests that the `butcherBrush` method might be performing multiple tasks, which can make it challenging to test, debug, and maintain.
+- **Improvement Suggestions:** Consider refactoring the `butcherBrush` method to split its logic into smaller, more focused methods, each handling a distinct responsibility. This approach can improve readability and simplify the method’s control flow.
 
 ---
 
 ### Summary
 
-- **Overall Assessment:** These metrics (RFC, NOM, and CC) collectively depict a class that could benefit from some refactoring, especially concerning the number of methods. While the RFC and CC metrics are within acceptable ranges, the high NOM value indicates that the class may be overextended in responsibilities. Refactoring to distribute functionality across smaller, cohesive classes could improve readability, modularity, and maintainability.
+- **Overall Assessment:** These metrics (RFC, WMC, and LOC) together suggest that while the class’s response complexity (RFC) is within an acceptable range, its overall complexity (WMC) and the length of specific methods (LOC) are higher than recommended. Refactoring the class to reduce method size and complexity, particularly by dividing complex methods into smaller ones and distributing responsibilities across additional classes, would improve readability, modularity, and maintainability.
