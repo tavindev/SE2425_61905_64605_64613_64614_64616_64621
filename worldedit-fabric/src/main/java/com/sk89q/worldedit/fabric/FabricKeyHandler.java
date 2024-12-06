@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import org.lwjgl.glfw.GLFW;
 
 public class FabricKeyHandler implements ClientModInitializer {
@@ -46,16 +47,16 @@ public class FabricKeyHandler implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (openCommandListKey.isDown()) {
-                toggleScreen(client, WorldEditCommandScreen.class, () -> openCommandListScreen(client));
+                toggleScreen(client, new WorldEditCommandScreen());
             }
             if (openQuickMenuKey.isDown()) {
-                toggleScreen(client, WorldEditQuickMenu.class, () -> openQuickMenuScreen(client));
+                toggleScreen(client, new WorldEditQuickMenu());
             }
             if (openBrushToolKey.isDown()) {
-                toggleScreen(client, WorldEditBrushCommandScreen.class, () -> openBrushToolScreen(client));
+                toggleScreen(client, new WorldEditBrushCommandScreen());
             }
             if (openRebrushToolKey.isDown()) {
-                toggleScreen(client, WorldEditRebrushCommandScreen.class, () -> openRebrushToolScreen(client));
+                toggleScreen(client, new WorldEditRebrushCommandScreen());
             }
         });
     }
@@ -63,35 +64,13 @@ public class FabricKeyHandler implements ClientModInitializer {
     /**
      * Toggles a screen: opens it if it's not open, closes it if it's the current screen.
      */
-    private void toggleScreen(Minecraft client, Class<?> screenClass, Runnable openScreen) {
-        if (screenClass.isInstance(client.screen)) {
-            client.setScreen(null);
-        } else {
-            openScreen.run();
-        }
-    }
-
-    private void openCommandListScreen(Minecraft client) {
+    private void toggleScreen(Minecraft client, Screen screen) {
         if (client.player != null) {
-            client.setScreen(new WorldEditCommandScreen());
-        }
-    }
-
-    private void openQuickMenuScreen(Minecraft client) {
-        if (client.player != null) {
-            client.setScreen(new WorldEditQuickMenu());
-        }
-    }
-
-    private void openBrushToolScreen(Minecraft client) {
-        if (client.player != null) {
-            client.setScreen(new WorldEditBrushCommandScreen());
-        }
-    }
-
-    private void openRebrushToolScreen(Minecraft client) {
-        if (client.player != null) {
-            client.setScreen(new WorldEditRebrushCommandScreen());
+            if (client.screen != null && client.screen.getClass().equals(screen.getClass())) {
+                client.setScreen(null);
+            } else {
+                client.setScreen(screen);
+            }
         }
     }
 }
