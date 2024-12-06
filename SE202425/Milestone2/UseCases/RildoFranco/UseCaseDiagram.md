@@ -8,7 +8,7 @@
 ## Use Case 1: Restore Snapshot
 - **Description:** User restores the world to a specified snapshot, replacing the current state with the backup. This action undoes any changes made since the snapshot was saved.
 - **Primary Actor:** User (Player)
-- **Secondary Actor:** Server
+- **Secondary Actor:** None
 
 ## Use Case 2: Select Snapshot
 - **Description:** User selects a specific snapshot from the list for potential restoration or review, setting it as the active snapshot in the session.
@@ -32,4 +32,4 @@
 
 Diagram
 
-![alt text](UC.png)
+![alt text](UC.jpg)
