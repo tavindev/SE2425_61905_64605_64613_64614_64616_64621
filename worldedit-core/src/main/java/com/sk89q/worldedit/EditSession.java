@@ -20,7 +20,6 @@
 package com.sk89q.worldedit;
 
 import com.google.common.collect.ImmutableList;
-import com.sk89q.worldedit.command.tool.brush.SelectableStructure;
 import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.event.extent.EditSessionEvent;
@@ -81,8 +80,6 @@ import com.sk89q.worldedit.function.visitor.NonRisingVisitor;
 import com.sk89q.worldedit.function.visitor.RecursiveVisitor;
 import com.sk89q.worldedit.function.visitor.RegionVisitor;
 import com.sk89q.worldedit.history.UndoContext;
-import com.sk89q.worldedit.history.change.BlockChange;
-import com.sk89q.worldedit.history.change.Change;
 import com.sk89q.worldedit.history.changeset.BlockOptimizedHistory;
 import com.sk89q.worldedit.history.changeset.ChangeSet;
 import com.sk89q.worldedit.internal.expression.Expression;
@@ -214,8 +211,6 @@ public class EditSession implements Extent, AutoCloseable {
 
     private Mask oldMask;
 
-    private SelectableStructure selectableStructure;
-
 
     /**
      * Construct the object with a maximum number of blocks and a block bag.
@@ -302,20 +297,6 @@ public class EditSession implements Extent, AutoCloseable {
         }
 
         setReorderMode(this.reorderMode);
-    }
-
-
-    public void storeGeneratedStructure() {
-        this.selectableStructure = new SelectableStructure(this);
-    }
-
-
-    boolean selectStructure(Location clicked) {
-        if (this.selectableStructure == null) {
-            return false;
-        }
-
-        return this.selectableStructure.select(clicked);
     }
 
     private Extent traceIfNeeded(Extent input) {
@@ -1699,7 +1680,7 @@ public class EditSession implements Extent, AutoCloseable {
 
         return visitor.getAffected();
     }
-    
+
     /**
      * Makes a cone.
      *

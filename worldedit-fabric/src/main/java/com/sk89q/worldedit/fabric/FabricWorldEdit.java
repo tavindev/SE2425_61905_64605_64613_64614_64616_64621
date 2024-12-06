@@ -146,6 +146,7 @@ public class FabricWorldEdit implements ModInitializer {
         inst = this;
     }
 
+
     @Override
     public void onInitialize() {
         this.container = FabricLoader.getInstance().getModContainer("worldedit").orElseThrow(
@@ -165,6 +166,7 @@ public class FabricWorldEdit implements ModInitializer {
         debouncer = new InteractionDebouncer(platform);
 
         WorldEdit.getInstance().getPlatformManager().register(platform);
+
 
         config = new FabricConfiguration(this);
         this.provider = getInitialPermissionsProvider();
