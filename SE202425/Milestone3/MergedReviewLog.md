@@ -402,8 +402,8 @@ The factory method in PluginPermissionsResolver is a true Factory Method because
 ## Author: [Rildo Franco]
 ## 3. Observer
 The design aligns with the Observer Pattern as it uses an event-driven model where PlatformManager subscribes to events (i.e., listens for updates) through EventBus. It reacts to these events by taking specific actions, such as updating platform preferences and notifying other components.
-# Use Case Diagram Review Log
-## Reviewer: [Rodrigo Castro]
+## Use Case Diagram Review Log
+# Reviewer: [Rodrigo Castro]
 ## Use Case: Rotate Region
 ### Author: Gustavo Chevrand 64616
 - The Player is the primary actor, as they initiate the command to rotate the selected region, while Minecraft acts as the secondary actor, executing the rotation of the region within the game world.
@@ -431,8 +431,8 @@ The design aligns with the Observer Pattern as it uses an event-driven model whe
 - Evaluation: This use case is properly defined, with clear pre- and post-conditions to ensure the action completes as intended. The Player and Server roles are accurately represented.
 - Status: The use case is correct.
 
-# Code Metrics Review Log
-## Reviewer: [Rodrigo Castro]
+## Code Metrics Review Log
+# Reviewer: [Rodrigo Castro]
 ## Author: [Nicolas Nascimento]
 ## RFC Review:
 - The RFC for BlockState is 152, well above the recommended range, indicating strong coupling and high complexity. This makes the class harder to test and maintain. Refactoring could reduce dependencies and improve modularity.
