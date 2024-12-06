@@ -35,4 +35,4 @@ public class FabricKeyHandler implements ClientModInitializer {
         });
     }
 
-
+}
