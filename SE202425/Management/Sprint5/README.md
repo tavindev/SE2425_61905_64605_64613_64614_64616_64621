@@ -9,9 +9,11 @@ Lucas Tobias
 Scrum board
 
 
-![image](https://github.com/user-attachments/assets/8c4210f7-c67c-4ba7-a233-cc558ba7cd7f)
+
+![image](https://github.com/user-attachments/assets/3a2afab3-084c-41bc-8ed4-78bc21f78a0c)
 
 Burndown Chart
 
 
-![image](https://github.com/user-attachments/assets/8363da8b-8c08-4ede-b9c0-fc56916cde92)
+
+![image](https://github.com/user-attachments/assets/3322dbbb-1151-4d72-ab5f-548e34db249b)
