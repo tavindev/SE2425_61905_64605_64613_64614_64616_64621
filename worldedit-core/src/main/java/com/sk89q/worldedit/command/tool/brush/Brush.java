@@ -25,6 +25,8 @@ import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockTypes;
 
 /**
  * A brush is a long-range build tool.

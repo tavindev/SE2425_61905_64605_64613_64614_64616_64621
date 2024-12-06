@@ -51,6 +51,7 @@ import com.sk89q.worldedit.session.Placement;
 import com.sk89q.worldedit.session.PlacementType;
 import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.util.Countable;
+import com.sk89q.worldedit.util.HandSide;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.SideEffectSet;
 import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
@@ -130,6 +131,19 @@ public class LocalSession {
     private Boolean wandItemDefault;
     private String navWandItem;
     private Boolean navWandItemDefault;
+
+    // Preview features functionality
+    private BrushTool lastBrushTool;
+
+    public boolean selectStructure(Location clicked) {
+        for (EditSession editSession : history) {
+            if (editSession.selectStructure(clicked)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Construct the object.
@@ -1318,6 +1332,33 @@ public class LocalSession {
         this.failedCuiAttempts = 0;
     }
 
+    /**
+     * Render the preview of the tool in the player's hand if it is a brush tool.
+     *
+     * @param player the player
+     */
+    public void updateToolPreview(Player player) {
+        Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+        if (tool instanceof BrushTool brushTool) {
+            Location target = player.getBlockTrace(brushTool.getRange(), true, brushTool.getTraceMask());
+
+            brushTool.showPreview(player, target);
+            lastBrushTool = brushTool;
+        } else if (lastBrushTool != null) {
+            lastBrushTool.clearPreview();
+        }
+    }
+
+
+
+    public BrushTool getBrushTool(Player player) {
+        Tool tool = getTool(player.getItemInHand(HandSide.MAIN_HAND).getType());
+        if (tool instanceof BrushTool) {
+            return (BrushTool) tool;
+        }
+        return null;
+    }
+  
     public boolean rebrush(Actor actor, double scale) throws WorldEditException {
         boolean rebrushed = false;
 

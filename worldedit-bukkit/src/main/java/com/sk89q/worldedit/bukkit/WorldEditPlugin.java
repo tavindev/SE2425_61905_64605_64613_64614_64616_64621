@@ -30,6 +30,8 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.adapter.AdapterLoadException;
 import com.sk89q.worldedit.bukkit.adapter.BukkitImplAdapter;
 import com.sk89q.worldedit.bukkit.adapter.BukkitImplLoader;
+import com.sk89q.worldedit.command.tool.BrushTool;
+import com.sk89q.worldedit.command.tool.Tool;
 import com.sk89q.worldedit.event.platform.CommandEvent;
 import com.sk89q.worldedit.event.platform.CommandSuggestionEvent;
 import com.sk89q.worldedit.event.platform.PlatformReadyEvent;
@@ -45,6 +47,7 @@ import com.sk89q.worldedit.internal.anvil.ChunkDeleter;
 import com.sk89q.worldedit.internal.command.CommandUtil;
 import com.sk89q.worldedit.internal.util.LogManagerCompat;
 import com.sk89q.worldedit.registry.state.Property;
+import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.util.lifecycle.Lifecycled;
 import com.sk89q.worldedit.util.lifecycle.SimpleLifecycled;
 import com.sk89q.worldedit.world.World;
@@ -73,6 +76,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -122,6 +127,8 @@ public class WorldEditPlugin extends JavaPlugin implements TabCompleter {
     private BukkitServerInterface platform;
     private BukkitConfiguration config;
 
+    private WorldEdit worldEdit;
+
     @Override
     public void onLoad() {
         INSTANCE = this;
@@ -150,6 +157,9 @@ public class WorldEditPlugin extends JavaPlugin implements TabCompleter {
      */
     @Override
     public void onEnable() {
+
+        // Initialize WorldEdit
+        worldEdit = WorldEdit.getInstance();
 
         // Catch bad things being done by naughty plugins that include
         // WorldEdit's classes

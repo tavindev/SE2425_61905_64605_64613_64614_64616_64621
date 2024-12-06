@@ -19,10 +19,7 @@
 
 package com.sk89q.worldedit.command;
 
-import com.sk89q.worldedit.LocalConfiguration;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.command.argument.HeightConverter;
 import com.sk89q.worldedit.command.factory.FeatureGeneratorFactory;
 import com.sk89q.worldedit.command.factory.ReplaceFactory;

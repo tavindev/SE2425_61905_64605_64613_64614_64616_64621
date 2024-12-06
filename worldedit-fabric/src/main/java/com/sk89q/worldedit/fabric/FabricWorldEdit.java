@@ -22,6 +22,8 @@ package com.sk89q.worldedit.fabric;
 import com.mojang.brigadier.CommandDispatcher;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.command.tool.BrushTool;
+import com.sk89q.worldedit.command.tool.Tool;
 import com.sk89q.worldedit.command.util.PermissionCondition;
 import com.sk89q.worldedit.event.platform.PlatformReadyEvent;
 import com.sk89q.worldedit.event.platform.PlatformUnreadyEvent;
@@ -31,15 +33,19 @@ import com.sk89q.worldedit.extension.platform.Capability;
 import com.sk89q.worldedit.extension.platform.Platform;
 import com.sk89q.worldedit.extension.platform.PlatformManager;
 import com.sk89q.worldedit.fabric.net.handler.WECUIPacketHandler;
+import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.internal.anvil.ChunkDeleter;
 import com.sk89q.worldedit.internal.event.InteractionDebouncer;
 import com.sk89q.worldedit.internal.util.LogManagerCompat;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.Location;
+import com.sk89q.worldedit.util.formatting.text.TranslatableComponent;
 import com.sk89q.worldedit.util.lifecycle.Lifecycled;
 import com.sk89q.worldedit.util.lifecycle.SimpleLifecycled;
 import com.sk89q.worldedit.world.biome.BiomeCategory;
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.block.BlockCategory;
+import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.entity.EntityType;
 import com.sk89q.worldedit.world.generation.ConfiguredFeatureType;
@@ -77,9 +83,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.Logger;
 import org.enginehub.piston.Command;
 
@@ -87,10 +96,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -139,8 +146,11 @@ public class FabricWorldEdit implements ModInitializer {
     private FabricPlatform platform;
     private FabricConfiguration config;
     private Path workingDir;
+    private long lastTickUpdate = 0;
 
     private ModContainer container;
+
+    private final Map<UUID, Vec3> playerLookDirections = new HashMap<>();
 
     public FabricWorldEdit() {
         inst = this;
@@ -173,6 +183,38 @@ public class FabricWorldEdit implements ModInitializer {
 
         WECUIPacketHandler.init();
 
+        // Register the CUI plugin channel
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            long currentTime = System.currentTimeMillis();
+
+            if (currentTime - lastTickUpdate < 200) { // Throttle updates to 200ms
+                return;
+            }
+            lastTickUpdate = currentTime;
+
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                FabricPlayer wePlayer = FabricAdapter.adaptPlayer(player);
+                LocalSession session = WorldEdit.getInstance().getSessionManager().get(FabricAdapter.adaptPlayer(player));
+
+                ItemStack heldItem = player.getMainHandItem();
+                Tool tool = session.getTool(FabricAdapter.adapt(heldItem.getItem()));
+
+                if (tool instanceof BrushTool) {
+                    Vec3 currentLookDirection = getPlayerLook(player);
+
+                    UUID playerUUID = player.getUUID();
+
+                    playerLookDirections.put(playerUUID, currentLookDirection);
+
+                    clearBrushPreview(session, wePlayer);
+                    session.updateToolPreview(wePlayer);
+                } else {
+                    clearBrushPreview(session, wePlayer);
+                }
+            }
+        });
+
+
         ServerTickEvents.END_SERVER_TICK.register(ThreadSafeCache.getInstance());
         CommandRegistrationCallback.EVENT.register(this::registerCommands);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onStartingServer);
@@ -183,6 +225,36 @@ public class FabricWorldEdit implements ModInitializer {
         UseBlockCallback.EVENT.register(this::onRightClickBlock);
         UseItemCallback.EVENT.register(this::onRightClickAir);
         LOGGER.info("WorldEdit for Fabric (version " + getInternalVersion() + ") is loaded");
+    }
+
+    /**
+     * Get the direction the player is looking in.
+     *
+     * @param player the player
+     *
+     * @return the direction the player is looking in
+     */
+    public static Vec3 getPlayerLook(Player player) {
+        double pitch = Math.toRadians(player.getXRot());
+        double yaw = Math.toRadians(-player.getYRot());
+
+        double x = Math.cos(pitch) * Math.sin(yaw);
+        double y = Math.sin(pitch);
+        double z = Math.cos(pitch) * Math.cos(yaw);
+
+        return new Vec3(x, y, z);
+    }
+
+    /**
+     * Clear the brush preview for a player.
+     *
+     * @param player the player
+     */
+    private void clearBrushPreview(LocalSession session, FabricPlayer player) {
+        BrushTool brushTool = session.getBrushTool(player);
+        if (brushTool != null) {
+            brushTool.clearPreview();
+        }
     }
 
     private void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess, Commands.CommandSelection environment) {
