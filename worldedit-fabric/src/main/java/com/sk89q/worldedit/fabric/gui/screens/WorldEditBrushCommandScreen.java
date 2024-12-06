@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WorldEditBrushCommandScreen extends Screen {
-    private static final Component MODE_LABEL = Component.translatable("Create Brush Tool");
     private static final Component DEFAULT_OPTION = Component.translatable("Select Brush");
+    private static final Component MODE_LABEL = Component.translatable("Create Brush Tool");
     private static final ResourceLocation SLOT_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/crafter.png");
     private static final int SLOT_U = 7;
     private static final int SLOT_V = 83;

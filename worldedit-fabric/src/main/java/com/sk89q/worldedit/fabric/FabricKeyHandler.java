@@ -3,6 +3,7 @@ package com.sk89q.worldedit.fabric;
 import com.sk89q.worldedit.fabric.gui.screens.WorldEditBrushCommandScreen;
 import com.sk89q.worldedit.fabric.gui.screens.WorldEditCommandScreen;
 import com.sk89q.worldedit.fabric.gui.screens.WorldEditQuickMenu;
+import com.sk89q.worldedit.fabric.gui.screens.WorldEditRebrushCommandScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -15,6 +16,7 @@ public class FabricKeyHandler implements ClientModInitializer {
     private static KeyMapping openCommandListKey;
     private static KeyMapping openQuickMenuKey;
     private static KeyMapping openBrushToolKey;
+    private static KeyMapping openRebrushToolKey;
 
     @Override
     public void onInitializeClient() {
@@ -36,6 +38,12 @@ public class FabricKeyHandler implements ClientModInitializer {
                 "category.fabricworldedit.general"
         ));
 
+        openRebrushToolKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.fabricworldedit.open_rebrush_tool",
+                GLFW.GLFW_KEY_R,
+                "category.fabricworldedit.general"
+        ));
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (openCommandListKey.isDown()) {
                 toggleScreen(client, WorldEditCommandScreen.class, () -> openCommandListScreen(client));
@@ -45,6 +53,9 @@ public class FabricKeyHandler implements ClientModInitializer {
             }
             if (openBrushToolKey.isDown()) {
                 toggleScreen(client, WorldEditBrushCommandScreen.class, () -> openBrushToolScreen(client));
+            }
+            if (openRebrushToolKey.isDown()) {
+                toggleScreen(client, WorldEditRebrushCommandScreen.class, () -> openRebrushToolScreen(client));
             }
         });
     }
@@ -75,6 +86,12 @@ public class FabricKeyHandler implements ClientModInitializer {
     private void openBrushToolScreen(Minecraft client) {
         if (client.player != null) {
             client.setScreen(new WorldEditBrushCommandScreen());
+        }
+    }
+
+    private void openRebrushToolScreen(Minecraft client) {
+        if (client.player != null) {
+            client.setScreen(new WorldEditRebrushCommandScreen());
         }
     }
 }

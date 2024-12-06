@@ -83,16 +83,11 @@ public class WorldEditQuickMenu extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         int centerX = this.width - MENU_WIDTH - PADDING;
 
-        //guiGraphics.fill(centerX, 0, centerX + MENU_WIDTH, this.height, 0x60000000);
+        guiGraphics.fill(centerX, 0, centerX + MENU_WIDTH, this.height, 0x60000000);
 
         guiGraphics.drawCenteredString(this.font, TITLE.getString(), (centerX + MENU_WIDTH / 2) - 5, PADDING, 0xFFFFFF);
-        guiGraphics.drawCenteredString(this.font, TITLE.getString(), (centerX + MENU_WIDTH / 2) - 5, PADDING + 1, 0x000000);
-
         guiGraphics.drawString(this.font, "Shortcuts", centerX + PADDING, PADDING + 15, 0xFFFFFF);
-        guiGraphics.drawString(this.font, "Shortcuts", centerX + PADDING + 1, PADDING + 16, 0x000000);
-
         guiGraphics.drawString(this.font, "Recently Used", centerX + PADDING, (5 * PADDING) + (5 * BUTTON_HEIGHT), 0xFFFFFF);
-        guiGraphics.drawString(this.font, "Recently Used", centerX + PADDING + 1, (5 * PADDING) + (5 * BUTTON_HEIGHT) + 1, 0x000000);
 
         super.render(guiGraphics, mouseX, mouseY, delta);
     }
