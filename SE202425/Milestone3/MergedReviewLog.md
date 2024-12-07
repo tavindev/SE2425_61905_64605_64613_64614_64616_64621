@@ -621,5 +621,353 @@ Method: UpdateServerCUI(Actor actor)
 
 Cyclomatic complexity (CC) is a metric that evaluates the complexity of a method by counting the decision points present in it, such as conditional structures, loops and case statements. The method is rated highly, according to the range. This means that the code has more possible paths, which tends to make it more difficult to understand.
 
+---
+# Code Metrics Review Log
+
+## Reviewer: [Rildo Franco]
+## Author: [Lucas Tobias]
+## Date: [11/13/2024]
+
+---
+
+### General Comments
+- The Weighted Methods per Class (WMC) value for the class is 92, which is significantly higher than the acceptable range of 0 to 12. This indicates that the class is highly complex.
+
+---
+
+### Specific Comments
+- **Complexity:** The high WMC value suggests that the class has many methods or that the methods themselves are complex.
+- **Maintability:** A high WMC value can make the class difficult to understand, maintain, and test.
+- **Code Quality:** The elevated complexity may indicate issues such as code bloat or low cohesion within the class.
+Conclusion
+
+### Conclusion
+- **Final Thoughts:** The FabricWorld class has a WMC value of 92, which is well above the acceptable range. This suggests that the class is overly complex and may benefit from refactoring to improve readability, maintainability, and cohesion.
+
+----
+
+## Author: [Rodrigo Castro]
+## Date: [11/13/2024]
+
+---
+
+### General Comments
+- The Number Of Methods (NOM) value for the class is 94, which is significantly higher than the acceptable range of 0 to 7. This indicates that the class is highly overloaded with methods.
+
+---
+
+### Specific Comments
+- **Complexity:** The high NOM value suggests that the class has a large number of methods, making it complex and potentially difficult to understand.
+- **Maintability:**  A high NOM value can make the class challenging to maintain and test, as it may be handling too many responsibilities.
+- **Code Quality:**  The elevated number of methods may indicate that the class is not adhering to the Single Responsibility Principle, leading to reduced readability and increased maintenance costs.
+
+### Conclusion
+- **Final Thoughts:** The class has a NOM value of 94, which is well above the acceptable range. This suggests that the class is overly complex and may benefit from refactoring to distribute functionality across smaller, more cohesive classes. Applying design principles such as Single Responsibility and modular design can improve maintainability and clarity.
+
+----
+
+## Author: [Gustavo Chevrand]
+## Date: [11/13/2024]
+
+---
+
+### General Comments
+- The Condition Nesting Depth for the method redo(EditSession editSession) is 0, which is within the acceptable range of 0 to 2. This indicates that the method has no nested control structures.
+
+---
+
+### Specific Comments
+- **Complexity:** The absence of nested control structures suggests that the method is straightforward and easy to follow.
+- **Maintability:** A nesting depth of 0 enhances the maintainability of the code, as it is simpler to understand and modify.
+- **Code Quality:** The low nesting depth indicates that the method is well-structured and adheres to good coding practices.
+
+### Conclusion
+- **Final Thoughts:** The redo(EditSession editSession) method has a Condition Nesting Depth of 0, which is within the acceptable range. This indicates that the method is simple and easy to understand, contributing positively to the overall readability and maintainability of the code. No immediate changes are necessary.
+
+----
+
+# Code Smells Review Log
+
+## Reviewer: [Rildo Franco]
+## Author: [Gustavo Chevrand]
+## Date: [11/10/2024]
+
+---
+
+### General Comments
+- The code smells report provides a detailed identification of potential issues in the `actPrimary` method in `AreaPickaxe.java`. Specifically, the report recognizes the "Long Parameter List" code smell, which may decrease code readability and maintainability by making the method harder to understand at a glance.
+
+### Specific Comments
+- **Long Parameter List:** The `actPrimary` method currently accepts six parameters, which is on the higher side and can make the method challenging to work with. The solution proposes removing the `face` parameter since it is unused, which is a good start for reducing the parameter count.
+
+- **Consistency Check:** Once the `face` parameter is removed, check for other methods or places where `actPrimary` is called to ensure consistency across the codebase.
+
+### Conclusion
+- **Final Thoughts:** The proposed solution addresses the immediate issue by removing the unused `face` parameter, which simplifies the parameter list. Future considerations could include further refactoring to encapsulate related parameters into objects where logical. Overall, addressing this code smell will likely improve the code’s readability and maintainability.
+
+---
+
+## Reviewer: [Rildo Franco]
+## Author: [Pedro Amorim]
+## Date: [11/10/2024]
+
+---
+
+### General Comments
+- The code smells report effectively identifies the "Large Class" issue in the `PaperweightDataConverters` class. This code smell occurs when a class has grown too big and is trying to handle too many responsibilities. This can make the code harder to read, understand, and maintain.
+
+### Specific Comments
+- **Large Class:** The `PaperweightDataConverters` class currently handles multiple types of data conversions, which violates the Single Responsibility Principle (SRP). This makes the class harder to maintain and test.
+- **Refactoring Suggestion:** To address this issue, we can consider breaking down the `PaperweightDataConverters` class into smaller, more focused classes. Each new class should handle a specific type of data conversion. This will improve the code's readability, maintainability, and testability.
+
+
+### Conclusion
+- **Final Thoughts:** Refactoring the PaperweightDataConverters class to reduce its size and focus on single responsibilities will improve the code's readability, maintainability, and testability. By breaking down the class into smaller, more focused classes, you can make the code more modular and easier to work with.
+
+---
+
+## Reviewer: [Rildo Franco]
+## Author: [Pedro Amorim]
+## Date: [11/10/2024]
+
+### General Comments
+- The code smells report effectively identifies the "Message Chain" issue in the `getGroups` method within the `SpongePlayer` class. This code smell occurs when a method calls a series of methods on different objects, creating a long chain of method calls. This can make the code harder to read, understand, and maintain.
+
+### Specific Comments
+- **Message Chain:** The `getGroups` method currently calls `SpongeWorldEdit.inst().getPermissionsProvider().getGroups(this.player)`, which is a classic example of a message chain. This tightly couples the `SpongePlayer` class to the `SpongeWorldEdit` singleton and the `PermissionsProvider`, making the code less flexible and harder to test.
+- **Refactoring Suggestion:** To address this issue, we can consider introduce a method in the `SpongeWorldEdit` class that directly returns the groups for a player. This will reduce the message chain and make the code more readable and maintainable.
+
+### Conclusion
+- **Final Thoughts:** Refactoring the `getGroups` method to reduce the message chain will improve the code's readability, maintainability, and testability. By introducing a method in the `SpongeWorldEdit` class that directly returns the groups for a player, you can decouple the `SpongePlayer` class from the `PermissionsProvider` and make the code more modular.
+
+---
+# Design Patterns Review Log
+
+## Reviewer: [Rildo Franco]
+## Author: [Gustavo Chevrand]
+## Date: [11/06/2024]
+
+---
+
+### General Comments
+The Composite pattern is effectively applied in `RegionIntersection`, allowing a collection of `Region` objects to be managed uniformly. This structure simplifies handling individual and composite regions with clarity and flexibility.
+
+---
+
+### Specific Comments
+- **Composite Structure**: `RegionIntersection` implements the `Region` interface and holds a list of `Region` objects, which fits well with the Composite pattern’s purpose of treating individual and composite elements uniformly.
+- **getMinimumPoint Method**: The method iterates through each region and compares their minimum points, clearly and correctly aggregating results. The implementation is straightforward and understandable.
+- **Clarity and Efficiency**: The code is clear and efficient for a moderate number of regions, but performance may be impacted as the dataset grows.
+
+---
+
+### Conclusion
+- **Final Thoughts**: The Composite pattern is well-implemented, ensuring both clarity and flexibility. For larger datasets, performance and scalability should be considered, with potential optimizations to maintain efficiency.
+
+
+## Reviewer: [Rildo Franco]
+## Author: [Rodrigo Castro]
+## Date: [11/08/2024]
+
+---
+
+### General Comments
+The Command pattern is effectively adapted in `HistoryCommands`, `LocalSession`, and `EditSession`, allowing for a streamlined approach to managing undo and redo operations. This design centralizes history manipulation and enhances memory efficiency by using `EditSession` objects as command units.
+
+---
+
+### Specific Comments
+- **Command Structure**: `HistoryCommands` acts as the command invoker, providing user-facing commands for undoing, redoing, and clearing history. It delegates execution to `LocalSession`, which manages the command history.
+- **Undo Method**: The `undo` method in `HistoryCommands` iterates through the history of `EditSession` instances, performing the undo operations. This method is clear and effectively aggregates results.
+- **Clarity and Efficiency**: The code is clear and efficient, avoiding the creation of individual command classes for each action. This adaptation of the Command Pattern streamlines memory usage while maintaining complex undo/redo capabilities.
+- **Permission Handling**: The `undo` method includes permission checks for undoing other players' operations, ensuring that only authorized actors can perform such actions.
+
+---
+
+### Conclusion
+- **Final Thoughts**: The Command pattern is well-adapted, ensuring both clarity and efficiency. The use of `EditSession` objects as command units simplifies the design and enhances memory efficiency. For larger datasets, performance and scalability should be considered, with potential optimizations to maintain efficiency. The inclusion of permission and error handling further strengthens the robustness of the implementation.
+
+
+## Reviewer: [Rildo Franco]
+## Author: [Nicolas Nascimento]
+## Date: [11/11/2024]
+
+---
+
+### General Comments
+The builder pattern is well-implemented in this class, effectively showcasing its purpose by progressively configuring an asynchronous command object. The design is clean, and the code adheres to good software engineering principles. The use of nullable fields ensures flexibility while still maintaining strong type safety where necessary. The integration of multiple patterns (Command, Chain of Responsibility, and State) is a good choice to enhance system modularity and flexibility.
+
+---
+
+### Specific Comments
+- **Code Structure**: Code Structure: The class is easy to follow, and the method names are descriptive. However, consider adding more inline comments for clarity, especially regarding the purpose of certain nullable fields like `exceptionConverter` and `failureMessage`.
+
+- **Build Method**: The `buildAndExec` method is a key point of the class and is implemented well. The way it integrates the asynchronous execution with potential future progress listeners and task monitoring is impressive. However, you might want to add more exception handling or logging in this method to deal with potential issues in real-world applications.
+
+- **Fluent Interface**: The builder pattern's fluent interface is properly used, allowing for readable and clear method chaining. The configuration options are neatly divided into logically grouped setter methods.
+
+### Conclusion
+- **Final Thoughts**: This implementation demonstrates the Builder pattern’s power in a complex, real-world scenario. The code is well-organized and provides clear points for extension. However, we can consider adding more explicit documentation and possibly refining the error handling and logging aspects to make the system more resilient.
+
+---
+
+# Use Case Diagram Review Log
+
+## Reviewer: [Rildo Franco]
+## Author: [Gustavo Chevrand]
+## Date: [11/13/2024]
+
+---
+Flip Region
+
+### General Comments
+- The use case describes the "Flip region" functionality, which involves flipping the clipboard based on the player's facing direction and positioning. The primary actor is the player, and there are no secondary actors.
+
+---
+
+### Specific Comments
+- **Clarity:** The description is clear and concise, effectively conveying the purpose of the use case.
+- **Actors:** The identification of the primary actor as the player is appropriate. The absence of secondary actors is noted and seems reasonable for this use case.
+- **Functionality:** The use case focuses on a specific action (flipping the clipboard) and its dependency on the player's orientation, which is well-defined.
+
+
+---
+
+### Conclusion
+- **Final Thoughts:** The use case diagram for "Flip region" is well-defined and clear. It accurately identifies the primary actor and describes the functionality in a concise manner. No additional feedback is necessary at this time.
+
+## Author: [Lucas Tobias]
+## Date: [11/13/2024]
+
+---
+Teleport to Targeted Block
+
+### General Comments
+- The use case outlines the "Teleport to Targeted Block" functionality, where the player is moved to the location of the target block. The primary actor is the user (player), with no secondary actors involved.
+
+---
+
+### Specific Comments
+- **Clarity:** The description is straightforward and effectively communicates the purpose of the use case.
+- **Actors:** The primary actor is correctly identified as the player. The lack of secondary actors is appropriate for this scenario.
+- **Functionality:** The use case centers on a specific action (teleportation) and its direct impact on the player, which is clearly defined.
+
+
+---
+
+### Conclusion
+- **Final Thoughts:** The use case diagram for "Teleport to Targeted Block" is clear and well-defined. It accurately identifies the primary actor and describes the functionality concisely. No additional feedback is necessary at this time.
+
+
+## Author: [Rodrigo Castro]
+## Date: [11/13/2024]
+
+---
+Create Hollow Sphere (hsphere)
+
+### General Comments
+- This use case details the "Create Hollow Sphere (hsphere)" functionality, where a hollow sphere is generated around the player's feet with specified radii in the x, y, and z directions. The primary actor is the player, and there are no secondary actor
+
+---
+
+### Specific Comments
+- **Clarity:** The description is clear and effectively communicates the purpose and functionality of creating a hollow sphere.
+- **Actors:** The primary actor is appropriately identified as the player. The absence of secondary actors is suitable for this use case.
+- **Functionality:** The use case focuses on the action of generating a hollow sphere around the player, with specific radii parameters, which is well-defined.
+
+
+---
+
+### Conclusion
+- **Final Thoughts:** The use case for "Create Hollow Sphere (hsphere)" is well-articulated and clear. It correctly identifies the primary actor and describes the functionality in a concise manner. No further feedback is required at this time.
+
+
+
+## Author: [Nicolas Nascimento]
+## Date: [11/13/2024]
+
+---
+Save Region to Clipboard
+
+### General Comments
+- This use case outlines the "Save Region to Clipboard" functionality, where the player can save a selected region into an in-memory clipboard for later use or modification. The primary actor is the user (player), and there are no secondary actors.
+
+
+---
+
+### Specific Comments
+- **Clarity:** The description is clear and effectively conveys the purpose of saving a region to the clipboard.
+- **Actors:** The primary actor is appropriately identified as the user (player). The lack of secondary actors is suitable for this scenario.
+- **Functionality:** The use case centers on the action of saving a selected region to an in-memory clipboard, which is well-defined.
+
+
+---
+
+### Conclusion
+- **Final Thoughts:**  The use case for "Save Region to Clipboard" is well-explained and clear. It accurately identifies the primary actor and succinctly describes the functionality. No additional feedback is needed at this time.
+
+---
+# Code Metrics Review Log
+
+## Reviewer: [Rildo Franco]
+## Author: [Lucas Tobias]
+## Date: [11/13/2024]
+
+---
+
+### General Comments
+- The Weighted Methods per Class (WMC) value for the class is 92, which is significantly higher than the acceptable range of 0 to 12. This indicates that the class is highly complex.
+
+---
+
+### Specific Comments
+- **Complexity:** The high WMC value suggests that the class has many methods or that the methods themselves are complex.
+- **Maintability:** A high WMC value can make the class difficult to understand, maintain, and test.
+- **Code Quality:** The elevated complexity may indicate issues such as code bloat or low cohesion within the class.
+Conclusion
+
+### Conclusion
+- **Final Thoughts:** The FabricWorld class has a WMC value of 92, which is well above the acceptable range. This suggests that the class is overly complex and may benefit from refactoring to improve readability, maintainability, and cohesion.
+
+----
+
+## Author: [Rodrigo Castro]
+## Date: [11/13/2024]
+
+---
+
+### General Comments
+- The Number Of Methods (NOM) value for the class is 94, which is significantly higher than the acceptable range of 0 to 7. This indicates that the class is highly overloaded with methods.
+
+---
+
+### Specific Comments
+- **Complexity:** The high NOM value suggests that the class has a large number of methods, making it complex and potentially difficult to understand.
+- **Maintability:**  A high NOM value can make the class challenging to maintain and test, as it may be handling too many responsibilities.
+- **Code Quality:**  The elevated number of methods may indicate that the class is not adhering to the Single Responsibility Principle, leading to reduced readability and increased maintenance costs.
+
+### Conclusion
+- **Final Thoughts:** The class has a NOM value of 94, which is well above the acceptable range. This suggests that the class is overly complex and may benefit from refactoring to distribute functionality across smaller, more cohesive classes. Applying design principles such as Single Responsibility and modular design can improve maintainability and clarity.
+
+----
+
+## Author: [Gustavo Chevrand]
+## Date: [11/13/2024]
+
+---
+
+### General Comments
+- The Condition Nesting Depth for the method redo(EditSession editSession) is 0, which is within the acceptable range of 0 to 2. This indicates that the method has no nested control structures.
+
+---
+
+### Specific Comments
+- **Complexity:** The absence of nested control structures suggests that the method is straightforward and easy to follow.
+- **Maintability:** A nesting depth of 0 enhances the maintainability of the code, as it is simpler to understand and modify.
+- **Code Quality:** The low nesting depth indicates that the method is well-structured and adheres to good coding practices.
+
+### Conclusion
+- **Final Thoughts:** The redo(EditSession editSession) method has a Condition Nesting Depth of 0, which is within the acceptable range. This indicates that the method is simple and easy to understand, contributing positively to the overall readability and maintainability of the code. No immediate changes are necessary.
+
 
 
