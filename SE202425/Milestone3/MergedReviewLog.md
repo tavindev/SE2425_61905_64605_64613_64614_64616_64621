@@ -449,3 +449,178 @@ Line 660
 
 ### Conclusion
 - **Final Thoughts:** This use case is well-documented, and a few additional conditions would make it even more comprehensive.
+
+----
+#Reviews Lucas Tobias 64613
+
+**CODE SMELLS**
+### Author: Rildo Franco
+Code Smell: Data Clumps
+
+#### Location: Methods parameters in worldedit-bukkit/src/main/java/com/sk89q/bukkit/util/DynamicPluginCommand.java
+
+Data Clumps happen when different parts of the code contain identical groups of variables, which is what happens with the methods of the `bPermissionsResolver` class, where it repeats data in its parameters, specifically `OfflinePlayer player` and `String player`, as well as (String name, String permission).
+These clumps should be turned into their own classes.
+
+
+
+---
+
+### Author: Rodrigo Castro
+Code Smell: Duplicate Code
+
+#### Location: lines 852 - 869 worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java
+If you check the Code Smell Duplicate Code in the implementation of `undo` and `redo`, which are the same. One way to “remove” these code smells is to create an auxiliary method to do this function and call it in undo and redo to do whatever is necessary.
+
+
+---
+### Author: Nicolas Nascimento
+Code Smell: Shotgun Surgery
+
+#### Location: Constructor of EditSession in file: worldedit-core/src/main/java/com/sk89q/worldedit/EditSession.java
+
+A single change will require changes to multiple classes that depend on EditSession
+Use Move Method and Move Field to move existing class behaviors into a single class. If there’s no class appropriate for this, create a new one.
+
+**DESIGN PATTERNS**
+# Design Patterns Review Log
+
+---
+
+## 1. Template Method
+
+### Reviewer: Lucas Tobias
+
+### Author: Gustavo Chevrand
+
+
+
+---
+
+### General Comments
+- It defines the steps of an algorithm in general, deferring the implementation of some steps to subclasses.
+
+---
+
+### Specific Comments
+- The getAsset method has two abstract methods as subclasses, getAllowedExtensions and loadAssetFromPath. Each subclass provides its own behavior to determine the allowed file extensions and load assets from a path.
+
+
+### Conclusion
+- **Final Thoughts:** Template Method is correct because the AssetLoader abstract class defines a method that relates to the general algorithm, which defers the implementation of some steps to the subclasses.
+
+---
+
+## 2. Factory Method
+
+
+### Author: Nicolas Nascimento
+
+
+---
+
+### General Comments
+- Factory Method is a creative design pattern that provides an interface for creating objects in a superclass, but allows subclasses to change the type of objects that will be created.
+
+- We can replace one concrete product class with another with no impact on the client's code.
+
+---
+
+### Specific Comments
+- Use of the register method which will create new PatternParser objects such as ClipboardPatternParser, TypeOrStateApplyingPatternParser, RandomStatePatternParser, BlockCategoryPatternParser. This does not impact the rest of the code, regardless of the object.
+
+### Conclusion
+- **Final Thoughts:** Design Pattern factory method is correct because the register can create different objects, which hide the creation of instances of a certain type. Where the code doesn't depend on concrete classes.
+
+
+---
+
+## 3. Adapter
+
+
+### Author: Pedro Amorim
+
+
+---
+
+### General Comments
+- It facilitates communication between two existing systems by providing a compatible interface.
+
+---
+
+### Specific Comments
+- JSON data is supplied as an array and the adapter converts it to the Vector3 object. object that will be used in the program. Without the adapter it wouldn't be possible.
+
+### Conclusion
+- **Final Thoughts:** The Adapter pattern is correctly applied because it allows the JSON data to be converted into a Vector3 object, which is used in the program. Without the adapter, this conversion would not be possible.
+
+
+**USE CASES**
+
+---
+
+### Use Case: Create Pyramid
+### Author: Rodrigo Castro
+
+The primary actor is correct because he is the one who performs the action of creating the pyramid, the server is the secondary actor because he will perform the action. Correct description.
+
+---
+
+### Use Case: List Snapshot
+### Author: Rildo Franco
+
+The main actor (Player) is correct, he is the one who requests the action of listing the snapshots, Correct use case.
+
+---
+
+### Use Case: Find Snapshot after date
+### Author: Rildo Franco
+
+The main actor (Player) is correct, he is the one who requests the action of finding the snapshot after the date, Correct description.
+
+---
+
+### Use Case: Remove Region
+### Author: Nicolas Nascimento
+
+The main actor (Player) is requests, he is the one who performs the action of removing the region, and Minecraft serves as a secondary actor, as he is the one who removes the region, correct description.
+
+---
+
+### Use Case: Cut Region
+### Author: Gustavo Chevrand
+
+The main actor (Player) is correct, it is he who requests the action of cutting the region, and Minecraft serves as a secondary actor, since it is he who removes the blocks from the region and stores them on an imaginary clipboard. The server does the cutting.
+
+
+
+**CODE METRICS**
+
+---
+
+### Author: Gustavo Chevrand
+### Code Metrics analyzed: Weighted Methods per Class
+Class: EditSession.java
+Value: 397, reference: [0, 12)
+With a very high value, compared to the regular value. The EditSession class is very complex in terms of code and understanding.
+
+---
+### Author: Rildo Franco
+### Code Metrics analyzed: Condition Nesting Depth
+Class: PaperWeight.java
+
+Value: 1. Reference Value: [0, 2[
+
+The code has a low nesting depth, which makes it easier to understand and maintain.
+
+---
+### Author: Rodrigo Castro
+### Code Metrics analyzed: CC Calculation (McCabe Cyclomatic Complexity) - Method Level Value: 10, Regular: [0..3]
+Class: LocalSession.java
+
+Method: UpdateServerCUI(Actor actor)
+
+Cyclomatic complexity (CC) is a metric that evaluates the complexity of a method by counting the decision points present in it, such as conditional structures, loops and case statements. The method is rated highly, according to the range. This means that the code has more possible paths, which tends to make it more difficult to understand.
+
+
+
