@@ -8,7 +8,7 @@
 
 Author: Rodrigo Castro 64621
 
-The player is the primary actor because they issue the command, while the server is the secondary actor because it performs operations on the world, such as placing blocks. The use case is correct.
+The player is the primary actor because they issue the command, and there is no secondary actor. The use case is correct.
 
 ### 2. Select Snapshot 
 
@@ -20,20 +20,19 @@ The player is the primary actor because they issue the command. There is no seco
 
 Author: Lucas Tobias 64613
 
-The player is the primary actor because they issue the command, while the server is the secondary actor because it changes the player's position on the world. The use case is correct.
+The player is the primary actor because they issue the command, and there is no secondary actor. The use case is correct.
 
 ### 4. Save Region to Clipboard
 
 Author: Nicolas Nascimento 61905
 
-The player is the primary actor because they issue the command. There is no secondary actor, since the server for example, doesn't do anythin. The use case is correct.
+The player is the primary actor because they issue the command. There is no secondary actor, since the server for example, doesn't do anything. The use case diagram picture displays the server as the secondary actor, which is wrong.
 
 ### 5. Apply heightmap
 
 Author: Pedro Amorim 64614
 
-The player is the primary actor because they issue the command, while the server is the secondary actor because it modifies the world terrain. The use case is correct.
-
+The player is the primary actor because they issue the command, and there is no secondary actor. The use case diagram picture displays the server as the secondary actor, which is wrong.
 
 ## Design Patterns
 
